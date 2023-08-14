@@ -388,7 +388,7 @@ function getRandomSafeSpot(earthBlock) {
       }
       for(var i = 2; i < 6; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock))
+        if(!isSolid(players[playerId].x + (direction.x * i) + direction.y, players[playerId].y + (direction.y * i) + direction.x, earthBlock))
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) + direction.y, 
@@ -401,7 +401,7 @@ function getRandomSafeSpot(earthBlock) {
       }
       for(var i = 2; i < 6; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock))
+        if(!isSolid(players[playerId].x + (direction.x * i) - direction.y, players[playerId].y + (direction.y * i) - direction.x, earthBlock))
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) - direction.y, 
@@ -414,7 +414,7 @@ function getRandomSafeSpot(earthBlock) {
       }
       for(var i = 4; i < 5; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock))
+        if(!isSolid(players[playerId].x + (direction.x * i) + direction.y * 2, players[playerId].y + (direction.y * i) + direction.x * 2, earthBlock))
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) + direction.y * 2, 
@@ -427,7 +427,7 @@ function getRandomSafeSpot(earthBlock) {
       }
       for(var i = 4; i < 5; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock))
+        if(!isSolid(players[playerId].x + (direction.x * i) - direction.y * 2, players[playerId].y + (direction.y * i) - direction.x * 2, earthBlock))
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) - direction.y * 2, 
