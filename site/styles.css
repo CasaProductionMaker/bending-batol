@@ -285,14 +285,33 @@ button {
   from { transform: translateY(0) }
   to { transform: translateY(0.5px) }
 }
+
+/* Fire */
+
+.Fire_sprite {
+	background: url(images/fire.png) no-repeat no-repeat;
+	animation: fireFloat 0.8s linear infinite alternate-reverse;
+}
+
+@keyframes fireFloat {
+  from { transform: translateY(0) }
+  to { transform: translateY(0.5px) }
+}
+
 /* Air Vaccum */
 
 .AirVaccum_sprite {
 	background: url(images/air-vaccum.png) no-repeat no-repeat;
-	animation: AirVaccumFloat 0.8s linear infinite alternate-reverse;
+	animation: airVaccumFloat 0.8s linear infinite alternate-reverse;
 }
 
 @keyframes airVaccumFloat {
   from { transform: translateY(0) }
-  to { transform: translateY(0.1px) }
+  to { transform: translateY(3px) }
+}
+
+/* Earth Block */
+
+.EarthBlock_sprite {
+	background: url(images/earth-block.png) no-repeat no-repeat;
 }

@@ -31,6 +31,9 @@ let mouseTile = { x: undefined, y: undefined};
 let myBending;
 let attackWater = null;
 let attackAirVaccum = null;
+let EarthBlockId = 0;
+let fireRowId = 0;
+let direction = null;
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 
@@ -94,9 +97,13 @@ function createName() {
 function getCurrentMapData() {
   return mapData;
 }
-function isSolid(x, y) {
+function isSolid(x, y, earthBlock) {
   const mapData = getCurrentMapData();
-  const blockedNextSpace = mapData.blockedSpaces[getKeyString(x, y)];
+  let blockedNextSpace = mapData.blockedSpaces[getKeyString(x, y)];
+  Object.keys(earthBlock).forEach((key) => {
+    const block = earthBlock[key];
+    if(block.x == x && block.y == y) blockedNextSpace = true;
+  })
   return (
     blockedNextSpace || 
     x >= mapData.maxX || 
@@ -105,10 +112,10 @@ function isSolid(x, y) {
     y < mapData.minY
   )
 }
-function getRandomSafeSpot() {
+function getRandomSafeSpot(earthBlock) {
   let x = Math.floor(Math.random() * 13);
   let y = Math.floor(Math.random() * 11);
-  while(isSolid(x, y))
+  while(isSolid(x, y, earthBlock))
   {
     x = Math.floor(Math.random() * 13);
     y = Math.floor(Math.random() * 11);
@@ -126,6 +133,10 @@ function getRandomSafeSpot() {
   let airVaccumElements = {};
   let water = {};
   let waterElements = {};
+  let fire = {};
+  let fireElements = {};
+  let earthBlock = {};
+  let earthBlockElements = {};
   let isButton = false;
   let chatMsg = 0;
 
@@ -149,7 +160,7 @@ function getRandomSafeSpot() {
         respawnButton.addEventListener("click", () => {
           isButton = false;
           respawnContainer.querySelector(".respawnButton").remove();
-          const {x, y} = getRandomSafeSpot();
+          const {x, y} = getRandomSafeSpot(earthBlock);
           playerRef.update({
             isDead: false, 
             health: 5, 
@@ -210,7 +221,7 @@ function getRandomSafeSpot() {
         {
           myAttackIdx = 16;
           playerToAttackRef = firebase.database().ref("players/" + playerToAttack);
-          var damage = 1;
+          var damage = randomFromArray([0, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
           playerToAttackRef.update({
             health: players[playerToAttack].health - damage
           })
@@ -244,6 +255,17 @@ function getRandomSafeSpot() {
         }
       }
     }
+    Object.keys(fire).forEach((key) => {
+      const theFire = fire[key];
+      if(theFire.x == players[playerId].x && theFire.y == players[playerId].y)
+      {
+        me = firebase.database().ref("players/" + playerId);
+        var damage = randomFromArray([0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        me.update({
+          health: players[playerId].health - damage
+        })
+      }
+    })
 
     //repeat
     setTimeout(() => {
@@ -298,7 +320,7 @@ function getRandomSafeSpot() {
     const newY = players[playerId].y + yChange;
     const oldX = players[playerId].x;
     const oldY = players[playerId].y;
-    if (!isSolid(newX, newY) && !players[playerId].isDead) {
+    if (!isSolid(newX, newY, earthBlock) && !players[playerId].isDead) {
       //move to the next space
       players[playerId].x = newX;
       players[playerId].y = newY;
@@ -310,6 +332,10 @@ function getRandomSafeSpot() {
       }
       playerRef.set(players[playerId]);
     }
+    direction = {x: xChange, y: yChange};
+    setTimeout(() => {
+      direction = null;
+    }, 300);
   }
   function handleAttack() {
     if(myWater > 0 && myBending == "Water")
@@ -317,7 +343,7 @@ function getRandomSafeSpot() {
       //Attack
       attackWater = {x: players[playerId].x, y: players[playerId].y};
       myAttackIdx = 0;
-      const waterRef = firebase.database().ref(`water/${playerId}`).remove;
+      const waterRef = firebase.database().ref(`water/${playerId}`);
       waterRef.set({
         x: attackWater.x, 
         y: attackWater.y, 
@@ -343,7 +369,75 @@ function getRandomSafeSpot() {
       //Attack
       myAttackIdx = 16;
       attackAirVaccum = null;
-      firebase.database().ref(`air-vaccum/${playerId}`).remove;
+      firebase.database().ref(`air-vaccum/${playerId}`).remove();
+    }
+    if(myBending == "Fire" && direction != null)
+    {
+      for(var i = 1; i < 6; i++) {
+        const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
+        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock))
+        {
+          fireRef.set({
+            x: players[playerId].x + (direction.x * i), 
+            y: players[playerId].y + (direction.y * i), 
+            useable: false, 
+            id: playerId + fireRowId
+          })
+          fireRowId++;
+        }
+      }
+      for(var i = 2; i < 6; i++) {
+        const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
+        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock))
+        {
+          fireRef.set({
+            x: players[playerId].x + (direction.x * i) + direction.y, 
+            y: players[playerId].y + (direction.y * i) + direction.x, 
+            useable: false, 
+            id: playerId + fireRowId
+          })
+          fireRowId++;
+        }
+      }
+      for(var i = 2; i < 6; i++) {
+        const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
+        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock))
+        {
+          fireRef.set({
+            x: players[playerId].x + (direction.x * i) - direction.y, 
+            y: players[playerId].y + (direction.y * i) - direction.x, 
+            useable: false, 
+            id: playerId + fireRowId
+          })
+          fireRowId++;
+        }
+      }
+      for(var i = 4; i < 5; i++) {
+        const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
+        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock))
+        {
+          fireRef.set({
+            x: players[playerId].x + (direction.x * i) + direction.y * 2, 
+            y: players[playerId].y + (direction.y * i) + direction.x * 2, 
+            useable: false, 
+            id: playerId + fireRowId
+          })
+          fireRowId++;
+        }
+      }
+      for(var i = 4; i < 5; i++) {
+        const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
+        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock))
+        {
+          fireRef.set({
+            x: players[playerId].x + (direction.x * i) - direction.y * 2, 
+            y: players[playerId].y + (direction.y * i) - direction.x * 2, 
+            useable: false, 
+            id: playerId + fireRowId
+          })
+          fireRowId++;
+        }
+      }
     }
   }
 
@@ -362,6 +456,8 @@ function getRandomSafeSpot() {
     const allPlayersRef = firebase.database().ref(`players`);
     const allWaterRef = firebase.database().ref(`water`);
     const allAirVaccumRef = firebase.database().ref(`air-vaccum`);
+    const allEarthBlockRef = firebase.database().ref(`earth-block`);
+    const allFireRef = firebase.database().ref(`fire`);
 
     allPlayersRef.on("value", (snapshot) => {
       //change
@@ -462,6 +558,48 @@ function getRandomSafeSpot() {
       delete waterElements[keyToRemove];
     })
 
+    allFireRef.on("value", (snapshot) => {
+      fire = snapshot.val() || {};
+      Object.keys(fire).forEach((key) => {
+        const fireState = fire[key];
+        let el = fireElements[fireState.id];
+        const left = 16 * fireState.x + "px";
+        const top = 16 * fireState.y + "px";
+        el.style.transform = `translate3d(${left}, ${top}, 0)`;
+      })
+    });
+    allFireRef.on("child_added", (snapshot) => {
+      const fire = snapshot.val();
+      const key = fire.id;
+      fire[key] = true;
+
+      // Create the DOM Element
+      const fireElement = document.createElement("div");
+      fireElement.classList.add("Fire", "grid-cell");
+      fireElement.innerHTML = `
+        <div class="Fire_sprite grid-cell"></div>
+      `;
+
+      // Position the Element
+      const left = 16 * fire.x + "px";
+      const top = 16 * fire.y + "px";
+      fireElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+
+      // Keep a reference for removal later and add to DOM
+      fireElements[key] = fireElement;
+      gameContainer.appendChild(fireElement);
+
+      setTimeout(() => {
+        firebase.database().ref(`fire/${fire.id}`).remove();
+      }, 2000);
+    })
+    allFireRef.on("child_removed", (snapshot) => {
+      const {id} = snapshot.val();
+      const keyToRemove = id;
+      gameContainer.removeChild(fireElements[keyToRemove]);
+      delete fireElements[keyToRemove];
+    })
+
     allAirVaccumRef.on("value", (snapshot) => {
       airVaccum = snapshot.val() || {};
       Object.keys(airVaccum).forEach((key) => {
@@ -498,6 +636,51 @@ function getRandomSafeSpot() {
       const keyToRemove = id;
       gameContainer.removeChild(airVaccumElements[keyToRemove]);
       delete airVaccumElements[keyToRemove];
+    })
+
+    allEarthBlockRef.on("value", (snapshot) => {
+      earthBlock = snapshot.val() || {};
+      //Object.keys(earthBlock).forEach((key) => {
+        //const earthBlockState = earthBlock[key];
+        //let el = earthBlockElements[earthBlockState.id];
+        //const left = 16 * earthBlockState.x + "px";
+        //const top = 16 * earthBlockState.y + "px";
+        //el.style.transform = `translate3d(${left}, ${top}, 0)`;
+      //})
+    });
+    allEarthBlockRef.on("child_added", (snapshot) => {
+      const earthBlock = snapshot.val();
+      const key = earthBlock.id;
+      earthBlock[key] = true;
+
+      // Create the DOM Element
+      const earthBlockElement = document.createElement("div");
+      earthBlockElement.classList.add("EarthBlock", "grid-cell");
+      earthBlockElement.innerHTML = `
+        <div class="EarthBlock_sprite grid-cell" id="EarthBlock"></div>
+      `;
+
+      // Position the Element
+      const left = 16 * earthBlock.x + "px";
+      const top = 16 * earthBlock.y + "px";
+      earthBlockElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+
+      earthBlockElement.querySelector(".EarthBlock_sprite").addEventListener("click", () => {
+        if(distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: earthBlock.x, y: earthBlock.y}) <= 3 && myBending == "Earth")
+        {
+          firebase.database().ref(`earth-block/${earthBlock.id}`).remove();
+        }
+      })
+
+      // Keep a reference for removal later and add to DOM
+      earthBlockElements[key] = earthBlockElement;
+      gameContainer.appendChild(earthBlockElement);
+    })
+    allEarthBlockRef.on("child_removed", (snapshot) => {
+      const {id} = snapshot.val();
+      const keyToRemove = id;
+      gameContainer.removeChild(earthBlockElements[keyToRemove]);
+      delete earthBlockElements[keyToRemove];
     })
 
     playerNameInput.addEventListener("change", (e) => {
@@ -558,10 +741,40 @@ function getRandomSafeSpot() {
       if(mouseTile.x < 1) mouseTile.x = 1;
       if(mouseTile.y < 3) mouseTile.y = 3;
     });
-    document.onclick = function() {
+    document.onclick = function(event) {
+      if(event === undefined) event = window.event;
+      var target = "target" in event ? event.target : event.srcElement;
       if(myBending == "Air")
       {
         myAir = 1;
+      }
+      if(myBending == "Earth" && target.id != "EarthBlock" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 3)
+      {
+        const earthBlockRef = firebase.database().ref(`earth-block/${playerId + EarthBlockId}`);
+        earthBlockRef.set({
+          x: mouseTile.x, 
+          y: mouseTile.y, 
+          useable: true, 
+          id: playerId + EarthBlockId
+        })
+        let Attack;
+        Object.keys(players).forEach((key) => {
+          const characterState = players[key];
+          if(characterState.x === mouseTile.x && characterState.y === mouseTile.y)
+          {
+            Attack = key;
+          }
+        })
+        if(Attack != null && !players[playerId].isDead && !players[Attack].isDead)
+        {
+          myAttackIdx = 16;
+          playerToAttackRef = firebase.database().ref("players/" + Attack);
+          var damage = 1;
+          playerToAttackRef.update({
+            health: players[Attack].health - damage
+          })
+        }
+        EarthBlockId++;
       }
     };
 
@@ -580,7 +793,7 @@ function getRandomSafeSpot() {
       const name = createName();
       playerNameInput.value = name;
 
-      const {x, y} = getRandomSafeSpot();
+      const {x, y} = getRandomSafeSpot(earthBlock);
 
 
       playerRef.set({
