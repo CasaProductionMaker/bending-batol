@@ -483,6 +483,7 @@ function getRandomSafeSpot(earthBlock) {
     }
     if(myBending == "Fire" && direction != null && myMoveId == 0)
     {
+      let blocked = false;
       for(var i = 1; i < 6; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
         if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock))
@@ -494,11 +495,18 @@ function getRandomSafeSpot(earthBlock) {
             id: playerId + fireRowId
           })
           fireRowId++;
+        } else {
+          if(i < 2)
+          {
+            blocked = true;
+          }
+          break;
         }
       }
+      let sblocked = false;
       for(var i = 2; i < 6; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i) + direction.y, players[playerId].y + (direction.y * i) + direction.x, earthBlock))
+        if(!isSolid(players[playerId].x + (direction.x * i) + direction.y, players[playerId].y + (direction.y * i) + direction.x, earthBlock) && !blocked)
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) + direction.y, 
@@ -507,11 +515,17 @@ function getRandomSafeSpot(earthBlock) {
             id: playerId + fireRowId
           })
           fireRowId++;
+        } else {
+          if(i < 4)
+          {
+            sblocked = true;
+          }
+          break;
         }
       }
       for(var i = 2; i < 6; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i) - direction.y, players[playerId].y + (direction.y * i) - direction.x, earthBlock))
+        if(!isSolid(players[playerId].x + (direction.x * i) - direction.y, players[playerId].y + (direction.y * i) - direction.x, earthBlock) && !blocked)
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) - direction.y, 
@@ -520,11 +534,17 @@ function getRandomSafeSpot(earthBlock) {
             id: playerId + fireRowId
           })
           fireRowId++;
+        } else {
+          if(i < 4)
+          {
+            sblocked = true;
+          }
+          break;
         }
       }
       for(var i = 4; i < 5; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i) + direction.y * 2, players[playerId].y + (direction.y * i) + direction.x * 2, earthBlock))
+        if(!isSolid(players[playerId].x + (direction.x * i) + direction.y * 2, players[playerId].y + (direction.y * i) + direction.x * 2, earthBlock) && !sblocked)
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) + direction.y * 2, 
@@ -533,11 +553,13 @@ function getRandomSafeSpot(earthBlock) {
             id: playerId + fireRowId
           })
           fireRowId++;
+        } else {
+          break;
         }
       }
       for(var i = 4; i < 5; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i) - direction.y * 2, players[playerId].y + (direction.y * i) - direction.x * 2, earthBlock))
+        if(!isSolid(players[playerId].x + (direction.x * i) - direction.y * 2, players[playerId].y + (direction.y * i) - direction.x * 2, earthBlock) && !sblocked)
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) - direction.y * 2, 
@@ -546,6 +568,8 @@ function getRandomSafeSpot(earthBlock) {
             id: playerId + fireRowId
           })
           fireRowId++;
+        } else {
+          break;
         }
       }
     }
