@@ -279,6 +279,7 @@ button {
 .Water_sprite {
 	background: url(images/water.png) no-repeat no-repeat;
 	animation: waterFloat 0.8s linear infinite alternate-reverse;
+	transition: transform 0.2s;
 }
 
 @keyframes waterFloat {
@@ -303,9 +304,23 @@ button {
 .AirVaccum_sprite {
 	background: url(images/air-vaccum.png) no-repeat no-repeat;
 	animation: airVaccumFloat 0.8s linear infinite alternate-reverse;
+	transition: transform 0.2s;
 }
 
 @keyframes airVaccumFloat {
+  from { transform: translateY(0) }
+  to { transform: translateY(3px) }
+}
+
+/* Wind */
+
+.Wind_sprite {
+	background: url(images/wind.png) no-repeat no-repeat;
+	animation: windFloat 0.8s linear infinite alternate-reverse;
+	transition: transform 0.2s;
+}
+
+@keyframes windFloat {
   from { transform: translateY(0) }
   to { transform: translateY(3px) }
 }
