@@ -25,18 +25,28 @@ const mapData = {
 let myWater = 0;
 let myAir = 0;
 let myAttackIdx = 16;
-let mousePos = { x: undefined, y: undefined};
-let screenDim = { x: undefined, y: undefined};
-let mouseTile = { x: undefined, y: undefined};
+let mousePos = {x: undefined, y: undefined};
+let screenDim = {x: undefined, y: undefined};
+let mouseTile = {x: undefined, y: undefined};
 let myBending;
 let attackWater = null;
 let attackAirVaccum = null;
 let EarthBlockId = 0;
+let FireId = 0;
 let EarthBlockCount = 0;
 let fireRowId = 0;
 let windId = 0;
 let direction = null;
 let myMoveId = 0;
+let cooldown = 0;
+let playerTorrent = [];
+let playerAirShield = [];
+let torrentPos = [{x: 2, y: 0}, {x: 2, y: 1}, {x: 1, y: 2}, {x: 0, y: 2}, {x: -1, y: 2}, {x: -2, y: 1}, {x: -2, y: 0}, {x: -2, y: -1}, {x: -1, y: -2}, {x: 0, y: -2}, {x: 1, y: -2}, {x: 2, y: -1}];
+let shotTorrent = false;
+let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water"];
+let EarthMoves = ["Earth Pillar", "Earth Wall", "Raise Land"];
+let AirMoves = ["Suffocate", "Wind", "Air Shield"];
+let FireMoves = ["Blaze", "Incinerate", "Wall of Fire"];
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 
@@ -115,6 +125,28 @@ function isSolid(x, y, earthBlock) {
     y < mapData.minY
   )
 }
+function isWater(x, y, waterD) {
+  const mapData = getCurrentMapData();
+  let wetNextSpace = false;
+  Object.keys(waterD).forEach((key) => {
+    const block = waterD[key];
+    if(block.x == x && block.y == y) wetNextSpace = true;
+  })
+  return (
+    wetNextSpace
+  )
+}
+function isAir(x, y, airD) {
+  const mapData = getCurrentMapData();
+  let dryNextSpace = false;
+  Object.keys(airD).forEach((key) => {
+    const block = airD[key];
+    if(block.x == x && block.y == y) dryNextSpace = true;
+  })
+  return (
+    dryNextSpace
+  )
+}
 function getRandomSafeSpot(earthBlock) {
   let x = Math.floor(Math.random() * 13);
   let y = Math.floor(Math.random() * 11);
@@ -149,10 +181,11 @@ function getRandomSafeSpot(earthBlock) {
   const respawnContainer = document.querySelector(".respawn-container");
   const playerNameInput = document.querySelector("#player-name");
   const playerColorButton = document.querySelector("#player-color");
-  const moveSwitch = document.querySelector("#move-switch");
   const chatSend = document.querySelector("#send-chat");
   const chatInput = document.querySelector("#chat-input");
   const chatDisplay = document.querySelector("#chat-display");
+  const currentMove = document.querySelector("#current-move");
+  const coolDown = document.querySelector("#cool-down");
 
   function oneSecondLoop() {
     if(players[playerId] != null) {
@@ -178,6 +211,12 @@ function getRandomSafeSpot(earthBlock) {
         isButton = true;
       }
     }
+    cooldown--;
+    if(cooldown < 0)
+    {
+      cooldown = 0;
+    }
+    coolDown.innerText = "Cooldown: " + cooldown;
 
     //repeat
     setTimeout(() => {
@@ -187,9 +226,9 @@ function getRandomSafeSpot(earthBlock) {
   function fourthSecondLoop() {
     if(myBending == "Water")
     {
-      const key = playerId;
-      if(myAttackIdx < 16)
+      if(myAttackIdx < 16 && myMoveId == 0)
       {
+        const key = playerId;
         if(mouseTile.x > attackWater.x)
         {
           attackWater.x += 1;
@@ -206,7 +245,6 @@ function getRandomSafeSpot(earthBlock) {
         {
           attackWater.y -= 1;
         }
-        //console.log(attackWater);
         const waterRef = firebase.database().ref(`water/${key}`);
         waterRef.update({
           x: attackWater.x, 
@@ -223,6 +261,13 @@ function getRandomSafeSpot(earthBlock) {
             playerToAttack = key;
           }
         })
+        Object.keys(fire).forEach((key) => {
+          const fireToPutOut = fire[key];
+          if(fireToPutOut.x === attackWater.x && fireToPutOut.y === attackWater.y)
+          {
+            firebase.database().ref(`fire/${key}`).remove();
+          }
+        })
         if(playerToAttack != null && !players[playerId].isDead && !players[playerToAttack].isDead)
         {
           myAttackIdx = 16;
@@ -236,6 +281,120 @@ function getRandomSafeSpot(earthBlock) {
         {
           firebase.database().ref(`water/${key}`).remove();
           myWater = 0;
+          cooldown = 3;
+          coolDown.innerText = "Cooldown: " + cooldown;
+        }
+      }
+      if(myAttackIdx < 16 && myMoveId == 1 && shotTorrent)
+      {
+        const key = playerId;
+        if(mouseTile.x > attackWater.x)
+        {
+          attackWater.x += 1;
+        }
+        if(mouseTile.x < attackWater.x)
+        {
+          attackWater.x -= 1;
+        }
+        if(mouseTile.y > attackWater.y)
+        {
+          attackWater.y += 1;
+        }
+        if(mouseTile.y < attackWater.y)
+        {
+          attackWater.y -= 1;
+        }
+        const waterRef = firebase.database().ref(`water/${key}`);
+        waterRef.update({
+          x: attackWater.x, 
+          y: attackWater.y, 
+          useable: false, 
+          id: playerId
+        })
+        myAttackIdx++;
+        let playerToAttack;
+        Object.keys(players).forEach((key) => {
+          const characterState = players[key];
+          if(characterState.x === attackWater.x && characterState.y === attackWater.y)
+          {
+            playerToAttack = key;
+          }
+        })
+        Object.keys(fire).forEach((key) => {
+          const fireToPutOut = fire[key];
+          if(fireToPutOut.x === attackWater.x && fireToPutOut.y === attackWater.y)
+          {
+            firebase.database().ref(`fire/${key}`).remove();
+          }
+        })
+        if(playerToAttack != null && !players[playerId].isDead && !players[playerToAttack].isDead)
+        {
+          myAttackIdx = 16;
+          playerToAttackRef = firebase.database().ref("players/" + playerToAttack);
+          var damage = randomFromArray([0, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+          playerToAttackRef.update({
+            health: players[playerToAttack].health - damage
+          })
+        }
+        if(myAttackIdx == 16)
+        {
+          firebase.database().ref(`water/${key}`).remove();
+          myWater = 0;
+          shotTorrent = false;
+          cooldown = 4;
+          coolDown.innerText = "Cooldown: " + cooldown;
+        }
+      }
+      if(myAttackIdx < 16 && myMoveId == 1 && !shotTorrent)
+      {
+        for(let i in playerTorrent)
+        {
+          playerTorrent[i].x = players[playerId].x + torrentPos[playerTorrent[i].i].x;
+          playerTorrent[i].y = players[playerId].y + torrentPos[playerTorrent[i].i].y;
+          playerTorrent[i].i++;
+          if(playerTorrent[i].i > 11)
+          {
+            playerTorrent[i].i = 0;
+          }
+          const waterRef = firebase.database().ref(`water/${playerId+i}`);
+          waterRef.update({
+            x: playerTorrent[i].x, 
+            y: playerTorrent[i].y
+          })
+          let playerToAttack;
+          Object.keys(players).forEach((key) => {
+            const characterState = players[key];
+            if(characterState.x === playerTorrent[i].x && characterState.y === playerTorrent[i].y)
+            {
+              playerToAttack = key;
+            }
+          })
+          Object.keys(fire).forEach((key) => {
+            const fireToPutOut = fire[key];
+            if(fireToPutOut.x === playerTorrent[i].x && fireToPutOut.y === playerTorrent[i].y)
+            {
+              firebase.database().ref(`fire/${key}`).remove();
+            }
+          })
+          if(playerToAttack != null && !players[playerId].isDead && !players[playerToAttack].isDead)
+          {
+            playerToAttackRef = firebase.database().ref("players/" + playerToAttack);
+            var damage = randomFromArray([0, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+            let lastX = players[playerToAttack].x;
+            let lastY = players[playerToAttack].y;
+            playerToAttackRef.update({
+              x: players[playerToAttack].x + (players[playerToAttack].x > players[playerId].x ? 1 : -1), 
+              y: players[playerToAttack].y + (players[playerToAttack].y > players[playerId].y ? 1 : -1), 
+              health: players[playerToAttack].health - damage
+            })
+            if(isSolid(players[playerToAttack].x, players[playerToAttack].y, earthBlock))
+            {
+              playerToAttackRef.update({
+                x: lastX, 
+                y: lastY
+              })
+            }
+          }
         }
       }
     }
@@ -260,29 +419,17 @@ function getRandomSafeSpot(earthBlock) {
           })
         }
       }
-      if(myMoveId == 1)
       {
         Object.keys(wind).forEach((key) => {
           const theWind = wind[key];
           const windRef = firebase.database().ref(`wind/${key}`);
-          windRef.update({
-            x: theWind.x + theWind.direction.x, 
-            y: theWind.y + theWind.direction.y
-          })
-          Object.keys(players).forEach((key) => {
-            const thePlayer = players[key];
-            const thisPlayerRef = firebase.database().ref(`players/${key}`);
-            if(theWind.x === thePlayer.x && theWind.y === thePlayer.y)
-            {
-              if(!isSolid(thePlayer.x + theWind.direction.x, thePlayer.y + theWind.direction.y, earthBlock))
-              {
-                thisPlayerRef.update({
-                  x: thePlayer.x + theWind.direction.x, 
-                  y: thePlayer.y + theWind.direction.y
-                });
-              }
-            }
-          })
+          if(theWind.useable)
+          {
+            windRef.update({
+              x: theWind.x + theWind.direction.x, 
+              y: theWind.y + theWind.direction.y
+            })
+          }
           if(isSolid(theWind.x, theWind.y, earthBlock))
           {
             windRef.remove();
@@ -333,6 +480,24 @@ function getRandomSafeSpot(earthBlock) {
           id: playerId
         })
       }
+      Object.keys(wind).forEach((key) => {
+        const theWind = wind[key];
+        const windRef = firebase.database().ref(`wind/${key}`);
+        Object.keys(players).forEach((key) => {
+          const thePlayer = players[key];
+          const thisPlayerRef = firebase.database().ref(`players/${key}`);
+          if(theWind.x === thePlayer.x && theWind.y === thePlayer.y)
+          {
+            if(!isSolid(thePlayer.x + theWind.direction.x, thePlayer.y + theWind.direction.y, earthBlock))
+            {
+              thisPlayerRef.update({
+                x: thePlayer.x + theWind.direction.x, 
+                y: thePlayer.y + theWind.direction.y
+              });
+            }
+          }
+        })
+      })
     }
     //repeat
     setTimeout(() => {
@@ -366,6 +531,45 @@ function getRandomSafeSpot(earthBlock) {
         players[playerId].direction = "left";
       }
       playerRef.set(players[playerId]);
+      Object.keys(wind).forEach((key) => {
+        const theWind = wind[key];
+        if(theWind.x == players[playerId].x && theWind.y == players[playerId].y)
+        {
+          me = firebase.database().ref("players/" + playerId);
+          var damage = randomFromArray([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]);
+          me.update({
+            health: players[playerId].health - damage, 
+            x: oldX, 
+            y: oldY
+          })
+        }
+      })
+      if(myMoveId == 2 && playerAirShield.length > 0)
+      {
+        playerAirShield[0] = {x: players[playerId].x + 2, y: players[playerId].y - 1, dir: {x: 1, y: 0}};
+        playerAirShield[1] = {x: players[playerId].x + 2, y: players[playerId].y, dir: {x: 1, y: 0}};
+        playerAirShield[2] = {x: players[playerId].x + 2, y: players[playerId].y + 1, dir: {x: 1, y: 0}};
+        playerAirShield[3] = {x: players[playerId].x + 1, y: players[playerId].y + 2, dir: {x: 0, y: 1}};
+        playerAirShield[4] = {x: players[playerId].x, y: players[playerId].y + 2, dir: {x: 0, y: 1}};
+        playerAirShield[5] = {x: players[playerId].x - 1, y: players[playerId].y + 2, dir: {x: 0, y: 1}};
+        playerAirShield[6] = {x: players[playerId].x - 2, y: players[playerId].y + 1, dir: {x: -1, y: 0}};
+        playerAirShield[7] = {x: players[playerId].x - 2, y: players[playerId].y, dir: {x: -1, y: 0}};
+        playerAirShield[8] = {x: players[playerId].x - 2, y: players[playerId].y - 1, dir: {x: -1, y: 0}};
+        playerAirShield[9] = {x: players[playerId].x - 1, y: players[playerId].y - 2, dir: {x: 0, y: -1}};
+        playerAirShield[10] = {x: players[playerId].x, y: players[playerId].y - 2, dir: {x: 0, y: -1}};
+        playerAirShield[11] = {x: players[playerId].x + 1, y: players[playerId].y - 2, dir: {x: 0, y: -1}};
+        for(let i = 0; i < playerAirShield.length; i++)
+        {
+          const airRef = firebase.database().ref(`wind/${playerId+i}`);
+          airRef.update({
+            x: playerAirShield[i].x, 
+            y: playerAirShield[i].y, 
+            useable: false, 
+            direction: playerAirShield[i].dir, 
+            id: playerId+i
+          })
+        }
+      }
     }
     direction = {x: xChange, y: yChange};
     setTimeout(() => {
@@ -373,7 +577,7 @@ function getRandomSafeSpot(earthBlock) {
     }, 300);
   }
   function handleAttack() {
-    if(myWater > 0 && myBending == "Water" && myMoveId == 0)
+    if(myWater > 0 && myBending == "Water" && myMoveId == 0 && cooldown == 0)
     {
       //Attack
       attackWater = {x: players[playerId].x, y: players[playerId].y};
@@ -386,7 +590,40 @@ function getRandomSafeSpot(earthBlock) {
         id: playerId
       })
     }
-    if(myAir > 0 && myBending == "Air" && myMoveId == 0)
+    if(playerTorrent.length == 0 && myWater > 0 && myBending == "Water" && myMoveId == 1 && cooldown == 0)
+    {
+      //Attack
+      playerTorrent[0] = {x: players[playerId].x + 2, y: players[playerId].y + 1, i: 1};
+      playerTorrent[1] = {x: players[playerId].x + 2, y: players[playerId].y, i: 0};
+      playerTorrent[2] = {x: players[playerId].x - 2, y: players[playerId].y - 1, i: 7};
+      playerTorrent[3] = {x: players[playerId].x - 2, y: players[playerId].y, i: 6};
+      playerTorrent[4] = {x: players[playerId].x + 1, y: players[playerId].y + 2, i: 2};
+      playerTorrent[5] = {x: players[playerId].x, y: players[playerId].y + 2, i: 3};
+      playerTorrent[6] = {x: players[playerId].x - 1, y: players[playerId].y + 2, i: 4};
+      playerTorrent[7] = {x: players[playerId].x - 2, y: players[playerId].y + 1, i: 5};
+      myAttackIdx = 0;
+      for(let i = 0; i < playerTorrent.length; i++)
+      {
+        const waterRef = firebase.database().ref(`water/${playerId+i}`);
+        waterRef.set({
+          x: playerTorrent[i].x, 
+          y: playerTorrent[i].y, 
+          useable: false, 
+          id: playerId+i
+        })
+      }
+    } else if(playerTorrent.length > 0 && myBending == "Water" && myMoveId == 1)
+    {
+      myAttackIdx = 16;
+      cooldown = 3;
+      coolDown.innerText = "Cooldown: " + cooldown;
+      for(let i in playerTorrent)
+      {
+        firebase.database().ref(`water/${playerId+i}`).remove();
+      }
+      playerTorrent = [];
+    }
+    if(myAir > 0 && myBending == "Air" && myMoveId == 0 && cooldown == 0)
     {
       //Attack
       attackAirVaccum = {x: players[playerId].x, y: players[playerId].y};
@@ -405,8 +642,48 @@ function getRandomSafeSpot(earthBlock) {
       myAttackIdx = 16;
       attackAirVaccum = null;
       firebase.database().ref(`air-vaccum/${playerId}`).remove();
+      cooldown = 4;
+      coolDown.innerText = "Cooldown: " + cooldown;
     }
-    if(myAir > 0 && myBending == "Air" && direction != null && myMoveId == 1)
+    if(myAir > 0 && myBending == "Air" && myMoveId == 2 && cooldown == 0)
+    {
+      //Attack
+      playerAirShield[0] = {x: players[playerId].x + 2, y: players[playerId].y - 1, dir: {x: 1, y: 0}};
+      playerAirShield[1] = {x: players[playerId].x + 2, y: players[playerId].y, dir: {x: 1, y: 0}};
+      playerAirShield[2] = {x: players[playerId].x + 2, y: players[playerId].y + 1, dir: {x: 1, y: 0}};
+      playerAirShield[3] = {x: players[playerId].x + 1, y: players[playerId].y + 2, dir: {x: 0, y: 1}};
+      playerAirShield[4] = {x: players[playerId].x, y: players[playerId].y + 2, dir: {x: 0, y: 1}};
+      playerAirShield[5] = {x: players[playerId].x - 1, y: players[playerId].y + 2, dir: {x: 0, y: 1}};
+      playerAirShield[6] = {x: players[playerId].x - 2, y: players[playerId].y + 1, dir: {x: -1, y: 0}};
+      playerAirShield[7] = {x: players[playerId].x - 2, y: players[playerId].y, dir: {x: -1, y: 0}};
+      playerAirShield[8] = {x: players[playerId].x - 2, y: players[playerId].y - 1, dir: {x: -1, y: 0}};
+      playerAirShield[9] = {x: players[playerId].x - 1, y: players[playerId].y - 2, dir: {x: 0, y: -1}};
+      playerAirShield[10] = {x: players[playerId].x, y: players[playerId].y - 2, dir: {x: 0, y: -1}};
+      playerAirShield[11] = {x: players[playerId].x + 1, y: players[playerId].y - 2, dir: {x: 0, y: -1}};
+      for(let i = 0; i < playerAirShield.length; i++)
+      {
+        const airRef = firebase.database().ref(`wind/${playerId+i}`);
+        airRef.set({
+          x: playerAirShield[i].x, 
+          y: playerAirShield[i].y, 
+          useable: false, 
+          direction: playerAirShield[i].dir, 
+          id: playerId+i
+        })
+      }
+      myAir = 0;
+    } else if(myAir < 1 && myBending == "Air" && myMoveId == 2)
+    {
+      //Attack
+      for(let i in playerAirShield)
+      {
+        firebase.database().ref(`wind/${playerId+i}`).remove();
+      }
+      playerAirShield = [];
+      cooldown = 4;
+      coolDown.innerText = "Cooldown: " + cooldown;
+    }
+    if(myAir > 0 && myBending == "Air" && direction != null && myMoveId == 1 && cooldown == 0)
     {
       //Attack
       for(var i = 1; i < 2; i++) {
@@ -416,7 +693,7 @@ function getRandomSafeSpot(earthBlock) {
           windRef.set({
             x: players[playerId].x + (direction.x * i), 
             y: players[playerId].y + (direction.y * i), 
-            useable: false, 
+            useable: true, 
             direction, 
             id: playerId + windId
           })
@@ -430,7 +707,7 @@ function getRandomSafeSpot(earthBlock) {
           windRef.set({
             x: players[playerId].x + (direction.x * i) + direction.y, 
             y: players[playerId].y + (direction.y * i) + direction.x, 
-            useable: false, 
+            useable: true, 
             direction, 
             id: playerId + windId
           })
@@ -444,7 +721,7 @@ function getRandomSafeSpot(earthBlock) {
           windRef.set({
             x: players[playerId].x + (direction.x * i) - direction.y, 
             y: players[playerId].y + (direction.y * i) - direction.x, 
-            useable: false, 
+            useable: true, 
             direction, 
             id: playerId + windId
           })
@@ -458,7 +735,7 @@ function getRandomSafeSpot(earthBlock) {
           windRef.set({
             x: players[playerId].x + (direction.x * i) + direction.y * 2, 
             y: players[playerId].y + (direction.y * i) + direction.x * 2, 
-            useable: false, 
+            useable: true, 
             direction, 
             id: playerId + windId
           })
@@ -472,7 +749,7 @@ function getRandomSafeSpot(earthBlock) {
           windRef.set({
             x: players[playerId].x + (direction.x * i) - direction.y * 2, 
             y: players[playerId].y + (direction.y * i) - direction.x * 2, 
-            useable: false, 
+            useable: true, 
             direction, 
             id: playerId + windId
           })
@@ -480,13 +757,15 @@ function getRandomSafeSpot(earthBlock) {
         }
       }
       myAir = 0;
+      cooldown = 1;
+      coolDown.innerText = "Cooldown: " + cooldown;
     }
-    if(myBending == "Fire" && direction != null && myMoveId == 0)
+    if(myBending == "Fire" && direction != null && myMoveId == 0 && cooldown == 0)
     {
       let blocked = false;
       for(var i = 1; i < 6; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock))
+        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock) && !isWater(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), water) && !isAir(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), wind))
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i), 
@@ -506,7 +785,7 @@ function getRandomSafeSpot(earthBlock) {
       let sblocked = false;
       for(var i = 2; i < 6; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i) + direction.y, players[playerId].y + (direction.y * i) + direction.x, earthBlock) && !blocked)
+        if(!isSolid(players[playerId].x + (direction.x * i) + direction.y, players[playerId].y + (direction.y * i) + direction.x, earthBlock) && !isWater(players[playerId].x + (direction.x * i) + direction.y, players[playerId].y + (direction.y * i) + direction.x, water) && !isAir(players[playerId].x + (direction.x * i) + direction.y, players[playerId].y + (direction.y * i) + direction.x, wind) && !blocked)
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) + direction.y, 
@@ -525,7 +804,7 @@ function getRandomSafeSpot(earthBlock) {
       }
       for(var i = 2; i < 6; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i) - direction.y, players[playerId].y + (direction.y * i) - direction.x, earthBlock) && !blocked)
+        if(!isSolid(players[playerId].x + (direction.x * i) - direction.y, players[playerId].y + (direction.y * i) - direction.x, earthBlock) && !isWater(players[playerId].x + (direction.x * i) - direction.y, players[playerId].y + (direction.y * i) - direction.x, water) && !isAir(players[playerId].x + (direction.x * i) - direction.y, players[playerId].y + (direction.y * i) - direction.x, wind) && !blocked)
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) - direction.y, 
@@ -544,7 +823,7 @@ function getRandomSafeSpot(earthBlock) {
       }
       for(var i = 4; i < 5; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i) + direction.y * 2, players[playerId].y + (direction.y * i) + direction.x * 2, earthBlock) && !sblocked)
+        if(!isSolid(players[playerId].x + (direction.x * i) + direction.y * 2, players[playerId].y + (direction.y * i) + direction.x * 2, earthBlock) && !isWater(players[playerId].x + (direction.x * i) + direction.y * 2, players[playerId].y + (direction.y * i) + direction.x * 2, water) && !isAir(players[playerId].x + (direction.x * i) + direction.y * 2, players[playerId].y + (direction.y * i) + direction.x * 2, wind) && !sblocked)
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) + direction.y * 2, 
@@ -559,7 +838,7 @@ function getRandomSafeSpot(earthBlock) {
       }
       for(var i = 4; i < 5; i++) {
         const fireRef = firebase.database().ref(`fire/${playerId + fireRowId}`);
-        if(!isSolid(players[playerId].x + (direction.x * i) - direction.y * 2, players[playerId].y + (direction.y * i) - direction.x * 2, earthBlock) && !sblocked)
+        if(!isSolid(players[playerId].x + (direction.x * i) - direction.y * 2, players[playerId].y + (direction.y * i) - direction.x * 2, earthBlock) && !isWater(players[playerId].x + (direction.x * i) - direction.y * 2, players[playerId].y + (direction.y * i) - direction.x * 2, water) && !isAir(players[playerId].x + (direction.x * i) - direction.y * 2, players[playerId].y + (direction.y * i) - direction.x * 2, wind) && !sblocked)
         {
           fireRef.set({
             x: players[playerId].x + (direction.x * i) - direction.y * 2, 
@@ -572,7 +851,50 @@ function getRandomSafeSpot(earthBlock) {
           break;
         }
       }
+      cooldown = 6;
+      coolDown.innerText = "Cooldown: " + cooldown;
     }
+    if(myBending == "Earth" && direction != null && myMoveId == 2 && cooldown == 0)
+    {
+      for(var i = 1; i < 6; i++) {
+        const earthRef = firebase.database().ref(`earth/${playerId + EarthBlockId}`);
+        if(!isSolid(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), earthBlock) && !isWater(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), water) && !isAir(players[playerId].x + (direction.x * i), players[playerId].y + (direction.y * i), wind))
+        {
+          console.log("test")
+          earthRef.set({
+            x: players[playerId].x + (direction.x * i), 
+            y: players[playerId].y + (direction.y * i), 
+            useable: false, 
+            id: playerId + EarthBlockId
+          })
+          EarthBlockId++;
+        } else {
+          break;
+        }
+      }
+      cooldown = 3;
+      coolDown.innerText = "Cooldown: " + cooldown;
+    }
+  }
+  function switchMove() {
+    myMoveId++;
+    let moveList;
+    if(myBending == "Water") moveList = WaterMoves;
+    if(myBending == "Air") moveList = AirMoves;
+    if(myBending == "Earth") moveList = EarthMoves;
+    if(myBending == "Fire") moveList = FireMoves;
+    if(myMoveId > moveList.length - 1) myMoveId = 0;
+    currentMove.innerText = "Current Move: " + moveList[myMoveId];
+  }
+  function setMove(move) {
+    myMoveId = move;
+    let moveList;
+    if(myBending == "Water") moveList = WaterMoves;
+    if(myBending == "Air") moveList = AirMoves;
+    if(myBending == "Earth") moveList = EarthMoves;
+    if(myBending == "Fire") moveList = FireMoves;
+    if(myMoveId > moveList.length - 1) myMoveId = 0;
+    currentMove.innerText = "Current Move: " + moveList[myMoveId];
   }
 
   function initGame() {
@@ -586,6 +908,7 @@ function getRandomSafeSpot(earthBlock) {
     new KeyPressListener("KeyW", () => handleArrowPress(0, -1))
     new KeyPressListener("KeyS", () => handleArrowPress(0, 1))
     new KeyPressListener("KeyD", () => handleArrowPress(1, 0))
+    new KeyPressListener("KeyQ", () => switchMove())
 
     const allPlayersRef = firebase.database().ref(`players`);
     const allWaterRef = firebase.database().ref(`water`);
@@ -843,6 +1166,7 @@ function getRandomSafeSpot(earthBlock) {
         {
           firebase.database().ref(`earth-block/${earthBlock.id}`).remove();
           EarthBlockCount--;
+          if(EarthBlockCount < 0) EarthBlockCount = 0;
         }
       })
 
@@ -879,26 +1203,15 @@ function getRandomSafeSpot(earthBlock) {
       });
     })
     chatSend.addEventListener("click", () => {
-      if(chatInput.value.slice(0, 8) === "#switch ")
-      {
-        //#switch
-        myMoveId = chatInput.value[8];
-        chatInput.value = "";
-      } else
-      {
-        const chatRef = firebase.database().ref(`chat/` + Math.floor(Math.random() * 1000000000000000));
-        const date = new Date();
-        var inputMessage = chatInput.value;
-        chatRef.set({
-          message: inputMessage + " | " + players[playerId].name, 
-          time: date.getHours() * 10000 + date.getMinutes() * 100 + date.getSeconds(), 
-          day: date.getDate()
-        })
-        chatInput.value = "";
-      }
-    })
-    moveSwitch.addEventListener("click", () => {
-      myMoveId = 1 - myMoveId;
+      const chatRef = firebase.database().ref(`chat/` + Math.floor(Math.random() * 1000000000000000));
+      const date = new Date();
+      var inputMessage = chatInput.value;
+      chatRef.set({
+        message: inputMessage + " | " + players[playerId].name, 
+        time: date.getHours() * 10000 + date.getMinutes() * 100 + date.getSeconds(), 
+        day: date.getDate()
+      })
+      chatInput.value = "";
     })
     const chatRef = firebase.database().ref(`chat`);
 
@@ -933,7 +1246,7 @@ function getRandomSafeSpot(earthBlock) {
       {
         myAir = 1;
       }
-      if(myBending == "Earth" && target.id != "EarthBlock" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 3 && myMoveId == 0 && EarthBlockCount < 12)
+      if(myBending == "Earth" && target.id != "EarthBlock" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 4 && myMoveId == 0 && EarthBlockCount < 12 && cooldown == 0)
       {
         const earthBlockRef = firebase.database().ref(`earth-block/${playerId + EarthBlockId}`);
         earthBlockRef.set({
@@ -961,10 +1274,125 @@ function getRandomSafeSpot(earthBlock) {
         }
         EarthBlockId++;
         EarthBlockCount++;
+        cooldown = 1;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myBending == "Fire" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 5 && myMoveId == 1 && cooldown == 0 && !isSolid(mouseTile.x, mouseTile.y, earthBlock) && !isWater(mouseTile.x, mouseTile.y, water))
+      {
+        const fireRef = firebase.database().ref(`fire/${playerId + FireId}`);
+        fireRef.set({
+          x: mouseTile.x, 
+          y: mouseTile.y, 
+          useable: true, 
+          id: playerId + FireId
+        })
+        FireId++;
+        cooldown = FireId % 5 == 0 ? 1 : 0;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myBending == "Earth" && target.id != "EarthBlock" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 5 && myMoveId == 1 && EarthBlockCount < 8 && cooldown == 0)
+      {
+        for(let idx = -2; idx < 3; idx++){
+          let change = {x: Math.abs(players[playerId].x - mouseTile.x), y: Math.abs(players[playerId].y - mouseTile.y)};
+          let changeIsX = 0;
+          let changeIsY = 0;
+          if(change.x >= change.y)
+          {
+            changeIsX = 1;
+          }
+          if(change.y > change.x)
+          {
+            changeIsY = 1;
+          }
+          if(isSolid(mouseTile.x + idx * changeIsY, mouseTile.y + idx * changeIsX, earthBlock)) continue;
+          const earthBlockRef = firebase.database().ref(`earth-block/${playerId + EarthBlockId}`);
+          earthBlockRef.set({
+            x: mouseTile.x + idx * changeIsY, 
+            y: mouseTile.y + idx * changeIsX, 
+            useable: true, 
+            id: playerId + EarthBlockId
+          })
+          let Attack;
+          Object.keys(players).forEach((key) => {
+            const characterState = players[key];
+            if(characterState.x === mouseTile.x + idx * changeIsY && characterState.y === mouseTile.y + idx * changeIsX)
+            {
+              Attack = key;
+            }
+          })
+          if(Attack != null && !players[playerId].isDead && !players[Attack].isDead)
+          {
+            myAttackIdx = 16;
+            playerToAttackRef = firebase.database().ref("players/" + Attack);
+            var damage = 1;
+            playerToAttackRef.update({
+              health: players[Attack].health - damage
+            })
+          }
+          EarthBlockId++;
+          EarthBlockCount++;
+          cooldown = 2;
+          coolDown.innerText = "Cooldown: " + cooldown;
+        }
+      }
+      if(myBending == "Fire" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 5 && myMoveId == 2 && cooldown == 0)
+      {
+        for(let idx = -2; idx < 3; idx++){
+          let change = {x: Math.abs(players[playerId].x - mouseTile.x), y: Math.abs(players[playerId].y - mouseTile.y)};
+          let changeIsX = 0;
+          let changeIsY = 0;
+          if(change.x >= change.y)
+          {
+            changeIsX = 1;
+          }
+          if(change.y > change.x)
+          {
+            changeIsY = 1;
+          }
+          if(isSolid(mouseTile.x + idx * changeIsY, mouseTile.y + idx * changeIsX, earthBlock) || isWater(mouseTile.x + idx * changeIsY, mouseTile.y + idx * changeIsX, water)) continue;
+          const fireRef = firebase.database().ref(`fire/${playerId + FireId}`);
+          fireRef.set({
+            x: mouseTile.x + idx * changeIsY, 
+            y: mouseTile.y + idx * changeIsX, 
+            useable: true, 
+            id: playerId + FireId
+          })
+          FireId++;
+          cooldown = 2;
+          coolDown.innerText = "Cooldown: " + cooldown;
+        }
+      }
+      if(playerTorrent.length > 0 && myWater > 0 && myBending == "Water" && myMoveId == 1)
+      {
+        //Attack
+        attackWater = {x: players[playerId].x, y: players[playerId].y};
+        myAttackIdx = 0;
+        const waterRef = firebase.database().ref(`water/${playerId}`);
+        waterRef.set({
+          x: attackWater.x, 
+          y: attackWater.y, 
+          useable: false, 
+          id: playerId
+        })
+        shotTorrent = true;
+        for(let i in playerTorrent)
+        {
+          firebase.database().ref(`water/${playerId+i}`).remove();
+        }
+        playerTorrent = [];
+      }
+      if(myBending == "Water" && myMoveId == 2 && isWater(mouseTile.x, mouseTile.y, water) && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 4 && cooldown == 0 && players[playerId].health < 5)
+      {
+        playerRef.update({
+          health: players[playerId].health + 1
+        })
+        cooldown = 4;
+        coolDown.innerText = "Cooldown: " + cooldown;
       }
     };
 
     setupWater(allWaterRef);
+    setMove(0);
     oneSecondLoop();
     fourthSecondLoop();
     tickLoop();
