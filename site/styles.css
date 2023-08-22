@@ -67,6 +67,25 @@ h3 {
 	display: flex;
 	gap: 0.5em;
 	align-items: flex-end;
+	display: inline-block;
+}
+.bend-stats {
+	display: flex;
+}
+ 
+h3.current-move:hover + .info {
+  display: block;
+}
+.info {
+	display: none;
+	width: 45%;
+	background-color: #00000024;
+	position: absolute;
+	right: 1em;
+	top: 2.5em;
+}
+.bend-stats:hover .info {
+	display: block;
 }
 
 /* Chat */
@@ -108,7 +127,6 @@ input[type="text"] {
 	padding-left: 0.5em;
 	border: 3px solid #222034;
 	width: 150px;
-	text-transform: uppercase;
 }
 
 input[type="text"]:focus {
@@ -161,6 +179,14 @@ button {
 	display: none;
 	position: absolute;
 	top: -18px;
+	left: 5px;
+	width: 7px;
+	height: 5px;
+	background: url(images/arrow.png) no-repeat no-repeat;
+}
+.Character[data-cloak="wind"] .Character_you-arrow {
+	position: absolute;
+	top: -2px;
 	left: 5px;
 	width: 7px;
 	height: 5px;
@@ -244,11 +270,25 @@ button {
 	height: 3px;
 	background: url(images/healthzero.png) no-repeat no-repeat;
 }
+.Character[data-cloak="wind"] .Character_health_bar {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthcloak.png) no-repeat no-repeat;
+}
 
 .Character_sprite {
 	overflow: hidden;
 	top: -3px;
 	background: url(images/characters.png);
+}
+.Character[data-cloak="wind"] .Character_sprite{
+	overflow: hidden;
+	top: -3px;
+	background: url(images/charactersWindCloak.png);
 }
 
 .Character[data-direction="right"] .Character_sprite {
@@ -272,6 +312,9 @@ button {
 .Character_shadow {
 	background: url(images/shadow.png);
 }
+.Character[data-cloak="wind"] .Character_shadow {
+	background: url(images/shadowcloak.png);
+}
 
 .Character_name-container {
   position: absolute;
@@ -283,12 +326,18 @@ button {
   background: #333;
   color: white;
   font-weight: bold;
-  text-transform: uppercase;
   white-space: nowrap;
   align-items: center;
 }
+.Character[data-cloak="wind"] .Character_name-container {
+  background: #00000000;
+  color: #00000000;
+}
 .Character_name {
   color: white;
+}
+.Character[data-cloak="wind"] .Character_name {
+  color: #00000000;
 }
 
 /* Water */
@@ -299,7 +348,24 @@ button {
 	transition: transform 0.2s;
 }
 
+.Water_sprite[data-state="ice"] {
+	background: url(images/ice.png) no-repeat no-repeat;
+}
+
 @keyframes waterFloat {
+  from { transform: translateY(0) }
+  to { transform: translateY(0.5px) }
+}
+
+/* Lava */
+
+.Lava_sprite {
+	background: url(images/lava.png) no-repeat no-repeat;
+	animation: lavaFloat 0.8s linear infinite alternate-reverse;
+	transition: transform 0.2s;
+}
+
+@keyframes lavaFloat {
   from { transform: translateY(0) }
   to { transform: translateY(0.5px) }
 }
@@ -342,8 +408,46 @@ button {
   to { transform: translateY(3px) }
 }
 
+/* Fireball */
+
+.Fireball_sprite {
+	background: url(images/fireball.png) no-repeat no-repeat;
+	animation: fireballFloat 0.8s linear infinite alternate-reverse;
+	transition: transform 0.2s;
+}
+
+@keyframes fireballFloat {
+  from { transform: translateY(0) }
+  to { transform: translateY(3px) }
+}
+
+/* Air Slice */
+
+.AirSlice_sprite {
+	background: url(images/airSlice.png) no-repeat no-repeat;
+	animation: airSliceFloat 0.8s linear infinite alternate-reverse;
+	transition: transform 0.2s;
+}
+
+@keyframes airSliceFloat {
+  from { transform: translateY(0) }
+  to { transform: translateY(3px) }
+}
+
 /* Earth Block */
 
 .EarthBlock_sprite {
 	background: url(images/earth-block.png) no-repeat no-repeat;
+}
+
+/* Rock */
+
+.Rock_sprite {
+	background: url(images/rock.png) no-repeat no-repeat;
+	animation: rockFloat 0.8s linear infinite alternate-reverse;
+}
+
+@keyframes rockFloat {
+  from { transform: translateY(0) }
+  to { transform: translateY(3px) }
 }
