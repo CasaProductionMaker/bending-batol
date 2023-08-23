@@ -434,6 +434,19 @@ button {
   to { transform: translateY(3px) }
 }
 
+/* Tornado */
+
+.Tornado_sprite {
+	background: url(images/tornado.png) no-repeat no-repeat;
+	animation: airSliceFloat 0.8s linear infinite alternate-reverse;
+	transition: transform 0.2s;
+	width: 80px;
+	height: 80px;
+	position: relative;
+	left: -32px;
+	top: -32px;
+}
+
 /* Earth Block */
 
 .EarthBlock_sprite {
@@ -442,12 +455,28 @@ button {
 
 /* Rock */
 
-.Rock_sprite {
+.Rock_sprite[data-type="boulder"] {
 	background: url(images/rock.png) no-repeat no-repeat;
+	animation: rockFloat 0.8s linear infinite alternate-reverse;
+}
+.Rock_sprite[data-type="disk"] {
+	background: url(images/disk.png) no-repeat no-repeat;
 	animation: rockFloat 0.8s linear infinite alternate-reverse;
 }
 
 @keyframes rockFloat {
+  from { transform: translateY(0) }
+  to { transform: translateY(3px) }
+}
+
+/* Lightning */
+
+.Lightning_sprite {
+	background: url(images/lightning.png) no-repeat no-repeat;
+	animation: lightningFloat 0.8s linear infinite alternate-reverse;
+}
+
+@keyframes lightningFloat {
   from { transform: translateY(0) }
   to { transform: translateY(3px) }
 }
