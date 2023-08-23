@@ -854,7 +854,7 @@ function delay(milliseconds){
     Object.keys(lightning).forEach((key) => {
       const theLightning = lightning[key];
       const date = new Date();
-      if(theLightning.x == players[playerId].x && theLightning.y == players[playerId].y && !redirect && date.getSeconds() % 2 == 0)
+      if(theLightning.x == players[playerId].x && theLightning.y == players[playerId].y && date.getSeconds() % 2 == 0)
       {
         redirect = true;
         me = firebase.database().ref("players/" + playerId);
