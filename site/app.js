@@ -47,9 +47,13 @@ let octopusArms = [];
 let playerAirShield = [];
 let torrentPos = [{x: 2, y: 0}, {x: 2, y: 1}, {x: 1, y: 2}, {x: 0, y: 2}, {x: -1, y: 2}, {x: -2, y: 1}, {x: -2, y: 0}, {x: -2, y: -1}, {x: -1, y: -2}, {x: 0, y: -2}, {x: 1, y: -2}, {x: 2, y: -1}];
 let octopusPos = [{x: 3, y: 1}, {x: 2, y: 3}, {x: -1, y: 3}, {x: -3, y: 2}, {x: -3, y: -1}, {x: -2, y: -3}, {x: 1, y: -3}, {x: 3, y: -2}];
+let waterArms = [];
+let currentDir = {x: 1, y: 0};
 let shotTorrent = false;
 let redirect = false;
 let redirected = false;
+let holdingPlayer = null;
+let holdKeep = 0;
 let redDam = 0;
 let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze", "Water Arms"];
 let EarthMoves = ["Earth Pillar", "Earth Wall", "Raise Land", "Lava Crevice", "Earth Boulder", "Lava Disk"];
@@ -92,7 +96,7 @@ let WaterInst = [
   "If you're close enough, click on water or ice and it'll heal you", 
   "Click on water or ice to store it if it is close enough to it, and press space to form the octopus.", 
   "Click on water or ice to store it if it is close enough to it, and press space to make it follow your mouse. When it collides with an opponent, they will freeze in a ball of ice.", 
-  "Click on water or ice to store it if it is close enough to it, and press space to toggle the water arms."
+  "Click on water or ice to store it if it is close enough to it, and press space to toggle the water arms. After toggling, click on someone close enough to tour water arm tips to punch them."
 ];
 let EarthInst = [
   "Click on a tile to raise earth and click on it again to put it down.", 
@@ -350,6 +354,15 @@ function delay(milliseconds){
       cooldown = 0;
     }
     coolDown.innerText = "Cooldown: " + cooldown;
+    if(holdingPlayer != null && waterArms.length > 0)
+    {
+      holdKeep++;
+    }
+    if(holdKeep > 3)
+    {
+      holdKeep = 0;
+      holdingPlayer = null;
+    }
 
     //repeat
     setTimeout(() => {
@@ -710,6 +723,24 @@ function delay(milliseconds){
           }
         }
       }
+      if(myAttackIdx < 16 && myMoveId == 5)
+      {
+        waterArms[0] = {x: players[playerId].x + currentDir.x + currentDir.y, y: players[playerId].y + currentDir.y + currentDir.x};
+        waterArms[1] = {x: players[playerId].x + currentDir.x - currentDir.y, y: players[playerId].y + currentDir.y - currentDir.x};
+        waterArms[2] = {x: players[playerId].x + (currentDir.x + currentDir.y) * 2, y: players[playerId].y + (currentDir.y + currentDir.x) * 2};
+        waterArms[3] = {x: players[playerId].x + (currentDir.x - currentDir.y) * 2, y: players[playerId].y + (currentDir.y - currentDir.x) * 2};
+        waterArms[4] = {x: players[playerId].x + ((currentDir.x + currentDir.y) * 2) + currentDir.x, y: players[playerId].y + ((currentDir.y + currentDir.x) * 2) + currentDir.y};
+        waterArms[5] = {x: players[playerId].x + ((currentDir.x - currentDir.y) * 2) + currentDir.x, y: players[playerId].y + ((currentDir.y - currentDir.x) * 2) + currentDir.y};
+        waterArms[6] = {x: players[playerId].x + ((currentDir.x + currentDir.y) * 2) + currentDir.x + currentDir.x, y: players[playerId].y + ((currentDir.y + currentDir.x) * 2) + currentDir.y + currentDir.y};
+        waterArms[7] = {x: players[playerId].x + ((currentDir.x - currentDir.y) * 2) + currentDir.x + currentDir.x, y: players[playerId].y + ((currentDir.y - currentDir.x) * 2) + currentDir.y + currentDir.y};
+        for (var i = 0; i < 8; i++) {
+          const waterRef = firebase.database().ref(`water/${playerId+"arms"+i}`);
+          waterRef.update({
+            x: waterArms[i].x, 
+            y: waterArms[i].y
+          })
+        }
+      }
     }
     if(myBending == "Air")
     {
@@ -960,7 +991,7 @@ function delay(milliseconds){
             });
             myAttackIdx = 16;
             firebase.database().ref(`rock/${playerId}`).remove();
-            cooldown = 2;
+            cooldown = 3;
             coolDown.innerText = "Cooldown: " + cooldown;
           }
         })
@@ -1008,6 +1039,30 @@ function delay(milliseconds){
           }
         })
       })
+    }
+    if(myBending == "Water")
+    {
+      if(holdingPlayer != null && myMoveId == 5 && waterArms.length > 0)
+      {
+        Object.keys(players).forEach((key) => {
+          const thePlayer = players[key];
+          const thisPlayerRef = firebase.database().ref(`players/${key}`);
+          if(thePlayer.id == holdingPlayer)
+          {
+            thisPlayerRef.update({
+              x: waterArms[6].x, 
+              y: waterArms[6].y
+            });
+            if(currentDir.y != 0)
+            {
+              thisPlayerRef.update({
+                x: waterArms[7].x, 
+                y: waterArms[7].y
+              });
+            }
+          }
+        })
+      }
     }
     Object.keys(airSlice).forEach((key) => {
       const theSlice = airSlice[key];
@@ -1136,6 +1191,7 @@ function delay(milliseconds){
       }
     }
     direction = {x: xChange, y: yChange};
+    currentDir = {x: xChange, y: yChange};
     setTimeout(() => {
       direction = null;
     }, 300);
@@ -1168,6 +1224,39 @@ function delay(milliseconds){
         id: playerId, 
         state: "water"
       })
+    }
+    if(myWater > 0 && myBending == "Water" && myMoveId == 5 && cooldown == 0)
+    {
+      waterArms[0] = {x: players[playerId].x + currentDir.x + currentDir.y, y: players[playerId].y + currentDir.y + currentDir.x};
+      waterArms[1] = {x: players[playerId].x + currentDir.x - currentDir.y, y: players[playerId].y + currentDir.y - currentDir.x};
+      waterArms[2] = {x: players[playerId].x + (currentDir.x + currentDir.y) * 2, y: players[playerId].y + (currentDir.y + currentDir.x) * 2};
+      waterArms[3] = {x: players[playerId].x + (currentDir.x - currentDir.y) * 2, y: players[playerId].y + (currentDir.y - currentDir.x) * 2};
+      waterArms[4] = {x: players[playerId].x + ((currentDir.x + currentDir.y) * 2) + currentDir.x, y: players[playerId].y + ((currentDir.y + currentDir.x) * 2) + currentDir.y};
+      waterArms[5] = {x: players[playerId].x + ((currentDir.x - currentDir.y) * 2) + currentDir.x, y: players[playerId].y + ((currentDir.y - currentDir.x) * 2) + currentDir.y};
+      waterArms[6] = {x: players[playerId].x + ((currentDir.x + currentDir.y) * 2) + currentDir.x + currentDir.x, y: players[playerId].y + ((currentDir.y + currentDir.x) * 2) + currentDir.y + currentDir.y};
+      waterArms[7] = {x: players[playerId].x + ((currentDir.x - currentDir.y) * 2) + currentDir.x + currentDir.x, y: players[playerId].y + ((currentDir.y - currentDir.x) * 2) + currentDir.y + currentDir.y};
+      for (var i = 0; i < 8; i++) {
+        const waterRef = firebase.database().ref(`water/${playerId+"arms"+i}`);
+        waterRef.set({
+          x: waterArms[i].x, 
+          y: waterArms[i].y, 
+          useable: false, 
+          id: playerId+"arms"+i, 
+          state: "water"
+        })
+      }
+      myAttackIdx = 0;
+      myWater = 0;
+    } else if(myBending == "Water" && myMoveId == 5 && waterArms.length > 0)
+    {
+      myAttackIdx = 16;
+      cooldown = 5;
+      coolDown.innerText = "Cooldown: " + cooldown;
+      for(let i in waterArms)
+      {
+        firebase.database().ref(`water/${playerId+"arms"+i}`).remove();
+      }
+      waterArms = [];
     }
     if(playerTorrent.length == 0 && myWater > 0 && myBending == "Water" && myMoveId == 1 && cooldown == 0)
     {
@@ -1577,6 +1666,157 @@ function delay(milliseconds){
     }
   }
   function switchMove() {
+    if(myBending == "Air")
+    {
+      if(myMoveId == 0 && attackAirVaccum != null)
+      {
+        myAttackIdx = 16;
+        attackAirVaccum = null;
+        firebase.database().ref(`air-vaccum/${playerId}`).remove();
+        cooldown = 4;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myMoveId == 2 && playerAirShield.length > 0)
+      {
+        for(let i in playerAirShield)
+        {
+          firebase.database().ref(`wind/${playerId+i}`).remove();
+        }
+        playerAirShield = [];
+        cooldown = 4;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myMoveId == 3)
+      {
+        playerRef.update({
+          cloak: "none"
+        })
+      }
+      if(myMoveId == 5)
+      {
+        myAttackIdx = 16;
+      }
+    }
+    if(myBending == "Earth")
+    {
+      if(myMoveId == 4 && rock[playerId] != null)
+      {
+        myAttackIdx = 16;
+        firebase.database().ref(`rock/${playerId}`).remove();
+        cooldown = 3;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myMoveId == 5 && rock[playerId] != null)
+      {
+        myAttackIdx = 16;
+        firebase.database().ref(`rock/${playerId}`).remove();
+        cooldown = 4;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+    }
+    if(myBending == "Fire")
+    {
+      if(myMoveId == 3)
+      {
+        //
+      }
+    }
+    if(myBending == "Water")
+    {
+      if(myMoveId == 0 && myAttackIdx < 16)
+      {
+        firebase.database().ref(`water/${playerId}`).remove();
+        myAttackIdx = 16;
+        myWater = 0;
+        cooldown = 1;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myMoveId == 1 && playerTorrent.length > 0)
+      {
+        myAttackIdx = 16;
+        cooldown = 3;
+        coolDown.innerText = "Cooldown: " + cooldown;
+        for(let i in playerTorrent)
+        {
+          firebase.database().ref(`water/${playerId+i}`).remove();
+        }
+        playerTorrent = [];
+      }
+      if(myMoveId == 1 && shotTorrent)
+      {
+        firebase.database().ref(`water/${playerId}`).remove();
+        myAttackIdx = 16;
+        myWater = 0;
+        cooldown = 3;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myMoveId == 3 && playerTorrent.length > 0)
+      {
+        myAttackIdx = 16;
+        cooldown = 4;
+        coolDown.innerText = "Cooldown: " + cooldown;
+        for(let i in playerTorrent)
+        {
+          firebase.database().ref(`water/${playerId+i}`).remove();
+        }
+        for(let i in octopusArms)
+        {
+          firebase.database().ref(`water/${playerId+"octo"+i}`).remove();
+        }
+        playerTorrent = [];
+        octopusArms = [];
+      }
+      if(myMoveId == 4 && myAttackIdx < 16)
+      {
+        myAttackIdx = 16;
+        let key = playerId;
+        firebase.database().ref(`water/${key}`).update({
+          state: "ice"
+        });
+        firebase.database().ref(`water/${key}ice1`).set({
+          x: attackWater.x + 1, 
+          y: attackWater.y, 
+          useable: false, 
+          id: playerId + "ice1", 
+          state: "ice"
+        });
+        firebase.database().ref(`water/${key}ice2`).set({
+          x: attackWater.x - 1, 
+          y: attackWater.y, 
+          useable: false, 
+          id: playerId + "ice2", 
+          state: "ice"
+        });
+        firebase.database().ref(`water/${key}ice3`).set({
+          x: attackWater.x, 
+          y: attackWater.y + 1, 
+          useable: false, 
+          id: playerId + "ice3", 
+          state: "ice"
+        });
+        firebase.database().ref(`water/${key}ice4`).set({
+          x: attackWater.x, 
+          y: attackWater.y - 1, 
+          useable: false, 
+          id: playerId + "ice4", 
+          state: "ice"
+        });
+        myWater = 0;
+        cooldown = 2;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myMoveId == 5 && waterArms.length > 0)
+      {
+        myAttackIdx = 16;
+        cooldown = 5;
+        coolDown.innerText = "Cooldown: " + cooldown;
+        for(let i in waterArms)
+        {
+          firebase.database().ref(`water/${playerId+"arms"+i}`).remove();
+        }
+        waterArms = [];
+      }
+    }
     myMoveId++;
     let moveList;
     if(myBending == "Water") moveList = WaterMoves;
@@ -1585,9 +1825,6 @@ function delay(milliseconds){
     if(myBending == "Fire") moveList = FireMoves;
     if(myMoveId > moveList.length - 1) myMoveId = 0;
     currentMove.innerText = "Current Move: " + moveList[myMoveId];
-    playerRef.update({
-      cloak: "none"
-    })
   }
   function setMove(move) {
     myMoveId = move;
@@ -1608,10 +1845,34 @@ function delay(milliseconds){
           health: players[playerId].health + 1
         })
       }
+      if(myBending == "Earth")
+      {
+        EarthBlockCount--;
+        if(EarthBlockCount < 0) EarthBlockCount = 0;
+      }
     }
     setTimeout(() => {
       regenLoop();
     }, 30000);
+  }
+  function HoldPlayer() {
+    if(myBending == "Water" && waterArms.length > 0 && holdingPlayer == null)
+    {
+      Object.keys(players).forEach((key) => {
+        const thePlayer = players[key];
+        const thisPlayerRef = firebase.database().ref(`players/${key}`);
+        if(distanceBetween({x: waterArms[6].x, y: waterArms[6].y}, {x: thePlayer.x, y: thePlayer.y}) <= 2)
+        {
+          thisPlayerRef.update({
+            x: waterArms[6].x, 
+            y: waterArms[6].y
+          });
+          holdingPlayer = thePlayer.id;
+        }
+      })
+    } else if(myBending == "Water" && waterArms.length > 0 && holdingPlayer != null){
+      holdingPlayer = null;
+    }
   }
 
   function initGame() {
@@ -1626,6 +1887,7 @@ function delay(milliseconds){
     new KeyPressListener("KeyS", () => handleArrowPress(0, 1))
     new KeyPressListener("KeyD", () => handleArrowPress(1, 0))
     new KeyPressListener("KeyQ", () => switchMove())
+    new KeyPressListener("ShiftLeft", () => HoldPlayer())
 
     const allPlayersRef = firebase.database().ref(`players`);
     const allWaterRef = firebase.database().ref(`water`);
@@ -2106,13 +2368,6 @@ function delay(milliseconds){
 
     allEarthBlockRef.on("value", (snapshot) => {
       earthBlock = snapshot.val() || {};
-      //Object.keys(earthBlock).forEach((key) => {
-        //const earthBlockState = earthBlock[key];
-        //let el = earthBlockElements[earthBlockState.id];
-        //const left = 16 * earthBlockState.x + "px";
-        //const top = 16 * earthBlockState.y + "px";
-        //el.style.transform = `translate3d(${left}, ${top}, 0)`;
-      //})
     });
     allEarthBlockRef.on("child_added", (snapshot) => {
       const earthBlock = snapshot.val();
@@ -2508,6 +2763,31 @@ function delay(milliseconds){
             coolDown.innerText = "Cooldown: " + cooldown;
           }, 15000);
         }, Math.random() * 1000 + 2);
+      }
+      if(myBending == "Water" && waterArms.length > 0 && distanceBetween({x: waterArms[6].x, y: waterArms[6].y}, {x: mouseTile.x, y: mouseTile.y}) <= 2 && !players[playerId].isDead)
+      {
+        Object.keys(players).forEach((key) => {
+          const thePlayer = players[key];
+          const thisPlayerRef = firebase.database().ref(`players/${key}`);
+          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y)
+          {
+            thisPlayerRef.update({
+              health: thePlayer.health - 1
+            });
+          }
+        })
+      } else if(myBending == "Water" && waterArms.length > 0 && distanceBetween({x: waterArms[7].x, y: waterArms[7].y}, {x: mouseTile.x, y: mouseTile.y}) <= 2 && !players[playerId].isDead)
+      {
+        Object.keys(players).forEach((key) => {
+          const thePlayer = players[key];
+          const thisPlayerRef = firebase.database().ref(`players/${key}`);
+          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y)
+          {
+            thisPlayerRef.update({
+              health: thePlayer.health - 1
+            });
+          }
+        })
       }
     };
 
