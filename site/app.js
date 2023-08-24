@@ -49,6 +49,7 @@ let torrentPos = [{x: 2, y: 0}, {x: 2, y: 1}, {x: 1, y: 2}, {x: 0, y: 2}, {x: -1
 let octopusPos = [{x: 3, y: 1}, {x: 2, y: 3}, {x: -1, y: 3}, {x: -3, y: 2}, {x: -3, y: -1}, {x: -2, y: -3}, {x: 1, y: -3}, {x: 3, y: -2}];
 let shotTorrent = false;
 let redirect = false;
+let redirected = false;
 let redDam = 0;
 let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze"];
 let EarthMoves = ["Earth Pillar", "Earth Wall", "Raise Land", "Lava Crevice", "Earth Boulder", "Lava Disk"];
@@ -854,7 +855,7 @@ function delay(milliseconds){
     Object.keys(lightning).forEach((key) => {
       const theLightning = lightning[key];
       const date = new Date();
-      if(theLightning.x == players[playerId].x && theLightning.y == players[playerId].y && date.getSeconds() % 2 == 0)
+      if(theLightning.x == players[playerId].x && theLightning.y == players[playerId].y && date.getSeconds() % 2 == 0 && !redirected)
       {
         redirect = true;
         me = firebase.database().ref("players/" + playerId);
@@ -865,6 +866,7 @@ function delay(milliseconds){
         })
         setTimeout(() => {
           redirect = false;
+          redirected = false;
         }, 1000);
       }
     })
@@ -2277,8 +2279,9 @@ function delay(milliseconds){
         cooldown = 4;
         coolDown.innerText = "Cooldown: " + cooldown;
       }
-      if(myBending == "Fire" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 8 && cooldown == 0 && redirect)
+      if(myBending == "Fire" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 8 && redirect && cooldown == 0)
       {
+        redirected = true;
         playerRef.update({
           health: players[playerId].health + redDam
         })
