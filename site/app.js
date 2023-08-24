@@ -51,7 +51,7 @@ let shotTorrent = false;
 let redirect = false;
 let redirected = false;
 let redDam = 0;
-let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze"];
+let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze", "Water Arms"];
 let EarthMoves = ["Earth Pillar", "Earth Wall", "Raise Land", "Lava Crevice", "Earth Boulder", "Lava Disk"];
 let AirMoves = ["Suffocate", "Wind", "Air Shield", "Wind Cloak", "Wind Slice", "Tornado"];
 let FireMoves = ["Blaze", "Incinerate", "Wall of Fire", "Fireball", "Lighting Blast"];
@@ -60,7 +60,8 @@ let WaterDesc = [
   "Grab water as a shield and shoot it off as offense", 
   "Use water to heal your injuries", 
   "Wrap water around yourself in the shape of an octopus to defend against attacks.", 
-  "Freeze your opponent in a ball of ice"
+  "Freeze your opponent in a ball of ice", 
+  "Water coats around your arms and you can use them as an extension of your arms"
 ];
 let EarthDesc = [
   "Raise the earth to block off people or hurt them if you raise ground under them.", 
@@ -90,7 +91,8 @@ let WaterInst = [
   "Click on water or ice to store it if it is close enough to it, press space to make it circle you, and click to make it follow your mouse or press space again to put it back.", 
   "If you're close enough, click on water or ice and it'll heal you", 
   "Click on water or ice to store it if it is close enough to it, and press space to form the octopus.", 
-  "Click on water or ice to store it if it is close enough to it, and press space to make it follow your mouse. When it collides with an opponent, they will freeze in a ball of ice."
+  "Click on water or ice to store it if it is close enough to it, and press space to make it follow your mouse. When it collides with an opponent, they will freeze in a ball of ice.", 
+  "Click on water or ice to store it if it is close enough to it, and press space to toggle the water arms."
 ];
 let EarthInst = [
   "Click on a tile to raise earth and click on it again to put it down.", 
@@ -855,7 +857,7 @@ function delay(milliseconds){
     Object.keys(lightning).forEach((key) => {
       const theLightning = lightning[key];
       const date = new Date();
-      if(theLightning.x == players[playerId].x && theLightning.y == players[playerId].y && date.getSeconds() % 2 == 0 && !redirected)
+      if(theLightning.x == players[playerId].x && theLightning.y == players[playerId].y && !redirected)
       {
         redirect = true;
         me = firebase.database().ref("players/" + playerId);
