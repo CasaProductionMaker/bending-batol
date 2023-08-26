@@ -31,6 +31,7 @@ let mouseTile = {x: undefined, y: undefined};
 let myBending;
 let attackWater = null;
 let attackAirVaccum = null;
+let projectionSelf = null;
 let EarthBlockId = 0;
 let rockId = 0;
 let FireId = 0;
@@ -42,12 +43,14 @@ let windId = 0;
 let direction = null;
 let myMoveId = 0;
 let cooldown = 0;
+let shockTimes = 0;
 let playerTorrent = [];
 let octopusArms = [];
 let playerAirShield = [];
 let torrentPos = [{x: 2, y: 0}, {x: 2, y: 1}, {x: 1, y: 2}, {x: 0, y: 2}, {x: -1, y: 2}, {x: -2, y: 1}, {x: -2, y: 0}, {x: -2, y: -1}, {x: -1, y: -2}, {x: 0, y: -2}, {x: 1, y: -2}, {x: 2, y: -1}];
 let octopusPos = [{x: 3, y: 1}, {x: 2, y: 3}, {x: -1, y: 3}, {x: -3, y: 2}, {x: -3, y: -1}, {x: -2, y: -3}, {x: 1, y: -3}, {x: 3, y: -2}];
 let waterArms = [];
+let experience = -1;
 let currentDir = {x: 1, y: 0};
 let shotTorrent = false;
 let redirect = false;
@@ -57,8 +60,12 @@ let holdKeep = 0;
 let redDam = 0;
 let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze", "Water Arms"];
 let EarthMoves = ["Earth Pillar", "Earth Wall", "Raise Land", "Lava Crevice", "Earth Boulder", "Lava Disk"];
-let AirMoves = ["Suffocate", "Wind", "Air Shield", "Wind Cloak", "Wind Slice", "Tornado"];
+let AirMoves = ["Suffocate", "Wind", "Air Shield", "Wind Cloak", "Wind Slice", "Tornado", "Shockwave", "Spirit Projection"];
 let FireMoves = ["Blaze", "Incinerate", "Wall of Fire", "Fireball", "Lighting Blast"];
+let FireXP = [3, 0, 2, 0, 6];
+let AirXP = [3, 0, 1, 2, 1, 3, 2, 3];
+let WaterXP = [0, 2, 1, 2, 2, 6];
+let EarthXP = [0, 0, 1, 5, 3, 4];
 let WaterDesc = [
   "Control water and shoot it at your opponents.", 
   "Grab water as a shield and shoot it off as offense", 
@@ -81,7 +88,9 @@ let AirDesc = [
   "Form an air shield around yourself.", 
   "The wind around you conceals you from anyone nearby.", 
   "Shoot out a thin air stream, damaging anyone in its path.", 
-  "Create a huge tornado, bringing anyone close enough into a deadly vaccum"
+  "Create a huge tornado, bringing anyone close enough into a deadly vaccum", 
+  "Blast all your opponents away using a powerful shockwave", 
+  "Project a spirit clone of yourself as a decoy."
 ];
 let FireDesc = [
   "Shoot out a huge flame to burn your enemies.", 
@@ -112,7 +121,9 @@ let AirInst = [
   "Click on any tile to collect air, then press space to toggle an air shield.", 
   "Press space to toggle the cloak and turn invisible.", 
   "Move in the direction you want to shoot the air and then quickly press space.", 
-  "Click anywhere to generate a tornado, it will take 2-3 seconds though, so be patient."
+  "Click anywhere to generate a tornado, it will take 2-3 seconds though, so be patient.", 
+  "Press space to blast anyone near you away", 
+  "Press space to toggle a projection that will follow your mouse."
 ];
 let FireInst = [
   "Move in the direction you want to shoot the fire and then quickly press space.", 
@@ -283,6 +294,8 @@ function delay(milliseconds){
   let rockElements = {};
   let water = {};
   let waterElements = {};
+  let projection = {};
+  let projectionElements = {};
   let fire = {};
   let fireElements = {};
   let earthBlock = {};
@@ -305,6 +318,7 @@ function delay(milliseconds){
   function oneSecondLoop() {
     if(players[playerId] != null) {
       if(players[playerId].isDead > 0 && !isButton) {
+        experience = 0;
         setTimeout(() => {
           const buttonElement = document.createElement("div");
           buttonElement.classList.add("respawnButton");
@@ -313,6 +327,7 @@ function delay(milliseconds){
           `)
           const respawnButton = buttonElement.querySelector("#respawn");
           respawnButton.addEventListener("click", () => {
+            experience = 0;
             isButton = false;
             respawnContainer.querySelector(".respawnButton").remove();
             const {x, y} = getRandomSafeSpot(earthBlock);
@@ -813,54 +828,60 @@ function delay(milliseconds){
       Object.keys(airSlice).forEach((key) => {
         const theSlice = airSlice[key];
         const airSliceRef = firebase.database().ref(`air-slice/${key}`);
-        airSliceRef.update({
-          x: theSlice.x + theSlice.direction.x, 
-          y: theSlice.y + theSlice.direction.y
-        })
-        if(isSolid(theSlice.x, theSlice.y, earthBlock) || isWater(theSlice.x, theSlice.y, water))
+        if(theSlice.player == playerId)
         {
-          airSliceRef.remove();
-        }
-        Object.keys(players).forEach((key) => {
-          const thePlayer = players[key];
-          const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(theSlice.x === thePlayer.x && theSlice.y === thePlayer.y)
+          airSliceRef.update({
+            x: theSlice.x + theSlice.direction.x, 
+            y: theSlice.y + theSlice.direction.y
+          })
+          if(isSolid(theSlice.x, theSlice.y, earthBlock) || isWater(theSlice.x, theSlice.y, water))
           {
-            if(!isSolid(thePlayer.x + theSlice.direction.x, thePlayer.y + theSlice.direction.y, earthBlock))
-            {
-              thisPlayerRef.update({
-                health: thePlayer.health - 1
-              });
-            }
+            airSliceRef.remove();
           }
-        })
+          Object.keys(players).forEach((key) => {
+            const thePlayer = players[key];
+            const thisPlayerRef = firebase.database().ref(`players/${key}`);
+            if(theSlice.x === thePlayer.x && theSlice.y === thePlayer.y)
+            {
+              if(!isSolid(thePlayer.x + theSlice.direction.x, thePlayer.y + theSlice.direction.y, earthBlock))
+              {
+                thisPlayerRef.update({
+                  health: thePlayer.health - 1
+                });
+              }
+            }
+          })
+        }
       })
     }
     {
       Object.keys(fireball).forEach((key) => {
         const theBall = fireball[key];
         const fireballRef = firebase.database().ref(`fireball/${key}`);
-        fireballRef.update({
-          x: theBall.x + theBall.direction.x, 
-          y: theBall.y + theBall.direction.y
-        })
-        if(isSolid(theBall.x, theBall.y, earthBlock) || isWater(theBall.x, theBall.y, water))
+        if(theBall.player == playerId)
         {
-          fireballRef.remove();
-        }
-        Object.keys(players).forEach((key) => {
-          const thePlayer = players[key];
-          const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(theBall.x === thePlayer.x && theBall.y === thePlayer.y)
+          fireballRef.update({
+            x: theBall.x + theBall.direction.x, 
+            y: theBall.y + theBall.direction.y
+          })
+          if(isSolid(theBall.x, theBall.y, earthBlock) || isWater(theBall.x, theBall.y, water))
           {
-            if(!isSolid(thePlayer.x + theBall.direction.x, thePlayer.y + theBall.direction.y, earthBlock))
-            {
-              thisPlayerRef.update({
-                health: thePlayer.health - 1
-              });
-            }
+            fireballRef.remove();
           }
-        })
+          Object.keys(players).forEach((key) => {
+            const thePlayer = players[key];
+            const thisPlayerRef = firebase.database().ref(`players/${key}`);
+            if(theBall.x === thePlayer.x && theBall.y === thePlayer.y)
+            {
+              if(!isSolid(thePlayer.x + theBall.direction.x, thePlayer.y + theBall.direction.y, earthBlock))
+              {
+                thisPlayerRef.update({
+                  health: thePlayer.health - 1
+                });
+              }
+            }
+          })
+        }
       })
     }
     Object.keys(fire).forEach((key) => {
@@ -948,6 +969,17 @@ function delay(milliseconds){
           y: attackAirVaccum.y, 
           useable: false, 
           id: playerId
+        })
+      }
+      if(myAttackIdx < 16 && myMoveId == 7)
+      {
+        const key = playerId;
+        projectionSelf.x = mouseTile.x;
+        projectionSelf.y = mouseTile.y;
+        const airVaccumRef = firebase.database().ref(`projection/${key}`);
+        airVaccumRef.update({
+          x: projectionSelf.x, 
+          y: projectionSelf.y
         })
       }
       Object.keys(wind).forEach((key) => {
@@ -1133,7 +1165,7 @@ function delay(milliseconds){
     const newY = players[playerId].y + yChange;
     const oldX = players[playerId].x;
     const oldY = players[playerId].y;
-    if (!isSolid(newX, newY, earthBlock) && !players[playerId].isDead && !isIce(newX, newY, water)) {
+    if (!isSolid(newX, newY, earthBlock) && !players[playerId].isDead && players[playerId].health > 0 && !isIce(newX, newY, water)) {
       if(!(isLava(oldX, oldY, lava) && Math.random() > 0.5) && !isIce(oldX, oldY, water))
       {
         if(!(octopusArms.length > 0 && Math.random() > 0.5))
@@ -1376,6 +1408,27 @@ function delay(milliseconds){
       cooldown = 4;
       coolDown.innerText = "Cooldown: " + cooldown;
     }
+    if(myBending == "Air" && myMoveId == 7 && cooldown == 0 && projectionSelf == null)
+    {
+      //Attack
+      projectionSelf = {x: players[playerId].x, y: players[playerId].y};
+      myAttackIdx = 0;
+      const projectionSelfRef = firebase.database().ref(`projection/${playerId}`);
+      projectionSelfRef.set({
+        x: projectionSelf.x, 
+        y: projectionSelf.y, 
+        useable: false, 
+        id: playerId
+      })
+    } else if(myBending == "Air" && myMoveId == 7)
+    {
+      //Attack
+      myAttackIdx = 16;
+      projectionSelf = null;
+      firebase.database().ref(`projection/${playerId}`).remove();
+      cooldown = 2;
+      coolDown.innerText = "Cooldown: " + cooldown;
+    }
     if(myAir > 0 && myBending == "Air" && myMoveId == 2 && cooldown == 0)
     {
       //Attack
@@ -1491,6 +1544,24 @@ function delay(milliseconds){
       cooldown = 1;
       coolDown.innerText = "Cooldown: " + cooldown;
     }
+    if(myBending == "Air" && myMoveId == 6 && cooldown == 0)
+    {
+      //Attack
+      Object.keys(players).forEach((key) => {
+        const thePlayer = players[key];
+        const thisPlayerRef = firebase.database().ref(`players/${key}`);
+        if(distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: thePlayer.x, y: thePlayer.y}) < 4 && thePlayer.id != playerId && !isSolid(thePlayer.x + (thePlayer.x > players[playerId].x ? 1 : -1), thePlayer.y + (thePlayer.y > players[playerId].y ? 1 : -1), earthBlock))
+        {
+          thisPlayerRef.update({
+            x: thePlayer.x + (thePlayer.x > players[playerId].x ? 1 : -1), 
+            y: thePlayer.y + (thePlayer.y > players[playerId].y ? 1 : -1)
+          });
+        }
+      })
+      shockTimes++;
+      if(shockTimes % 4 == 0) cooldown = 1;
+      coolDown.innerText = "Cooldown: " + cooldown;
+    }
     if(myBending == "Fire" && direction != null && myMoveId == 0 && cooldown == 0)
     {
       let blocked = false;
@@ -1593,7 +1664,8 @@ function delay(milliseconds){
         y: players[playerId].y + direction.y, 
         direction, 
         useable: false, 
-        id: playerId + FireId
+        id: playerId + FireId, 
+        player: playerId
       });
       FireId++;
       cooldown = 1;
@@ -1607,7 +1679,8 @@ function delay(milliseconds){
         y: players[playerId].y + direction.y, 
         direction, 
         useable: false, 
-        id: playerId + windId
+        id: playerId + windId, 
+        player: playerId
       });
       windId++;
       cooldown = 1;
@@ -1674,6 +1747,14 @@ function delay(milliseconds){
         attackAirVaccum = null;
         firebase.database().ref(`air-vaccum/${playerId}`).remove();
         cooldown = 4;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myMoveId == 7 && projectionSelf != null)
+      {
+        myAttackIdx = 16;
+        projectionSelf = null;
+        firebase.database().ref(`projection/${playerId}`).remove();
+        cooldown = 2;
         coolDown.innerText = "Cooldown: " + cooldown;
       }
       if(myMoveId == 2 && playerAirShield.length > 0)
@@ -1819,11 +1900,28 @@ function delay(milliseconds){
     }
     myMoveId++;
     let moveList;
+    let xpList;
     if(myBending == "Water") moveList = WaterMoves;
     if(myBending == "Air") moveList = AirMoves;
     if(myBending == "Earth") moveList = EarthMoves;
     if(myBending == "Fire") moveList = FireMoves;
+    if(myBending == "Water") xpList = WaterXP;
+    if(myBending == "Air") xpList = AirXP;
+    if(myBending == "Earth") xpList = EarthXP;
+    if(myBending == "Fire") xpList = FireXP;
+    if(xpList[myMoveId] > experience) myMoveId++;
+    if(xpList[myMoveId] > experience) myMoveId++;
+    if(xpList[myMoveId] > experience) myMoveId++;
+    if(xpList[myMoveId] > experience) myMoveId++;
+    if(xpList[myMoveId] > experience) myMoveId++;
+    if(xpList[myMoveId] > experience) myMoveId++;
     if(myMoveId > moveList.length - 1) myMoveId = 0;
+    if(xpList[myMoveId] > experience) myMoveId++;
+    if(xpList[myMoveId] > experience) myMoveId++;
+    if(xpList[myMoveId] > experience) myMoveId++;
+    if(xpList[myMoveId] > experience) myMoveId++;
+    if(xpList[myMoveId] > experience) myMoveId++;
+    if(xpList[myMoveId] > experience) myMoveId++;
     currentMove.innerText = "Current Move: " + moveList[myMoveId];
   }
   function setMove(move) {
@@ -1851,6 +1949,7 @@ function delay(milliseconds){
         if(EarthBlockCount < 0) EarthBlockCount = 0;
       }
     }
+    experience++;
     setTimeout(() => {
       regenLoop();
     }, 30000);
@@ -1901,6 +2000,7 @@ function delay(milliseconds){
     const allLavaRef = firebase.database().ref(`lava`);
     const allLightningRef = firebase.database().ref(`lightning`);
     const allTornadoRef = firebase.database().ref(`tornado`);
+    const allProjectionRef = firebase.database().ref(`projection`);
 
     allPlayersRef.on("value", (snapshot) => {
       //change
@@ -2166,6 +2266,46 @@ function delay(milliseconds){
       delete tornadoElements[keyToRemove];
     })
 
+    allProjectionRef.on("value", (snapshot) => {
+      projection = snapshot.val() || {};
+      Object.keys(projection).forEach((key) => {
+        const projectionState = projection[key];
+        let el = projectionElements[projectionState.id];
+        const left = 16 * projectionState.x + "px";
+        const top = 16 * projectionState.y + "px";
+        el.style.transform = `translate3d(${left}, ${top}, 0)`;
+      })
+    });
+    allProjectionRef.on("child_added", (snapshot) => {
+      const projection = snapshot.val();
+      const key = projection.id;
+      projection[key] = true;
+
+      // Create the DOM Element
+      const projectionElement = document.createElement("div");
+      projectionElement.classList.add("Projection", "grid-cell");
+      projectionElement.innerHTML = `
+        <div class="Projection_sprite grid-cell"></div>
+      `;
+
+      // Position the Element
+      const left = 16 * projection.x + "px";
+      const top = 16 * projection.y + "px";
+      projectionElement.querySelector(".Projection_sprite").setAttribute("data-direction", players[playerId].direction);
+      projectionElement.querySelector(".Projection_sprite").setAttribute("data-color", players[playerId].color);
+      projectionElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+
+      // Keep a reference for removal later and add to DOM
+      projectionElements[key] = projectionElement;
+      gameContainer.appendChild(projectionElement);
+    })
+    allProjectionRef.on("child_removed", (snapshot) => {
+      const {id} = snapshot.val();
+      const keyToRemove = id;
+      gameContainer.removeChild(projectionElements[keyToRemove]);
+      delete projectionElements[keyToRemove];
+    })
+
     allRockRef.on("value", (snapshot) => {
       rock = snapshot.val() || {};
       Object.keys(rock).forEach((key) => {
@@ -2363,7 +2503,7 @@ function delay(milliseconds){
       const {id} = snapshot.val();
       const keyToRemove = id;
       gameContainer.removeChild(lightningElements[keyToRemove]);
-      delete lightningElements[keyToRemove];
+      delete lightningElements[keyToRemove]; 
     })
 
     allEarthBlockRef.on("value", (snapshot) => {
@@ -2790,9 +2930,17 @@ function delay(milliseconds){
         })
       }
     };
+    setMove(0);
+    if(myBending == "Fire") myMoveId = 1;
+    if(myBending == "Air") myMoveId = 1;
+    let moveList;
+    if(myBending == "Water") moveList = WaterMoves;
+    if(myBending == "Air") moveList = AirMoves;
+    if(myBending == "Earth") moveList = EarthMoves;
+    if(myBending == "Fire") moveList = FireMoves;
+    currentMove.innerText = "Current Move: " + moveList[myMoveId];
 
     setupWater(allWaterRef);
-    setMove(0);
     oneSecondLoop();
     fourthSecondLoop();
     tickLoop();

@@ -453,6 +453,13 @@ button {
 	background: url(images/earth-block.png) no-repeat no-repeat;
 }
 
+/* Projection */
+
+.Projection_sprite {
+	background: url(images/projection.png) no-repeat no-repeat;
+	bottom: 7px;
+}
+
 /* Rock */
 
 .Rock_sprite[data-type="boulder"] {
