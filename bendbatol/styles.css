@@ -453,6 +453,18 @@ button {
 	background: url(images/earth-block.png) no-repeat no-repeat;
 }
 
+/* Sand */
+
+.Sand_sprite {
+	background: url(images/sand.png) no-repeat no-repeat;
+}
+
+/* Explosion */
+
+.Explosion_sprite {
+	background: url(images/explosion.png) no-repeat no-repeat;
+}
+
 /* Projection */
 
 .Projection_sprite {
