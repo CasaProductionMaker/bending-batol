@@ -2801,7 +2801,7 @@ function delay(milliseconds){
       delete earthBlockElements[keyToRemove];
     })
 
-    playerNameInput.addEventListener("change", (e) => {
+    playerNameInput.addEventListener("change", (e) => { 
       const newName = e.target.value || createName();
       const chatRef = firebase.database().ref(`chat/` + Math.floor(Math.random() * 1000000000000000));
       const date = new Date();
