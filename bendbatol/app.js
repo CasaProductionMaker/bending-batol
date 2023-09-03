@@ -59,16 +59,18 @@ let shotTorrent = false;
 let redirect = false;
 let redirected = false;
 let holdingPlayer = null;
+let friendbend = null;
 let holdKeep = 0;
 let ExplodeId = 0;
+let WaterShieldId = 0;
 let redDam = 0;
-let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze", "Water Arms"];
+let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze", "Water Arms", "Quick Shield", "Friendbending"];
 let EarthMoves = ["Earth Pillar", "Earth Wall", "Raise Land", "Lava Crevice", "Earth Boulder", "Lava Disk", "Lava Encase", "Quicksand"];
 let AirMoves = ["Suffocate", "Wind", "Air Shield", "Wind Cloak", "Wind Slice", "Tornado", "Shockwave", "Spirit Projection"];
 let FireMoves = ["Blaze", "Incinerate", "Wall of Fire", "Fireball", "Lighting Blast", "Fire Breath", "Explosion"];
 let FireXP = [3, 0, 2, 1, 6, 5, 9];
 let AirXP = [3, 0, 1, 2, 1, 3, 2, 3];
-let WaterXP = [0, 3, 3, 4, 5, 6];
+let WaterXP = [0, 3, 3, 4, 5, 6, 2, 9];
 let EarthXP = [0, 0, 1, 5, 3, 4, 8, 6];
 let WaterDesc = [
   "Control water and shoot it at your opponents.", 
@@ -76,7 +78,9 @@ let WaterDesc = [
   "Use water to heal your injuries", 
   "Wrap water around yourself in the shape of an octopus to defend against attacks.", 
   "Freeze your opponent in a ball of ice", 
-  "Water coats around your arms and you can use them as an extension of your arms"
+  "Water coats around your arms and you can use them as an extension of your arms", 
+  "Quickly use water to make a shield to block incoming attacks.", 
+  "An extremely advanced technique, consisting of controlling water in someone else."
 ];
 let EarthDesc = [
   "Raise the earth to block off people or hurt them if you raise ground under them.", 
@@ -113,7 +117,9 @@ let WaterInst = [
   "If you're close enough, click on water or ice and it'll heal you", 
   "Click on water or ice to store it if it is close enough to it, and press space to form the octopus.", 
   "Click on water or ice to store it if it is close enough to it, and press space to make it follow your mouse. When it collides with an opponent, they will freeze in a ball of ice.", 
-  "Click on water or ice to store it if it is close enough to it, and press space to toggle the water arms. After toggling, click on someone close enough to tour water arm tips to punch them."
+  "Click on water or ice to store it if it is close enough to it, and press space to toggle the water arms. After toggling, click on someone close enough to tour water arm tips to punch them.", 
+  "Click in front of yourself if you are near water or have collected water to form a quick shield at your mouse.", 
+  "Click on someone else to make them follow your mouse."
 ];
 let EarthInst = [
   "Click on a tile to raise earth and click on it again to put it down.", 
@@ -232,6 +238,16 @@ function isWater(x, y, waterD) {
   return (
     wetNextSpace
   )
+}
+function distToWater(x, y, waterD) {
+  let dist = 10000;
+  Object.keys(waterD).forEach((key) => {
+    const block = waterD[key];
+    if(distanceBetween({x, y}, {x: block.x, y: block.y}) < dist){
+      dist = distanceBetween({x, y}, {x: block.x, y: block.y});
+    }
+  })
+  return dist;
 }
 function isIce(x, y, waterD) {
   const mapData = getCurrentMapData();
@@ -768,6 +784,14 @@ function delay(milliseconds){
           })
         }
       }
+      if(friendbend != null && myMoveId == 7)
+      {
+        myAttackIdx++;
+        if(myAttackIdx == 16)
+        {
+          friendbend = null;
+        }
+      }
     }
     if(myBending == "Air")
     {
@@ -1208,6 +1232,20 @@ function delay(milliseconds){
                 y: waterArms[7].y
               });
             }
+          }
+        })
+      }
+      if(friendbend != null && myMoveId == 7)
+      {
+        Object.keys(players).forEach((key) => {
+          const thePlayer = players[key];
+          const thisPlayerRef = firebase.database().ref(`players/${key}`);
+          if(thePlayer.id == friendbend)
+          {
+            thisPlayerRef.update({
+              x: mouseTile.x, 
+              y: mouseTile.y
+            })
           }
         })
       }
@@ -2060,6 +2098,14 @@ function delay(milliseconds){
         }
         waterArms = [];
       }
+      if(myMoveId == 5 && holdingPlayer != null)
+      {
+        holdingPlayer = null;
+      }
+      if(myMoveId == 7 && friendbend != null)
+      {
+        friendbend = null;
+      }
     }
     myMoveId++;
     let moveList;
@@ -2072,19 +2118,13 @@ function delay(milliseconds){
     if(myBending == "Air") xpList = AirXP;
     if(myBending == "Earth") xpList = EarthXP;
     if(myBending == "Fire") xpList = FireXP;
-    if(xpList[myMoveId] > experience) myMoveId++;
-    if(xpList[myMoveId] > experience) myMoveId++;
-    if(xpList[myMoveId] > experience) myMoveId++;
-    if(xpList[myMoveId] > experience) myMoveId++;
-    if(xpList[myMoveId] > experience) myMoveId++;
-    if(xpList[myMoveId] > experience) myMoveId++;
+    for(var t = 0; t < 7; t++) {
+      if(xpList[myMoveId] > experience) myMoveId++;
+    }
     if(myMoveId > moveList.length - 1) myMoveId = 0;
-    if(xpList[myMoveId] > experience) myMoveId++;
-    if(xpList[myMoveId] > experience) myMoveId++;
-    if(xpList[myMoveId] > experience) myMoveId++;
-    if(xpList[myMoveId] > experience) myMoveId++;
-    if(xpList[myMoveId] > experience) myMoveId++;
-    if(xpList[myMoveId] > experience) myMoveId++;
+    for(var t = 0; t < 7; t++) {
+      if(xpList[myMoveId] > experience) myMoveId++;
+    }
     currentMove.innerText = "Current Move: " + moveList[myMoveId];
   }
   function setMove(move) {
@@ -2267,6 +2307,12 @@ function delay(milliseconds){
       // Keep a reference for removal later and add to DOM
       waterElements[key] = waterElement;
       gameContainer.appendChild(waterElement);
+
+      if(water.delete) {
+        setTimeout(() => {
+          firebase.database().ref(`water/${water.id}`).remove();
+        }, 1000);
+      }
     })
     allWaterRef.on("child_removed", (snapshot) => {
       const {id} = snapshot.val();
@@ -3234,6 +3280,65 @@ function delay(milliseconds){
         cooldown = 4;
         coolDown.innerText = "Cooldown: " + cooldown;
       }
+      if(myBending == "Water" && myMoveId == 6 && distToWater(players[playerId].x, players[playerId].y, water) <= 2 && cooldown == 0)
+      {
+        for(let idx = -1; idx < 2; idx++){
+          let change = {x: Math.abs(players[playerId].x - mouseTile.x), y: Math.abs(players[playerId].y - mouseTile.y)};
+          let changeIsX = 0;
+          let changeIsY = 0;
+          if(change.x >= change.y)
+          {
+            changeIsX = 1;
+          }
+          if(change.y > change.x)
+          {
+            changeIsY = 1;
+          }
+          if(isSolid(mouseTile.x + idx * changeIsY, mouseTile.y + idx * changeIsX, earthBlock)) continue;
+          const waterRef = firebase.database().ref(`water/${playerId + WaterShieldId}`);
+          waterRef.set({
+            x: mouseTile.x + idx * changeIsY, 
+            y: mouseTile.y + idx * changeIsX, 
+            useable: true, 
+            state: "water", 
+            delete: true, 
+            id: playerId + WaterShieldId
+          })
+          WaterShieldId++;
+        }
+        cooldown = 2;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myBending == "Water" && myMoveId == 6 && myWater > 0 && cooldown == 0)
+      {
+        for(let idx = -1; idx < 2; idx++){
+          let change = {x: Math.abs(players[playerId].x - mouseTile.x), y: Math.abs(players[playerId].y - mouseTile.y)};
+          let changeIsX = 0;
+          let changeIsY = 0;
+          if(change.x >= change.y)
+          {
+            changeIsX = 1;
+          }
+          if(change.y > change.x)
+          {
+            changeIsY = 1;
+          }
+          if(isSolid(mouseTile.x + idx * changeIsY, mouseTile.y + idx * changeIsX, earthBlock)) continue;
+          const waterRef = firebase.database().ref(`water/${playerId + WaterShieldId}`);
+          waterRef.set({
+            x: mouseTile.x + idx * changeIsY, 
+            y: mouseTile.y + idx * changeIsX, 
+            useable: true, 
+            state: "water", 
+            delete: true, 
+            id: playerId + WaterShieldId
+          })
+          WaterShieldId++;
+        }
+        myWater = 0;
+        cooldown = 2;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
       if(myBending == "Earth" && myMoveId == 4 && cooldown == 0 && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 2)
       {
         let rockRef = firebase.database().ref("rock/" + playerId);
@@ -3317,6 +3422,18 @@ function delay(milliseconds){
             thisPlayerRef.update({
               health: thePlayer.health - 1
             });
+          }
+        })
+      }
+      if(myBending == "Water" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 2 && !players[playerId].isDead && myMoveId == 7)
+      {
+        Object.keys(players).forEach((key) => {
+          const thePlayer = players[key];
+          const thisPlayerRef = firebase.database().ref(`players/${key}`);
+          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y)
+          {
+            friendbend = thePlayer.id;
+            myAttackIdx = 0;
           }
         })
       }
