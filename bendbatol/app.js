@@ -790,6 +790,8 @@ function delay(milliseconds){
         if(myAttackIdx == 16)
         {
           friendbend = null;
+          cooldown = 6;
+          coolDown.innerText = "Cooldown: " + cooldown;
         }
       }
     }
