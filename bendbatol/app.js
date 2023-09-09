@@ -35,6 +35,7 @@ let projectionSelf = null;
 let EarthBlockId = 0;
 let rockId = 0;
 let FireId = 0;
+let WaterId = 0;
 let EarthBlockCount = 0;
 let LavaId = 0;
 let LightningId = 0;
@@ -64,13 +65,15 @@ let holdKeep = 0;
 let ExplodeId = 0;
 let WaterShieldId = 0;
 let redDam = 0;
-let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze", "Water Arms", "Quick Shield", "Friendbending"];
+let myBinds = [null, null, null];
+let bindMove = null;
+let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze", "Water Arms", "Quick Shield", "Friendbending", "Draw Moisture"];
 let EarthMoves = ["Earth Pillar", "Earth Wall", "Raise Land", "Lava Crevice", "Earth Boulder", "Lava Disk", "Lava Encase", "Quicksand"];
 let AirMoves = ["Suffocate", "Wind", "Air Shield", "Wind Cloak", "Wind Slice", "Tornado", "Shockwave", "Spirit Projection"];
-let FireMoves = ["Blaze", "Incinerate", "Wall of Fire", "Fireball", "Lighting Blast", "Fire Breath", "Explosion"];
-let FireXP = [3, 0, 2, 1, 6, 5, 9];
+let FireMoves = ["Blaze", "Incinerate", "Wall of Fire", "Fireball", "Lighting Blast", "Fire Breath", "Explosion", "Combust"];
+let FireXP = [3, 0, 2, 1, 6, 5, 8, 10];
 let AirXP = [3, 0, 1, 2, 1, 3, 2, 3];
-let WaterXP = [0, 3, 3, 4, 5, 6, 2, 9];
+let WaterXP = [0, 3, 3, 4, 5, 6, 2, 9, 4];
 let EarthXP = [0, 0, 1, 5, 3, 4, 8, 6];
 let WaterDesc = [
   "Control water and shoot it at your opponents.", 
@@ -80,7 +83,8 @@ let WaterDesc = [
   "Freeze your opponent in a ball of ice", 
   "Water coats around your arms and you can use them as an extension of your arms", 
   "Quickly use water to make a shield to block incoming attacks.", 
-  "An extremely advanced technique, consisting of controlling water in someone else."
+  "An extremely advanced technique, consisting of controlling water in someone else.", 
+  "Draw moisture out of the air, then you can use to perform waterbending moves"
 ];
 let EarthDesc = [
   "Raise the earth to block off people or hurt them if you raise ground under them.", 
@@ -109,7 +113,8 @@ let FireDesc = [
   "Shoot a flaming ball at your enemy.", 
   "Lighting shoots out from you to electorcute your enemies", 
   "Blast flames out of your mouth, incinerating anything in your path", 
-  "A rare bending form, used only by masters, you can explode any place at will."
+  "A rare bending form, used only by masters, you can explode any place at will.", 
+  "Shoot out a beam that will explode on impact"
 ];
 let WaterInst = [
   "Click on water or ice to store it if it is close enough to it, and press space to make it follow your mouse.", 
@@ -119,7 +124,8 @@ let WaterInst = [
   "Click on water or ice to store it if it is close enough to it, and press space to make it follow your mouse. When it collides with an opponent, they will freeze in a ball of ice.", 
   "Click on water or ice to store it if it is close enough to it, and press space to toggle the water arms. After toggling, click on someone close enough to tour water arm tips to punch them.", 
   "Click in front of yourself if you are near water or have collected water to form a quick shield at your mouse.", 
-  "Click on someone else to make them follow your mouse."
+  "Click on someone else to make them follow your mouse.", 
+  "Click on any tile to draw moisture out of it and form water for a few seconds"
 ];
 let EarthInst = [
   "Click on a tile to raise earth and click on it again to put it down.", 
@@ -148,7 +154,8 @@ let FireInst = [
   "Move in the direction you want to shoot the fireball and then quickly press space.", 
   "Click on a tile not too far from you to shoot lightning at that point", 
   "Press space to toggle the fire breath.", 
-  "Click on any tile to explode it."
+  "Click on any tile to explode it.", 
+  "Move in the direction you want to shoot and then quickly press space."
 ];
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
@@ -157,10 +164,10 @@ function distanceBetween(one, two) {
   return Math.max(Math.abs(one.x - two.x), Math.abs(one.y - two.y));
 }
 function randomFromArray(array) {
-	return array[Math.floor(Math.random() * array.length)];
+  return array[Math.floor(Math.random() * array.length)];
 }
 function getKeyString(x, y) {
-	return `${x}x${y}`;
+  return `${x}x${y}`;
 }
 function createName() {
   const prefix = randomFromArray([
@@ -311,8 +318,8 @@ function delay(milliseconds){
 
 (function() {
 
-	let playerId;
-	let playerRef;
+  let playerId;
+  let playerRef;
   let players = {};
   let playerElements = {};
   let airVaccum = {};
@@ -323,6 +330,8 @@ function delay(milliseconds){
   let tornadoElements = {};
   let explosion = {};
   let explosionElements = {};
+  let combust = {};
+  let combustElements = {};
   let airSlice = {};
   let airSliceElements = {};
   let wind = {};
@@ -1086,6 +1095,251 @@ function delay(milliseconds){
       fourthSecondLoop();
     }, 250);
   }
+  function eighthSecondLoop() {
+    Object.keys(combust).forEach((key) => {
+      const theCombust = combust[key];
+      const combustRef = firebase.database().ref(`combust/${key}`);
+      if(theCombust.player == playerId)
+      {
+        combustRef.update({
+          x: theCombust.x + theCombust.direction.x, 
+          y: theCombust.y + theCombust.direction.y
+        })
+        if(isSolid(theCombust.x, theCombust.y, earthBlock))
+        {
+          combustRef.update({
+            x: theCombust.x - theCombust.direction.x, 
+            y: theCombust.y - theCombust.direction.y
+          })
+          let explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x, 
+            y: theCombust.y - theCombust.direction.y, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x + 1, 
+            y: theCombust.y - theCombust.direction.y, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x - 1, 
+            y: theCombust.y - theCombust.direction.y, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x, 
+            y: theCombust.y - theCombust.direction.y + 1, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x, 
+            y: theCombust.y - theCombust.direction.y - 1, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x + 1, 
+            y: theCombust.y - theCombust.direction.y + 1, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x - 1, 
+            y: theCombust.y - theCombust.direction.y + 1, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x + 1, 
+            y: theCombust.y - theCombust.direction.y - 1, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x - 1, 
+            y: theCombust.y - theCombust.direction.y - 1, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x + 2, 
+            y: theCombust.y - theCombust.direction.y, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x - 2, 
+            y: theCombust.y - theCombust.direction.y, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x, 
+            y: theCombust.y - theCombust.direction.y + 2, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+          explodeRef.set({
+            x: theCombust.x - theCombust.direction.x, 
+            y: theCombust.y - theCombust.direction.y - 2, 
+            useable: true, 
+            id: playerId + ExplodeId
+          })
+          ExplodeId++;
+          cooldown = 7;
+          coolDown.innerText = "Cooldown: " + cooldown;
+          combustRef.remove();
+        }
+        Object.keys(players).forEach((key) => {
+          const thePlayer = players[key];
+          const thisPlayerRef = firebase.database().ref(`players/${key}`);
+          if(theCombust.x === thePlayer.x && theCombust.y === thePlayer.y)
+          {
+            let explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x, 
+              y: theCombust.y - theCombust.direction.y, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x + 1, 
+              y: theCombust.y - theCombust.direction.y, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x - 1, 
+              y: theCombust.y - theCombust.direction.y, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x, 
+              y: theCombust.y - theCombust.direction.y + 1, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x, 
+              y: theCombust.y - theCombust.direction.y - 1, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x + 1, 
+              y: theCombust.y - theCombust.direction.y + 1, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x - 1, 
+              y: theCombust.y - theCombust.direction.y + 1, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x + 1, 
+              y: theCombust.y - theCombust.direction.y - 1, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x - 1, 
+              y: theCombust.y - theCombust.direction.y - 1, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x + 2, 
+              y: theCombust.y - theCombust.direction.y, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x - 2, 
+              y: theCombust.y - theCombust.direction.y, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x, 
+              y: theCombust.y - theCombust.direction.y + 2, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
+            explodeRef.set({
+              x: theCombust.x - theCombust.direction.x, 
+              y: theCombust.y - theCombust.direction.y - 2, 
+              useable: true, 
+              id: playerId + ExplodeId
+            })
+            ExplodeId++;
+            cooldown = 7;
+            coolDown.innerText = "Cooldown: " + cooldown;
+            combustRef.remove();
+          }
+        })
+      }
+    })
+    //repeat
+    setTimeout(() => {
+      eighthSecondLoop();
+    }, 125);
+  }
   function tickLoop() {
     if(players[playerId] != null) {
       if(players[playerId].health <= 0) {
@@ -1321,7 +1575,8 @@ function delay(milliseconds){
     const newY = players[playerId].y + yChange;
     const oldX = players[playerId].x;
     const oldY = players[playerId].y;
-    if (!isSolid(newX, newY, earthBlock) && !players[playerId].isDead && players[playerId].health > 0 && !isIce(newX, newY, water)) {
+    console.log(document.activeElement.nodeName)
+    if (!isSolid(newX, newY, earthBlock) && !players[playerId].isDead && players[playerId].health > 0 && !isIce(newX, newY, water) && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') {
       if(!(isLava(oldX, oldY, lava) && Math.random() > 0.5) && !isIce(oldX, oldY, water))
       {
         if(!(octopusArms.length > 0 && Math.random() > 0.5))
@@ -1857,6 +2112,21 @@ function delay(milliseconds){
       cooldown = 1;
       coolDown.innerText = "Cooldown: " + cooldown;
     }
+    if(myBending == "Fire" && direction != null && myMoveId == 7 && cooldown == 0)
+    {
+      let ballRef = firebase.database().ref("combust/" + playerId + FireId);
+      ballRef.set({
+        x: players[playerId].x + direction.x, 
+        y: players[playerId].y + direction.y, 
+        direction, 
+        useable: false, 
+        id: playerId + FireId, 
+        player: playerId
+      });
+      FireId++;
+      cooldown = 5;
+      coolDown.innerText = "Cooldown: " + cooldown;
+    }
     if(myBending == "Fire" && myMoveId == 5 && cooldown == 0 && !isFireBreath)
     {
       for(var i = 1; i < 5; i++) {
@@ -2120,11 +2390,11 @@ function delay(milliseconds){
     if(myBending == "Air") xpList = AirXP;
     if(myBending == "Earth") xpList = EarthXP;
     if(myBending == "Fire") xpList = FireXP;
-    for(var t = 0; t < 7; t++) {
+    for(var t = 0; t < 10; t++) {
       if(xpList[myMoveId] > experience) myMoveId++;
     }
     if(myMoveId > moveList.length - 1) myMoveId = 0;
-    for(var t = 0; t < 7; t++) {
+    for(var t = 0; t < 10; t++) {
       if(xpList[myMoveId] > experience) myMoveId++;
     }
     currentMove.innerText = "Current Move: " + moveList[myMoveId];
@@ -2178,6 +2448,20 @@ function delay(milliseconds){
       holdingPlayer = null;
     }
   }
+  function bindCurrentMove() {
+    if(document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT' && bindMove != null) {
+      myBinds[bindMove] = myMoveId;
+      bindMove = null;
+    }
+  }
+  function setBind(num) {
+    if(document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') {
+      bindMove = num;
+      setTimeout(() => {
+        bindMove = null;
+      }, 2000)
+    }
+  }
 
   function initGame() {
 
@@ -2191,6 +2475,13 @@ function delay(milliseconds){
     new KeyPressListener("KeyS", () => handleArrowPress(0, 1))
     new KeyPressListener("KeyD", () => handleArrowPress(1, 0))
     new KeyPressListener("KeyQ", () => switchMove())
+    new KeyPressListener("KeyB", () => bindCurrentMove())
+    new KeyPressListener("Digit4", () => setBind(0))
+    new KeyPressListener("Digit5", () => setBind(1))
+    new KeyPressListener("Digit6", () => setBind(2))
+    new KeyPressListener("Digit1", () => setMove(myBinds[0]))
+    new KeyPressListener("Digit2", () => setMove(myBinds[1]))
+    new KeyPressListener("Digit3", () => setMove(myBinds[2]))
     new KeyPressListener("ShiftLeft", () => HoldPlayer())
 
     const allPlayersRef = firebase.database().ref(`players`);
@@ -2208,6 +2499,7 @@ function delay(milliseconds){
     const allTornadoRef = firebase.database().ref(`tornado`);
     const allExplosionRef = firebase.database().ref(`explosion`);
     const allProjectionRef = firebase.database().ref(`projection`);
+    const allCombustRef = firebase.database().ref(`combust`);
 
     allPlayersRef.on("value", (snapshot) => {
       //change
@@ -2481,6 +2773,44 @@ function delay(milliseconds){
       const keyToRemove = id;
       gameContainer.removeChild(explosionElements[keyToRemove]);
       delete explosionElements[keyToRemove];
+    })
+
+    allCombustRef.on("value", (snapshot) => {
+      combust = snapshot.val() || {};
+      Object.keys(combust).forEach((key) => {
+        const combustState = combust[key];
+        let el = combustElements[combustState.id];
+        const left = 16 * combustState.x + "px";
+        const top = 16 * combustState.y + "px";
+        el.style.transform = `translate3d(${left}, ${top}, 0)`;
+      })
+    });
+    allCombustRef.on("child_added", (snapshot) => {
+      const combust = snapshot.val();
+      const key = combust.id;
+      combust[key] = true;
+
+      // Create the DOM Element
+      const combustElement = document.createElement("div");
+      combustElement.classList.add("Combust", "grid-cell");
+      combustElement.innerHTML = `
+        <div class="Combust_sprite grid-cell"></div>
+      `;
+
+      // Position the Element
+      const left = 16 * combust.x + "px";
+      const top = 16 * combust.y + "px";
+      combustElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+
+      // Keep a reference for removal later and add to DOM
+      combustElements[key] = combustElement;
+      gameContainer.appendChild(combustElement);
+    })
+    allCombustRef.on("child_removed", (snapshot) => {
+      const {id} = snapshot.val();
+      const keyToRemove = id;
+      gameContainer.removeChild(combustElements[keyToRemove]);
+      delete combustElements[keyToRemove];
     })
 
     allSandRef.on("value", (snapshot) => {
@@ -2896,6 +3226,13 @@ function delay(milliseconds){
         chatDisplay.appendChild(messageElement);
       }
     })
+
+    document.querySelector("#up-move").addEventListener("click", () => handleArrowPress(0, -1))
+    document.querySelector("#down-move").addEventListener("click", () => handleArrowPress(0, 1))
+    document.querySelector("#left-move").addEventListener("click", () => handleArrowPress(-1, 0))
+    document.querySelector("#right-move").addEventListener("click", () => handleArrowPress(1, 0))
+    document.querySelector("#attack").addEventListener("click", () => handleAttack())
+
     window.addEventListener('mousemove', (event) => {
       mousePos = {x: event.clientX, y: event.clientY};
       screenDim = {x: window.innerWidth, y: window.innerHeight};
@@ -2945,7 +3282,7 @@ function delay(milliseconds){
         cooldown = 1;
         coolDown.innerText = "Cooldown: " + cooldown;
       }
-      if(myBending == "Fire" && myMoveId == 6 && cooldown == 0)
+      if(myBending == "Fire" && myMoveId == 6 && cooldown == 0 && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 5)
       {
         let explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
         explodeRef.set({
@@ -3179,7 +3516,22 @@ function delay(milliseconds){
           id: playerId + FireId
         })
         FireId++;
-        cooldown = FireId % 5 == 0 ? 1 : 0;
+        cooldown = FireId % 6 == 0 ? 1 : 0;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myBending == "Water" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 5 && myMoveId == 8 && cooldown == 0 && !isSolid(mouseTile.x, mouseTile.y, earthBlock) && !isWater(mouseTile.x, mouseTile.y, water))
+      {
+        const waterRef = firebase.database().ref(`water/${playerId + WaterId}`);
+        waterRef.set({
+          x: mouseTile.x, 
+          y: mouseTile.y, 
+          useable: true, 
+          state: "water", 
+          delete: true, 
+          id: playerId + WaterId
+        })
+        WaterId++;
+        cooldown = WaterId % 2 == 0 ? 2 : 0;
         coolDown.innerText = "Cooldown: " + cooldown;
       }
       if(myBending == "Earth" && target.id != "EarthBlock" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 5 && myMoveId == 1 && EarthBlockCount < 8 && cooldown == 0)
@@ -3453,10 +3805,11 @@ function delay(milliseconds){
     setupWater(allWaterRef);
     oneSecondLoop();
     fourthSecondLoop();
+    eighthSecondLoop();
     tickLoop();
     regenLoop();
   }
-	firebase.auth().onAuthStateChanged((user) =>{
+  firebase.auth().onAuthStateChanged((user) =>{
     console.log(user)
     if (user) {
       //You're logged in!
@@ -3502,10 +3855,10 @@ function delay(milliseconds){
       //You're logged out.
     }
   })
-	firebase.auth().signInAnonymously().catch((error) => {
-	    var errorCode = error.code;
-	    var errorMessage = error.message;
-	    // ...
-	    console.log(errorCode, errorMessage);
-	});
+  firebase.auth().signInAnonymously().catch((error) => {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // ...
+      console.log(errorCode, errorMessage);
+  });
 })();

@@ -57,6 +57,25 @@ h3 {
 	align-items: flex-end;
 }
 
+/* Mobile Controls */
+
+.mobile-controls {
+	z-index: 12;
+	position: absolute;
+	right: 20em;
+	bottom: 2%;
+}
+
+#up-move {
+	position: absolute;
+	bottom: 110%;
+}
+
+#attack {
+	position: absolute;
+	right: 1100%;
+}
+
 /* Player info */
 
 .player-bend-info {
@@ -498,4 +517,11 @@ button {
 @keyframes lightningFloat {
   from { transform: translateY(0) }
   to { transform: translateY(3px) }
+}
+
+/* Combust */
+
+.Combust_sprite {
+	background: url(images/combust.png) no-repeat no-repeat;
+	animation: lightningFloat 0.8s linear infinite alternate-reverse;
 }
