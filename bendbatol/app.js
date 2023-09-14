@@ -1226,104 +1226,104 @@ function delay(milliseconds){
           {
             let explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x, 
-              y: theCombust.y - theCombust.direction.y, 
+              x: theCombust.x, 
+              y: theCombust.y, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x + 1, 
-              y: theCombust.y - theCombust.direction.y, 
+              x: theCombust.x + 1, 
+              y: theCombust.y, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x - 1, 
-              y: theCombust.y - theCombust.direction.y, 
+              x: theCombust.x - 1, 
+              y: theCombust.y, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x, 
-              y: theCombust.y - theCombust.direction.y + 1, 
+              x: theCombust.x, 
+              y: theCombust.y + 1, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x, 
-              y: theCombust.y - theCombust.direction.y - 1, 
+              x: theCombust.x, 
+              y: theCombust.y - 1, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x + 1, 
-              y: theCombust.y - theCombust.direction.y + 1, 
+              x: theCombust.x + 1, 
+              y: theCombust.y + 1, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x - 1, 
-              y: theCombust.y - theCombust.direction.y + 1, 
+              x: theCombust.x - 1, 
+              y: theCombust.y + 1, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x + 1, 
-              y: theCombust.y - theCombust.direction.y - 1, 
+              x: theCombust.x + 1, 
+              y: theCombust.y - 1, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x - 1, 
-              y: theCombust.y - theCombust.direction.y - 1, 
+              x: theCombust.x - 1, 
+              y: theCombust.y - 1, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x + 2, 
-              y: theCombust.y - theCombust.direction.y, 
+              x: theCombust.x + 2, 
+              y: theCombust.y, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x - 2, 
-              y: theCombust.y - theCombust.direction.y, 
+              x: theCombust.x - 2, 
+              y: theCombust.y, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x, 
-              y: theCombust.y - theCombust.direction.y + 2, 
+              x: theCombust.x, 
+              y: theCombust.y + 2, 
               useable: true, 
               id: playerId + ExplodeId
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
-              x: theCombust.x - theCombust.direction.x, 
-              y: theCombust.y - theCombust.direction.y - 2, 
+              x: theCombust.x, 
+              y: theCombust.y - 2, 
               useable: true, 
               id: playerId + ExplodeId
             })
@@ -2400,6 +2400,7 @@ function delay(milliseconds){
     currentMove.innerText = "Current Move: " + moveList[myMoveId];
   }
   function setMove(move) {
+    switchMove();
     myMoveId = move;
     let moveList;
     if(myBending == "Water") moveList = WaterMoves;
@@ -2449,17 +2450,26 @@ function delay(milliseconds){
     }
   }
   function bindCurrentMove() {
+    if(document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') {
+      bindMove = 1;
+      setTimeout(() => {
+        bindMove = null;
+      }, 2000)
+    }
+  }
+  function setBind(num) {
     if(document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT' && bindMove != null) {
+      bindMove = num;
       myBinds[bindMove] = myMoveId;
       bindMove = null;
     }
   }
-  function setBind(num) {
-    if(document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') {
-      bindMove = num;
-      setTimeout(() => {
-        bindMove = null;
-      }, 2000)
+  function attemptBindMove(move){
+    if(bindMove != null)
+    {
+      setBind(move);
+    } else {
+      setMove(myBinds[move]);
     }
   }
 
@@ -2476,12 +2486,9 @@ function delay(milliseconds){
     new KeyPressListener("KeyD", () => handleArrowPress(1, 0))
     new KeyPressListener("KeyQ", () => switchMove())
     new KeyPressListener("KeyB", () => bindCurrentMove())
-    new KeyPressListener("Digit4", () => setBind(0))
-    new KeyPressListener("Digit5", () => setBind(1))
-    new KeyPressListener("Digit6", () => setBind(2))
-    new KeyPressListener("Digit1", () => setMove(myBinds[0]))
-    new KeyPressListener("Digit2", () => setMove(myBinds[1]))
-    new KeyPressListener("Digit3", () => setMove(myBinds[2]))
+    new KeyPressListener("Digit1", () => attemptBindMove(0))
+    new KeyPressListener("Digit2", () => attemptBindMove(1))
+    new KeyPressListener("Digit3", () => attemptBindMove(2))
     new KeyPressListener("ShiftLeft", () => HoldPlayer())
 
     const allPlayersRef = firebase.database().ref(`players`);
@@ -2763,6 +2770,14 @@ function delay(milliseconds){
       // Keep a reference for removal later and add to DOM
       explosionElements[key] = explosionElement;
       gameContainer.appendChild(explosionElement);
+
+      Object.keys(earthBlock).forEach((key) => {
+        let current = earthBlock[key];
+        if(current.x == explosion.x && current.y == explosion.y && Math.random() < 0.5)
+        {
+          firebase.database().ref("earth-block/" + current.id).remove();
+        }
+      })
 
       setTimeout(() => {
         firebase.database().ref(`explosion/${explosion.id}`).remove();
