@@ -41,6 +41,7 @@ let LavaId = 0;
 let LightningId = 0;
 let fireRowId = 0;
 let windId = 0;
+let waterWhipId = 0;
 let direction = null;
 let myMoveId = 0;
 let cooldown = 0;
@@ -67,14 +68,14 @@ let WaterShieldId = 0;
 let redDam = 0;
 let myBinds = [null, null, null];
 let bindMove = null;
-let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze", "Water Arms", "Quick Shield", "Friendbending", "Draw Moisture"];
-let EarthMoves = ["Earth Pillar", "Earth Wall", "Raise Land", "Lava Crevice", "Earth Boulder", "Lava Disk", "Lava Encase", "Quicksand"];
+let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze", "Water Arms", "Quick Shield", "Friendbending", "Draw Moisture", "Water Whip"];
+let EarthMoves = ["Earth Pillar", "Earth Wall", "Raise Land", "Lava Crevice", "Earth Boulder", "Lava Disk", "Lava Encase", "Quicksand", "Earth Crawl"];
 let AirMoves = ["Suffocate", "Wind", "Air Shield", "Wind Cloak", "Wind Slice", "Tornado", "Shockwave", "Spirit Projection"];
 let FireMoves = ["Blaze", "Incinerate", "Wall of Fire", "Fireball", "Lighting Blast", "Fire Breath", "Explosion", "Combust"];
 let FireXP = [3, 0, 2, 1, 6, 5, 8, 10];
 let AirXP = [3, 0, 1, 2, 1, 3, 2, 3];
-let WaterXP = [0, 3, 3, 4, 5, 6, 2, 9, 4];
-let EarthXP = [0, 0, 1, 5, 3, 4, 8, 6];
+let WaterXP = [0, 3, 3, 4, 5, 6, 2, 9, 4, 1];
+let EarthXP = [0, 0, 1, 5, 3, 4, 8, 6, 0];
 let WaterDesc = [
   "Control water and shoot it at your opponents.", 
   "Grab water as a shield and shoot it off as offense", 
@@ -84,7 +85,8 @@ let WaterDesc = [
   "Water coats around your arms and you can use them as an extension of your arms", 
   "Quickly use water to make a shield to block incoming attacks.", 
   "An extremely advanced technique, consisting of controlling water in someone else.", 
-  "Draw moisture out of the air, then you can use to perform waterbending moves"
+  "Draw moisture out of the air, then you can use to perform waterbending moves", 
+  "Use water as a whip to lash out at your opponents"
 ];
 let EarthDesc = [
   "Raise the earth to block off people or hurt them if you raise ground under them.", 
@@ -94,7 +96,8 @@ let EarthDesc = [
   "Pull up a boulder and throw it at your opponents.", 
   "Shape molten lava into a disk and hurl it at your opponents.", 
   "Bring lava onto your opponents, then solidify it into a ball of stone, trapping them.", 
-  "Turn the ground into quicksand, trapping your opponents before ending them."
+  "Turn the ground into quicksand, trapping your opponents before ending them.", 
+  "Create bumps in the earth up to your opponent, hurting them."
 ];
 let AirDesc = [
   "Suffocate your opponents in a bubble.", 
@@ -122,10 +125,11 @@ let WaterInst = [
   "If you're close enough, click on water or ice and it'll heal you", 
   "Click on water or ice to store it if it is close enough to it, and press space to form the octopus.", 
   "Click on water or ice to store it if it is close enough to it, and press space to make it follow your mouse. When it collides with an opponent, they will freeze in a ball of ice.", 
-  "Click on water or ice to store it if it is close enough to it, and press space to toggle the water arms. After toggling, click on someone close enough to tour water arm tips to punch them.", 
+  "Click on water or ice to store it if it is close enough to it, and press space to toggle the water arms. After toggling, click on someone close enough to your water arm tips to punch them.", 
   "Click in front of yourself if you are near water or have collected water to form a quick shield at your mouse.", 
   "Click on someone else to make them follow your mouse.", 
-  "Click on any tile to draw moisture out of it and form water for a few seconds"
+  "Click on any tile to draw moisture out of it and form water for a few seconds", 
+  "Click anywhere 7 tiles away from you to send a whip up to your mouse if you are near water or have collected water.", 
 ];
 let EarthInst = [
   "Click on a tile to raise earth and click on it again to put it down.", 
@@ -135,7 +139,8 @@ let EarthInst = [
   "Click on the ground to bring up a boulder that will follow your mouse until it hits someone.", 
   "Click on a raised earth pillar to turn it into a molten disk that will follow your mouse until it hits someone.", 
   "Click on an earth pillar to turn it into lava that will follow your mouse. Upon contact with another player, it will encase the player in earth, or if you do not hit another player in time, you run out of energy and fail the move.", 
-  "Click on any tile to turn it into quicksand."
+  "Click on any tile to turn it into quicksand.", 
+  "Click anywhere 7 tiles away from you to bump up to that place"
 ];
 let AirInst = [
   "Click on any tile to collect air, then press space to toggle a suffocation bubble that will damage anyone in it.", 
@@ -350,6 +355,8 @@ function delay(milliseconds){
   let projectionElements = {};
   let fire = {};
   let fireElements = {};
+  let earthCrawl = {};
+  let earthCrawlElements = {};
   let earthBlock = {};
   let earthBlockElements = {};
   let isButton = false;
@@ -1052,6 +1059,17 @@ function delay(milliseconds){
       {
         me = firebase.database().ref("players/" + playerId);
         var damage = randomFromArray([0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        me.update({
+          health: players[playerId].health - damage
+        })
+      }
+    })
+    Object.keys(earthCrawl).forEach((key) => {
+      const theLava = earthCrawl[key];
+      if(theLava.x == players[playerId].x && theLava.y == players[playerId].y)
+      {
+        me = firebase.database().ref("players/" + playerId);
+        var damage = randomFromArray([0, 0, 0, 1, 1, 1, 1]);
         me.update({
           health: players[playerId].health - damage
         })
@@ -2507,6 +2525,7 @@ function delay(milliseconds){
     const allExplosionRef = firebase.database().ref(`explosion`);
     const allProjectionRef = firebase.database().ref(`projection`);
     const allCombustRef = firebase.database().ref(`combust`);
+    const allEarthCrawlRef = firebase.database().ref(`earth-crawl`);
 
     allPlayersRef.on("value", (snapshot) => {
       //change
@@ -3106,6 +3125,48 @@ function delay(milliseconds){
       delete lavaElements[keyToRemove];
     })
 
+    allEarthCrawlRef.on("value", (snapshot) => {
+      earthCrawl = snapshot.val() || {};
+      Object.keys(earthCrawl).forEach((key) => {
+        const earthCrawlState = earthCrawl[key];
+        let el = earthCrawlElements[earthCrawlState.id];
+        const left = 16 * earthCrawlState.x + "px";
+        const top = 16 * earthCrawlState.y + "px";
+        el.style.transform = `translate3d(${left}, ${top}, 0)`;
+      })
+    });
+    allEarthCrawlRef.on("child_added", (snapshot) => {
+      const earthCrawl = snapshot.val();
+      const key = earthCrawl.id;
+      earthCrawl[key] = true;
+
+      // Create the DOM Element
+      const earthCrawlElement = document.createElement("div");
+      earthCrawlElement.classList.add("EarthCrawl", "grid-cell");
+      earthCrawlElement.innerHTML = `
+        <div class="EarthCrawl_sprite grid-cell"></div>
+      `;
+
+      // Position the Element
+      const left = 16 * earthCrawl.x + "px";
+      const top = 16 * earthCrawl.y + "px";
+      earthCrawlElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+
+      // Keep a reference for removal later and add to DOM
+      earthCrawlElements[key] = earthCrawlElement;
+      gameContainer.appendChild(earthCrawlElement);
+
+      setTimeout(() => {
+        firebase.database().ref(`earth-crawl/${earthCrawl.id}`).remove();
+      }, 5000);
+    })
+    allEarthCrawlRef.on("child_removed", (snapshot) => {
+      const {id} = snapshot.val();
+      const keyToRemove = id;
+      gameContainer.removeChild(earthCrawlElements[keyToRemove]);
+      delete earthCrawlElements[keyToRemove];
+    })
+
     allLightningRef.on("value", (snapshot) => {
       lightning = snapshot.val() || {};
       Object.keys(lightning).forEach((key) => {
@@ -3451,6 +3512,87 @@ function delay(milliseconds){
           await delay(150);
         }
         cooldown = 4;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myBending == "Earth" && target.id != "EarthBlock" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 7 && myMoveId == 8 && cooldown == 0)
+      {
+        let crawlPos = {x: players[playerId].x, y: players[playerId].y};
+        let leng = distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y});
+        for (var i = 0; i < leng; i++) {
+          if(mouseTile.x > crawlPos.x)
+          {
+            crawlPos.x += 1;
+          }
+          if(mouseTile.x < crawlPos.x)
+          {
+            crawlPos.x -= 1;
+          }
+          if(mouseTile.y > crawlPos.y)
+          {
+            crawlPos.y += 1;
+          }
+          if(mouseTile.y < crawlPos.y)
+          {
+            crawlPos.y -= 1;
+          }
+          const crawlRef = firebase.database().ref(`earth-crawl/${playerId + LavaId}`);
+          crawlRef.set({
+            x: crawlPos.x, 
+            y: crawlPos.y, 
+            useable: true, 
+            id: playerId + LavaId
+          })
+          LavaId++;
+          await delay(100);
+        }
+        cooldown = 4;
+        coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myBending == "Water" && target.id != "EarthBlock" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 7 && myMoveId == 9 && cooldown == 0 && distToWater(players[playerId].x, players[playerId].y, water) <= 2)
+      {
+        let whipPos = {x: players[playerId].x, y: players[playerId].y};
+        let leng = distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y});
+        for (var i = 0; i < leng; i++) {
+          if(mouseTile.x > whipPos.x)
+          {
+            whipPos.x += 1;
+          }
+          if(mouseTile.x < whipPos.x)
+          {
+            whipPos.x -= 1;
+          }
+          if(mouseTile.y > whipPos.y)
+          {
+            whipPos.y += 1;
+          }
+          if(mouseTile.y < whipPos.y)
+          {
+            whipPos.y -= 1;
+          }
+          const whipRef = firebase.database().ref(`water/${playerId + waterWhipId}`);
+          whipRef.set({
+            x: whipPos.x, 
+            y: whipPos.y, 
+            useable: true, 
+            state: "water", 
+            delete: true, 
+            id: playerId + waterWhipId
+          })
+          waterWhipId++;
+          Object.keys(players).forEach((key) => {
+            const thePlayer = players[key];
+            const thisPlayerRef = firebase.database().ref(`players/${key}`);
+            if(whipPos.x === thePlayer.x && whipPos.y === thePlayer.y)
+            {
+              let thisDamage = randomFromArray([0, 1, 1]);
+              firebase.database().ref("players/" + thePlayer.id).update({
+                health: players[thePlayer.id].health - thisDamage
+              })
+            }
+          })
+          await delay(100);
+        }
+        cooldown = 2;
         coolDown.innerText = "Cooldown: " + cooldown;
       }
       if(myBending == "Fire" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 8 && redirect && cooldown == 0)

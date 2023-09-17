@@ -473,6 +473,12 @@ button {
 	background: url(images/earth-block.png) no-repeat no-repeat;
 }
 
+/* Earth Crawl */
+
+.EarthCrawl_sprite {
+	background: url(images/earth-crawl.png) no-repeat no-repeat;
+}
+
 /* Sand */
 
 .Sand_sprite {
