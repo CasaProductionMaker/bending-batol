@@ -75,7 +75,7 @@ let FireMoves = ["Blaze", "Incinerate", "Wall of Fire", "Fireball", "Lighting Bl
 let FireXP = [3, 0, 2, 1, 6, 5, 8, 10];
 let AirXP = [3, 0, 1, 2, 1, 6, 2, 3, 5];
 let WaterXP = [0, 3, 3, 4, 5, 6, 2, 9, 4, 1];
-let EarthXP = [0, 0, 1, 5, 3, 4, 8, 6, 0];
+let EarthXP = [0, 1, 1, 5, 3, 4, 8, 6, 2];
 let WaterDesc = [
   "Control water and shoot it at your opponents.", 
   "Grab water as a shield and shoot it off as offense", 
