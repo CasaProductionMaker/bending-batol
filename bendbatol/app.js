@@ -3270,6 +3270,7 @@ function delay(milliseconds){
       playerRef.update({
         name: newName
       });
+      localStorage.setItem("Name", newName);
     })
     playerColorButton.addEventListener("click", () => {
       const mySkinIndex = playerColors.indexOf(players[playerId].color);
@@ -3991,7 +3992,12 @@ function delay(milliseconds){
       playerId = user.uid;
       playerRef = firebase.database().ref(`players/${playerId}`);
 
-      const name = createName();
+      let name;
+      if(localStorage.getItem("Name") == null)
+      {
+        localStorage.setItem("Name", createName());
+      }
+      name = localStorage.getItem("Name");
       playerNameInput.value = name;
 
       const {x, y} = getRandomSafeSpot(earthBlock);
