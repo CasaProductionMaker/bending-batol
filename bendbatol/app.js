@@ -70,10 +70,10 @@ let myBinds = [null, null, null];
 let bindMove = null;
 let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze", "Water Arms", "Quick Shield", "Friendbending", "Draw Moisture", "Water Whip"];
 let EarthMoves = ["Earth Pillar", "Earth Wall", "Raise Land", "Lava Crevice", "Earth Boulder", "Lava Disk", "Lava Encase", "Quicksand", "Earth Crawl"];
-let AirMoves = ["Suffocate", "Wind", "Air Shield", "Wind Cloak", "Wind Slice", "Tornado", "Shockwave", "Spirit Projection"];
+let AirMoves = ["Suffocate", "Wind", "Air Shield", "Wind Cloak", "Wind Slice", "Tornado", "Shockwave", "Spirit Projection", "Air Cleanse"];
 let FireMoves = ["Blaze", "Incinerate", "Wall of Fire", "Fireball", "Lighting Blast", "Fire Breath", "Explosion", "Combust"];
 let FireXP = [3, 0, 2, 1, 6, 5, 8, 10];
-let AirXP = [3, 0, 1, 2, 1, 3, 2, 3];
+let AirXP = [3, 0, 1, 2, 1, 6, 2, 3, 5];
 let WaterXP = [0, 3, 3, 4, 5, 6, 2, 9, 4, 1];
 let EarthXP = [0, 0, 1, 5, 3, 4, 8, 6, 0];
 let WaterDesc = [
@@ -107,7 +107,8 @@ let AirDesc = [
   "Shoot out a thin air stream, damaging anyone in its path.", 
   "Create a huge tornado, bringing anyone close enough into a deadly vaccum", 
   "Blast all your opponents away using a powerful shockwave", 
-  "Project a spirit clone of yourself as a decoy."
+  "Project a spirit clone of yourself as a decoy.", 
+  "Cleanse the air around yourself or an ally to maybe heal them"
 ];
 let FireDesc = [
   "Shoot out a huge flame to burn your enemies.", 
@@ -150,7 +151,8 @@ let AirInst = [
   "Move in the direction you want to shoot the air and then quickly press space.", 
   "Click anywhere to generate a tornado, it will take 2-3 seconds though, so be patient.", 
   "Press space to blast anyone near you away", 
-  "Press space to toggle a projection that will follow your mouse."
+  "Press space to toggle a projection that will follow your mouse.", 
+  "Click on any player to have a 50% chance to heal them."
 ];
 let FireInst = [
   "Move in the direction you want to shoot the fire and then quickly press space.", 
@@ -3326,6 +3328,22 @@ function delay(milliseconds){
       if(myBending == "Air")
       {
         myAir = 1;
+      }
+      if(myBending == "Air" && myMoveId == 8)
+      {
+        Object.keys(players).forEach((key) => {
+          const thePlayer = players[key];
+          const thisPlayerRef = firebase.database().ref(`players/${key}`);
+          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y && thePlayer.health < 5)
+          {
+            let thisDamage = randomFromArray([0, 1]);
+            firebase.database().ref("players/" + thePlayer.id).update({
+              health: players[thePlayer.id].health + thisDamage
+            })
+            cooldown += 2;
+            coolDown.innerText = "Cooldown: " + cooldown;
+          }
+        })
       }
       if(myBending == "Earth" && target.id != "EarthBlock" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 4 && myMoveId == 0 && EarthBlockCount < 12 && cooldown == 0)
       {
