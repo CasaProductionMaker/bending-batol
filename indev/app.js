@@ -594,21 +594,16 @@ function delay(milliseconds){
     document.onclick = async function(event) {
       if(event === undefined) event = window.event;
       var target = "target" in event ? event.target : event.srcElement;
-      if(mouseTile.x == players[playerId].x && mouseTile.y > players[playerId].y)
+      let change = {x: players[playerId].x - mouseTile.x, y: players[playerId].y - mouseTile.y};
+      let changeIsX = 0;
+      let changeIsY = 0;
+      if(Math.abs(change.x) >= Math.abs(change.y))
       {
-        direction = {x: 0, y: 1}
+        direction = {x: -change.x / Math.abs(change.x), y: 0}
       }
-      if(mouseTile.x == players[playerId].x && mouseTile.y < players[playerId].y)
+      if(Math.abs(change.y) > Math.abs(change.x))
       {
-        direction = {x: 0, y: -1}
-      }
-      if(mouseTile.x > players[playerId].x && mouseTile.y == players[playerId].y)
-      {
-        direction = {x: 1, y: 0}
-      }
-      if(mouseTile.x < players[playerId].x && mouseTile.y == players[playerId].y)
-      {
-        direction = {x: -1, y: 0}
+        direction = {x: 0, y: -change.y / Math.abs(change.y)}
       }
       if(myBending == "Fire" && direction != null && myMoveId == 1 && cooldown == 0)
       {
