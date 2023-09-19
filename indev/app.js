@@ -336,7 +336,7 @@ function delay(milliseconds){
           break;
         }
       }
-      cooldown = 6;
+      cooldown = 1;
       coolDown.innerText = "Cooldown: " + cooldown;
     }
   }
@@ -701,7 +701,7 @@ function delay(milliseconds){
             break;
           }
         }
-        cooldown = 6;
+        cooldown = 1;
         coolDown.innerText = "Cooldown: " + cooldown;
       }
     };
