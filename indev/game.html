@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" type="text/css" href="styles.css">
+		<link rel="icon" type="image/x-icon" href="favicon.ico">
+		<title>Bending Batol</title>
+	</head>
+	<body>
+		<div class="game-container">
+		</div>
+		<div class="player-info">
+			<div>
+				<label for="player-name">Your Name</label>
+				<input id="player-name" maxlength="16" type="text"/>
+			</div>
+			<div>
+        		<button id="player-color">Change Color</button>
+    		</div>
+		</div>
+		<div class="player-bend-info">
+			<div class="bend-stats">
+	    		<h3 id="current-move">Current Move: </h3>
+	    		<div class="info">
+		    		<div class="description"><b>Control water and shoot it at your opponents.</b></div>
+		    		<div class="instructions"><b><em>Click on water to store it, and press space to make it follow your mouse.</em></b></div>
+		    	</div>
+	    		<h3 id="cool-down">Cooldown: </h3>
+    		</div>
+		</div>
+		<div class="chat-box">
+			<div id="chat-display">
+    		</div>
+			<div>
+				<label for="chat-input">Chat</label>
+				<input id="chat-input" maxlength="32" type="text" style="text-transform: none;"/>
+			</div>
+			<div>
+        		<button id="send-chat">Send</button>
+    		</div>
+		</div>
+		<div class="mobile-controls">
+			<button id="left-move"><</button>
+			<button id="up-move">^</button>
+			<button id="down-move">v</button>
+			<button id="right-move">></button>
+		</div>
+		<button id="attack">O</button>
+		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    	<script src="KeyPressListener.js"></script>
+    	<div class="respawn-container">
+		<script type="text/javascript" src="app.js"></script>
+		</div>
+	</body>
+</html>
