@@ -40,23 +40,11 @@ let FireMoves = ["Blaze Arrow Indev", "Blaze Mouse Indev"];
 let FireXP = [0, 0];
 let FireDesc = [
   "Shoot out a huge flame to burn your enemies.", 
-  "Burn any place at will.", 
-  "Make a wall of fire to block out your opponents.", 
-  "Shoot a flaming ball at your enemy.", 
-  "Lighting shoots out from you to electorcute your enemies", 
-  "Blast flames out of your mouth, incinerating anything in your path", 
-  "A rare bending form, used only by masters, you can explode any place at will.", 
-  "Shoot out a beam that will explode on impact"
+  "Smae thing"
 ];
 let FireInst = [
   "Move in the direction you want to shoot the fire and then quickly press space.", 
-  "Click on a tile to burn it.", 
-  "Click on a tile to burn a wall at the tile.", 
-  "Move in the direction you want to shoot the fireball and then quickly press space.", 
-  "Click on a tile not too far from you to shoot lightning at that point", 
-  "Press space to toggle the fire breath.", 
-  "Click on any tile to explode it.", 
-  "Move in the direction you want to shoot and then quickly press space."
+  "Click on a tile on the same axis as you to shoot there."
 ];
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
