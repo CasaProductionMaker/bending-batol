@@ -1101,7 +1101,7 @@ function delay(milliseconds){
       if(distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: theTornado.x, y: theTornado.y}) < 4 && theTornado.id != playerId)
       {
         me = firebase.database().ref("players/" + playerId);
-        var damage = randomFromArray([0, 0, 0, 0, 1]);
+        var damage = randomFromArray([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]);
         me.update({
           x: players[playerId].x + (theTornado.x > players[playerId].x ? 1 : -1), 
           y: players[playerId].y + (theTornado.y > players[playerId].y ? 1 : -1), 
