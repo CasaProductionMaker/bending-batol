@@ -167,6 +167,9 @@ let FireInst = [
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 
+function isMobile() {
+  return /Android|iPhone/i.test(navigator.userAgent);
+}
 function distanceBetween(one, two) {
   return Math.max(Math.abs(one.x - two.x), Math.abs(one.y - two.y));
 }
@@ -2495,15 +2498,11 @@ function delay(milliseconds){
 
   function initGame() {
 
-    new KeyPressListener("ArrowUp", () => handleArrowPress(0, -1))
-    new KeyPressListener("ArrowDown", () => handleArrowPress(0, 1))
-    new KeyPressListener("ArrowLeft", () => handleArrowPress(-1, 0))
-    new KeyPressListener("ArrowRight", () => handleArrowPress(1, 0))
+    new DoubleKeyPressListener("ArrowUp", "KeyW", () => handleArrowPress(0, -1))
+    new DoubleKeyPressListener("ArrowDown", "KeyS", () => handleArrowPress(0, 1))
+    new DoubleKeyPressListener("ArrowLeft", "KeyA", () => handleArrowPress(-1, 0))
+    new DoubleKeyPressListener("ArrowRight", "KeyD", () => handleArrowPress(1, 0))
     new KeyPressListener("Space", () => handleAttack())
-    new KeyPressListener("KeyA", () => handleArrowPress(-1, 0))
-    new KeyPressListener("KeyW", () => handleArrowPress(0, -1))
-    new KeyPressListener("KeyS", () => handleArrowPress(0, 1))
-    new KeyPressListener("KeyD", () => handleArrowPress(1, 0))
     new KeyPressListener("KeyQ", () => switchMove())
     new KeyPressListener("KeyB", () => bindCurrentMove())
     new KeyPressListener("Digit1", () => attemptBindMove(0))
@@ -3306,10 +3305,22 @@ function delay(milliseconds){
       }
     })
 
-    document.querySelector("#up-move").addEventListener("click", () => handleArrowPress(0, -1))
-    document.querySelector("#down-move").addEventListener("click", () => handleArrowPress(0, 1))
-    document.querySelector("#left-move").addEventListener("click", () => handleArrowPress(-1, 0))
-    document.querySelector("#right-move").addEventListener("click", () => handleArrowPress(1, 0))
+    document.querySelector("#up-move").addEventListener("click", () => {
+      if(isMobile())
+        handleArrowPress(0, -1);
+    })
+    document.querySelector("#down-move").addEventListener("click", () => {
+      if(isMobile())
+        handleArrowPress(0, 1)
+    })
+    document.querySelector("#left-move").addEventListener("click", () => {
+      if(isMobile())
+        handleArrowPress(-1, 0)
+    })
+    document.querySelector("#right-move").addEventListener("click", () => {
+      if(isMobile())
+        handleArrowPress(1, 0)
+    })
     document.querySelector("#attack").addEventListener("click", () => handleAttack())
 
     window.addEventListener('mousemove', (event) => {
