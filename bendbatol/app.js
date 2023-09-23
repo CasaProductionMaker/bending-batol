@@ -128,7 +128,7 @@ let WaterInst = [
   "Click on water or ice to store it if it is close enough to it, and press space to make it follow your mouse. When it collides with an opponent, they will freeze in a ball of ice.", 
   "Click on water or ice to store it if it is close enough to it, and press space to toggle the water arms. After toggling, click on someone close enough to your water arm tips to punch them.", 
   "Click in front of yourself if you are near water or have collected water to form a quick shield at your mouse.", 
-  "Click on someone else to make them follow your mouse.", 
+  "Click on someone else to make them follow your mouse and click again to let them go.", 
   "Click on any tile to draw moisture out of it and form water for a few seconds", 
   "Click anywhere 7 tiles away from you to send a whip up to your mouse if you are near water or have collected water.", 
 ];
@@ -3966,17 +3966,22 @@ function delay(milliseconds){
           }
         })
       }
-      if(myBending == "Water" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 2 && !players[playerId].isDead && myMoveId == 7)
+      if(myBending == "Water" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 2 && !players[playerId].isDead && myMoveId == 7 && friendbend == null)
       {
         Object.keys(players).forEach((key) => {
           const thePlayer = players[key];
           const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y)
+          if(distanceBetween({x: thePlayer.x, y: thePlayer.y}, {x: mouseTile.x, y: mouseTile.y}) < 2)
           {
             friendbend = thePlayer.id;
             myAttackIdx = 0;
           }
         })
+      } else if(myBending == "Water" && myMoveId == 7 && friendbend != null)
+      {
+        friendbend = null;
+        cooldown = 4;
+        coolDown.innerText = "Cooldown: " + cooldown;
       }
     };
     setMove(0);
