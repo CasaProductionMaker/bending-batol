@@ -1,0 +1,608 @@
+/* General */
+
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
+	font-family: sans-serif;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+h3 {
+	margin: 0.3em;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+/* Game Container */
+
+.game-container {
+	position: relative;
+	width: 240px;
+	height: 208px;
+	transform: scale(3);
+	image-rendering: pixelated;
+}
+.game-container[data-map="Lobby"] {
+	background: url(images/map.png) no-repeat no-repeat;
+}
+.game-container[data-map="Shop"] {
+	background: url(images/shop.png) no-repeat no-repeat;
+}
+.game-container[data-map="Graveyard"] {
+	background: url(images/graveyard.png) no-repeat no-repeat;
+}
+.game-container[data-map="Field"] {
+	background: url(images/field.png) no-repeat no-repeat;
+}
+
+/* Leaderboard */
+.leaderboard {
+	position: absolute;
+	top: 0px;
+	background-color: rgb(0, 0, 0, 0.2);
+	padding: 1%;
+	border-radius: 5px;
+}
+
+/* Respawn */
+
+.respawn-container {
+	z-index: 2;
+	align-items: center;
+	justify-content: center;
+}
+
+#respawn {
+	text-align: center;
+}
+
+/* Player Customization */
+
+.player-info {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 1em;
+	display: flex;
+	gap: 0.5em;
+	align-items: flex-end;
+}
+
+/* Player info */
+
+.player-dur-info {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 1em;
+	display: flex;
+	gap: 0.5em;
+	align-items: flex-end;
+}
+
+/* Chat */
+
+.chat-box {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	padding: 1em;
+	display: flex;
+	gap: 0.5em;
+	align-items: flex-end;
+}
+
+.chat-message {
+	position: relative;
+	bottom: 300px;
+}
+
+/* More General */
+
+label {
+	display: block;
+	font-weight: bold;
+}
+
+input[type="text"], 
+button {
+	font-family: inherit;
+	font-weight: bold;
+	font-size: 18px;
+	height: 44px;
+	border-radius: 4px;
+	outline: 0;
+}
+
+input[type="text"] {
+	outline: 0;
+	padding-left: 0.5em;
+	border: 3px solid #222034;
+	width: 150px;
+	text-transform: uppercase;
+}
+
+input[type="text"]:focus {
+	border-color: #f000ff;
+}
+
+button {
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	background: #59ff5a;
+	border: 0;
+	border-bottom: 2px solid #1e830b;
+	cursor: pointer;
+}
+
+button:active:not(#exit-button) {
+	position: relative;
+	top: 1px;
+}
+
+/* More Chat */
+
+#chat-display {
+	text-align: right;
+	align-self: right;
+	right: 0px;
+	font-weight: bold;
+	position: relative;
+	bottom: 70px;
+	left: 210px;
+	overflow: hidden;
+}
+
+/* Dialogue */
+
+.dialogue-container {
+	z-index: 5;
+	position: absolute;
+	bottom: 5px;
+	background: #00000000;
+}
+.dialogue-container[data-show="true"] {
+	z-index: 5;
+	position: absolute;
+	bottom: 5px;
+	background: #3d3d3d7d;
+}
+
+#dialogue-text {
+	display: inline-block;
+	position: relative;
+	margin: 5px;
+	margin-bottom: 9%;
+}
+
+#dialogue-text[data-number="1"] {
+	display: inline-block;
+	position: relative;
+	margin: 5px;
+	margin-bottom: 3%;
+}
+#dialogue-text[data-number="2"] {
+	display: inline-block;
+	position: relative;
+	margin: 5px;
+	margin-bottom: 9%;
+}
+
+#first-button, #second-button, #exit-button {
+	display: none;
+	height: 2em;
+}
+
+#exit-button {
+	background: #ff3021;
+	border-bottom: 2px solid #d9291c;
+	height: 1.5em;
+	position: relative;
+	top: -50px;
+	left: 10px;
+}
+
+button#exit-button:active {
+	position: relative;
+	top: -49px;
+}
+
+#exit-button[data-show="true"] {
+	display: inline-block;
+}
+#option-container {
+	display: inline-block;
+	margin: 0.4em;
+}
+#first-button[data-show="true"], #second-button[data-show="true"] {
+	display: block;
+	margin: 0.1em;
+}
+
+/* Characters */
+
+.grid-cell {
+	position: absolute;
+	width: 16px;
+	height: 16px;
+}
+
+.Character {
+	transition: transform 0.4s;
+	text-align: center;
+}
+
+.Character.you {
+	z-index: 1;
+}
+.Character.you .Character_you-arrow {
+	display: block;
+}
+
+.Character_you-arrow {
+	display: none;
+	position: absolute;
+	top: -18px;
+	left: 5px;
+	width: 7px;
+	height: 5px;
+	background: url(images/arrow.png) no-repeat no-repeat;
+}
+
+.Character_health_bar[data-health="5"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthfive.png) no-repeat no-repeat;
+}
+
+.Character_health_bar[data-health="4"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthfour.png) no-repeat no-repeat;
+}
+
+.Character_health_bar[data-health="3"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healththree.png) no-repeat no-repeat;
+}
+
+.Character_health_bar[data-health="2"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthtwo.png) no-repeat no-repeat;
+}
+
+.Character_health_bar[data-health="1"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthone.png) no-repeat no-repeat;
+}
+
+.Character_health_bar[data-health="0"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthzero.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="-1"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthzero.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="-2"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthzero.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-location="none"] {
+	background: url(images/none.png);
+}
+
+.Luck-effect[data-luck="true"] {
+	display: block;
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	width: 9px;
+	height: 9px;
+	background: url(images/clover.png) no-repeat no-repeat;
+}
+.Luck-effect[data-luck="false"] {
+	display: block;
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	width: 9px;
+	height: 9px;
+	background: unset;
+}
+.Character_sprite {
+	overflow: hidden;
+	top: -3px;
+	background: url(images/characters.png);
+}
+
+.Character[data-weapon="sword"] .Character_sprite {
+	background: url(images/charactersSword.png);
+}
+
+.Character[data-weapon="axe"] .Character_sprite {
+	background: url(images/charactersAxe.png);
+}
+
+.Character[data-location="none"] .Character_sprite {
+	background: url(images/charactersNone.png);
+}
+
+.Character[data-direction="right"] .Character_sprite {
+  background-position-x: 16px;
+}
+.Character[data-color="red"] .Character_sprite {
+  background-position-y: -16px;
+}
+.Character[data-color="orange"] .Character_sprite {
+  background-position-y: -32px;
+}
+.Character[data-color="yellow"] .Character_sprite {
+  background-position-y: -48px;
+}
+.Character[data-color="green"] .Character_sprite {
+  background-position-y: -64px;
+}
+.Character[data-color="purple"] .Character_sprite {
+  background-position-y: -80px;
+}
+.Character_shadow {
+	background: url(images/shadow.png);
+}
+.Character_shadow[data-location="none"] {
+	background: url(images/none.png);
+}
+
+.Character_name-container {
+  position: absolute;
+  top: -12px;
+  left: -5px;
+  font-size: 5px;
+  padding: 1px 2px 1px;
+  border-radius: 3px;
+  background: #333;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  white-space: nowrap;
+  align-items: center;
+}
+.Character_name-container[data-location="none"] {
+  background: #00000000;
+}
+.Character_name {
+  color: white;
+}
+.Character_name[data-location="none"] {
+  color: #00000000;
+}
+.Character_coins {
+  margin-left: 1px;
+  color: gold;
+}
+.Character_coins[data-location="none"] {
+  color: #00000000;
+}
+
+/* Ancestors */
+
+.Ancestor {
+	transition: transform 0.4s;
+	text-align: center;
+}
+
+.Ancestor_health_bar[data-health="5"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthfive.png) no-repeat no-repeat;
+}
+
+.Ancestor_health_bar[data-health="4"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthfour.png) no-repeat no-repeat;
+}
+
+.Ancestor_health_bar[data-health="3"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healththree.png) no-repeat no-repeat;
+}
+
+.Ancestor_health_bar[data-health="2"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthtwo.png) no-repeat no-repeat;
+}
+
+.Ancestor_health_bar[data-health="1"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthone.png) no-repeat no-repeat;
+}
+
+.Ancestor_health_bar[data-health="0"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthzero.png) no-repeat no-repeat;
+}
+
+.Ancestor_health_bar[data-location="none"] {
+	background: url(images/none.png);
+}
+
+.Ancestor_sprite {
+	overflow: hidden;
+	top: -3px;
+	background: url(images/ancestors.png);
+}
+
+.Ancestor[data-location="none"] .Ancestor_sprite {
+	background: url(images/charactersNone.png);
+}
+
+.Ancestor[data-direction="right"] .Ancestor_sprite {
+  background-position-x: 16px;
+}
+.Ancestor_shadow {
+	background: url(images/shadow.png);
+}
+.Ancestor_shadow[data-location="none"] {
+	background: url(images/none.png);
+}
+
+.Ancestor_name-container {
+  position: absolute;
+  top: -12px;
+  left: -5px;
+  font-size: 5px;
+  padding: 1px 2px 1px;
+  border-radius: 3px;
+  background: #333;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  white-space: nowrap;
+  align-items: center;
+}
+.Ancestor_name-container[data-location="none"] {
+  background: #00000000;
+}
+.Ancestor_name {
+  color: white;
+}
+.Ancestor_name[data-location="none"] {
+  color: #00000000;
+}
+
+/* Coins */
+
+.Coin_sprite {
+	background: url(images/coin.png) no-repeat no-repeat;
+	animation: coinFloat 0.8s linear infinite alternate-reverse;
+}
+
+.Coin_sprite[data-location="none"] {
+  background: url(images/none.png) no-repeat no-repeat;
+}
+@keyframes coinFloat {
+  from { transform: translateY(0) }
+  to { transform: translateY(5px) }
+}
+.Coin_shadow {
+	background: url(images/coin-shadow.png) no-repeat no-repeat;
+}
+
+.Coin_shadow[data-location="none"] {
+  background: url(images/none.png) no-repeat no-repeat;
+}
+
+/* Potion */
+
+.Potion_sprite {
+	background: url(images/potion.png) no-repeat no-repeat;
+	animation: potionFloat 0.8s linear infinite alternate-reverse;
+}
+.Potion_sprite[data-location="none"] {
+	background: url(images/none.png) no-repeat no-repeat;
+	animation: potionFloat 0.8s linear infinite alternate-reverse;
+}
+@keyframes potionFloat {
+  from { transform: translateY(0) }
+  to { transform: translateY(3px) }
+}
+.Potion_shadow {
+	background: url(images/coin-shadow.png) no-repeat no-repeat;
+}
+.Potion_shadow[data-location="none"] {
+  background: url(images/none.png) no-repeat no-repeat;
+}
+
+/* Items */
+
+.Item_sprite {
+	animation: itemFloat 0.9s linear infinite alternate-reverse;
+}
+
+.Item[data-type="sword"] .Item_sprite{
+	background: url(images/sword.png) no-repeat no-repeat;
+}
+.Item[data-type="axe"] .Item_sprite{
+	background: url(images/axe.png) no-repeat no-repeat;
+}
+.Item[data-location="none"] .Item_sprite {
+	background: url(images/none.png) no-repeat no-repeat;
+}
+@keyframes itemFloat {
+  from { transform: translateY(0) }
+  to { transform: translateY(2px) }
+}
