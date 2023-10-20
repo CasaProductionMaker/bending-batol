@@ -1431,6 +1431,7 @@ function getRandomSafeSpot() {
         isDead: false, 
         weapon: "none", 
         location: myLocation, 
+        isDev: false
       })
 
       const date = new Date();
