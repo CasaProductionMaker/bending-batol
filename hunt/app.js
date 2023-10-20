@@ -132,7 +132,7 @@ const fieldMapData = {
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 
 function isMobile() {
-  return /Android|iPhone/i.test(navigator.userAgent);
+  return true;
 }
 function randomFromArray(array) {
 	return array[Math.floor(Math.random() * array.length)];
