@@ -131,6 +131,9 @@ const fieldMapData = {
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 
+function isMobile() {
+  return /Android|iPhone/i.test(navigator.userAgent);
+}
 function randomFromArray(array) {
 	return array[Math.floor(Math.random() * array.length)];
 }
@@ -1098,14 +1101,10 @@ function getRandomSafeSpot() {
 
   function initGame() {
 
-    new KeyPressListener("ArrowUp", () => handleArrowPress(0, -1))
-    new KeyPressListener("ArrowDown", () => handleArrowPress(0, 1))
-    new KeyPressListener("ArrowLeft", () => handleArrowPress(-1, 0))
-    new KeyPressListener("ArrowRight", () => handleArrowPress(1, 0))
-    new KeyPressListener("KeyW", () => handleArrowPress(0, -1))
-    new KeyPressListener("KeyS", () => handleArrowPress(0, 1))
-    new KeyPressListener("KeyA", () => handleArrowPress(-1, 0))
-    new KeyPressListener("KeyD", () => handleArrowPress(1, 0))
+    new DoubleKeyPressListener("ArrowUp", "KeyW", () => handleArrowPress(0, -1))
+    new DoubleKeyPressListener("ArrowDown", "KeyS", () => handleArrowPress(0, 1))
+    new DoubleKeyPressListener("ArrowLeft", "KeyA", () => handleArrowPress(-1, 0))
+    new DoubleKeyPressListener("ArrowRight", "KeyD", () => handleArrowPress(1, 0))
     new KeyPressListener("Space", () => handleAttack())
 
     const allPlayersRef = firebase.database().ref(`players`);
@@ -1381,6 +1380,24 @@ function getRandomSafeSpot() {
         chatDisplay.appendChild(messageElement);
       }
     })
+
+    document.querySelector("#up-move").addEventListener("click", () => {
+      if(isMobile())
+        handleArrowPress(0, -1);
+    })
+    document.querySelector("#down-move").addEventListener("click", () => {
+      if(isMobile())
+        handleArrowPress(0, 1)
+    })
+    document.querySelector("#left-move").addEventListener("click", () => {
+      if(isMobile())
+        handleArrowPress(-1, 0)
+    })
+    document.querySelector("#right-move").addEventListener("click", () => {
+      if(isMobile())
+        handleArrowPress(1, 0)
+    })
+    document.querySelector("#attack").addEventListener("click", () => handleAttack())
 
     durDisplay.innerText = "Current Durability: " + myDurability;
     placeCoin();
