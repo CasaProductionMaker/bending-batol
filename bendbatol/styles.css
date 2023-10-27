@@ -32,6 +32,14 @@ h3 {
 .game-container {
 	background: url(images/map.png) no-repeat no-repeat;
 }
+.game-container[data-location="Desert"]
+{
+	background: url(images/desertMap.png) no-repeat no-repeat;
+}
+.game-container[data-location="Beach"]
+{
+	background: url(images/beachMap.png) no-repeat no-repeat;
+}
 
 /* Respawn */
 
@@ -366,10 +374,15 @@ button {
 	background: url(images/water.png) no-repeat no-repeat;
 	animation: waterFloat 0.8s linear infinite alternate-reverse;
 	transition: transform 0.2s;
+	z-index: 1;
 }
 
 .Water_sprite[data-state="ice"] {
 	background: url(images/ice.png) no-repeat no-repeat;
+}
+
+.Water_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
 }
 
 @keyframes waterFloat {
@@ -390,11 +403,19 @@ button {
   to { transform: translateY(0.5px) }
 }
 
+.Lava_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
+}
+
 /* Fire */
 
 .Fire_sprite {
 	background: url(images/fire.png) no-repeat no-repeat;
 	animation: fireFloat 0.8s linear infinite alternate-reverse;
+}
+
+.Fire_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
 }
 
 @keyframes fireFloat {
@@ -415,6 +436,12 @@ button {
   to { transform: translateY(3px) }
 }
 
+.AirVaccum_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
+	animation: airVaccumFloat 0.8s linear infinite alternate-reverse;
+	transition: transform 0.2s;
+}
+
 /* Wind */
 
 .Wind_sprite {
@@ -426,6 +453,10 @@ button {
 @keyframes windFloat {
   from { transform: translateY(0) }
   to { transform: translateY(3px) }
+}
+
+.Wind_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
 }
 
 /* Fireball */
@@ -441,6 +472,10 @@ button {
   to { transform: translateY(3px) }
 }
 
+.Fireball_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
+}
+
 /* Air Slice */
 
 .AirSlice_sprite {
@@ -452,6 +487,10 @@ button {
 @keyframes airSliceFloat {
   from { transform: translateY(0) }
   to { transform: translateY(3px) }
+}
+
+.AirSlice_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
 }
 
 /* Tornado */
@@ -467,10 +506,18 @@ button {
 	top: -32px;
 }
 
+.Tornado_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
+}
+
 /* Earth Block */
 
 .EarthBlock_sprite {
 	background: url(images/earth-block.png) no-repeat no-repeat;
+}
+
+.EarthBlock_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
 }
 
 /* Earth Crawl */
@@ -479,10 +526,18 @@ button {
 	background: url(images/earth-crawl.png) no-repeat no-repeat;
 }
 
+.EarthCrawl_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
+}
+
 /* Sand */
 
 .Sand_sprite {
 	background: url(images/sand.png) no-repeat no-repeat;
+}
+
+.Sand_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
 }
 
 /* Explosion */
@@ -491,11 +546,19 @@ button {
 	background: url(images/explosion.png) no-repeat no-repeat;
 }
 
+.Explosion_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
+}
+
 /* Projection */
 
 .Projection_sprite {
 	background: url(images/projection.png) no-repeat no-repeat;
 	bottom: 7px;
+}
+
+.Projection_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
 }
 
 /* Rock */
@@ -514,6 +577,10 @@ button {
   to { transform: translateY(3px) }
 }
 
+.Rock_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
+}
+
 /* Lightning */
 
 .Lightning_sprite {
@@ -526,9 +593,35 @@ button {
   to { transform: translateY(3px) }
 }
 
+.Lightning_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
+}
+
 /* Combust */
 
 .Combust_sprite {
 	background: url(images/combust.png) no-repeat no-repeat;
 	animation: lightningFloat 0.8s linear infinite alternate-reverse;
+}
+
+.Combust_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
+}
+
+/* Red Zone */
+
+.RedZone_sprite {
+	background: url(images/redZone.png) no-repeat no-repeat;
+	pointer-events: none;
+	z-index: 5;
+}
+
+.RedZone_sprite[data-location="none"] {
+	background: url(images/charactersWindCloak.png) no-repeat no-repeat;
+	pointer-events: none;
+	z-index: 0;
+}
+
+.RedZone[data-location="none"] {
+	pointer-events: none;
 }

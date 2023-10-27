@@ -12,7 +12,25 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 
 //My code
-const mapData = {
+const arenaMapData = {
+  minX: 0,
+  maxX: 15,
+  minY: 0,
+  maxY: 13,
+  blockedSpaces: {
+    "1x1": false
+  }
+};
+const desertMapData = {
+  minX: 0,
+  maxX: 15,
+  minY: 0,
+  maxY: 13,
+  blockedSpaces: {
+    "1x1": false
+  }
+};
+const beachMapData = {
   minX: 0,
   maxX: 15,
   minY: 0,
@@ -22,6 +40,8 @@ const mapData = {
   }
 };
 
+let redZoneTime = 0;
+let myLocation = "Arena";
 let myWater = 0;
 let myAir = 0;
 let myAttackIdx = 16;
@@ -68,6 +88,7 @@ let WaterShieldId = 0;
 let redDam = 0;
 let myBinds = [null, null, null];
 let bindMove = null;
+let redZoneXpos = 0;
 let WaterMoves = ["Water Manipulation", "Torrent", "Healing Water", "Octopus Form", "Ice Freeze", "Water Arms", "Quick Shield", "Friendbending", "Draw Moisture", "Water Whip"];
 let EarthMoves = ["Earth Pillar", "Earth Wall", "Raise Land", "Lava Crevice", "Earth Boulder", "Lava Disk", "Lava Encase", "Quicksand", "Earth Crawl"];
 let AirMoves = ["Suffocate", "Wind", "Air Shield", "Wind Cloak", "Wind Slice", "Tornado", "Shockwave", "Spirit Projection", "Air Cleanse"];
@@ -228,14 +249,27 @@ function createName() {
   return `${prefix} ${animal}`;
 }
 function getCurrentMapData() {
-  return mapData;
+  let cMap;
+  if(myLocation == "Arena")
+  {
+    cMap = arenaMapData;
+  }
+  if(myLocation == "Desert")
+  {
+    cMap = desertMapData;
+  }
+  if(myLocation == "Beach")
+  {
+    cMap = beachMapData;
+  }
+  return cMap;
 }
 function isSolid(x, y, earthBlock) {
   const mapData = getCurrentMapData();
   let blockedNextSpace = mapData.blockedSpaces[getKeyString(x, y)];
   Object.keys(earthBlock).forEach((key) => {
     const block = earthBlock[key];
-    if(block.x == x && block.y == y) blockedNextSpace = true;
+    if(block.x == x && block.y == y && block.location == myLocation) blockedNextSpace = true;
   })
   return (
     blockedNextSpace || 
@@ -246,11 +280,10 @@ function isSolid(x, y, earthBlock) {
   )
 }
 function isWater(x, y, waterD) {
-  const mapData = getCurrentMapData();
   let wetNextSpace = false;
   Object.keys(waterD).forEach((key) => {
     const block = waterD[key];
-    if(block.x == x && block.y == y) wetNextSpace = true;
+    if(block.x == x && block.y == y && block.location == myLocation) wetNextSpace = true;
   })
   return (
     wetNextSpace
@@ -260,51 +293,47 @@ function distToWater(x, y, waterD) {
   let dist = 10000;
   Object.keys(waterD).forEach((key) => {
     const block = waterD[key];
-    if(distanceBetween({x, y}, {x: block.x, y: block.y}) < dist){
+    if(distanceBetween({x, y}, {x: block.x, y: block.y}) < dist && block.location == myLocation){
       dist = distanceBetween({x, y}, {x: block.x, y: block.y});
     }
   })
   return dist;
 }
 function isIce(x, y, waterD) {
-  const mapData = getCurrentMapData();
   let wetNextSpace = false;
   Object.keys(waterD).forEach((key) => {
     const block = waterD[key];
-    if(block.x == x && block.y == y && block.state == "ice") wetNextSpace = true
+    if(block.x == x && block.y == y && block.state == "ice" && block.location == myLocation) wetNextSpace = true
   })
   return (
     wetNextSpace
   )
 }
 function isSand(x, y, sandD) {
-  const mapData = getCurrentMapData();
   let sandNextSpace = false;
   Object.keys(sandD).forEach((key) => {
     const block = sandD[key];
-    if(block.x == x && block.y == y) sandNextSpace = true
+    if(block.x == x && block.y == y && block.location == myLocation) sandNextSpace = true
   })
   return (
     sandNextSpace
   )
 }
 function isAir(x, y, airD) {
-  const mapData = getCurrentMapData();
   let dryNextSpace = false;
   Object.keys(airD).forEach((key) => {
     const block = airD[key];
-    if(block.x == x && block.y == y) dryNextSpace = true;
+    if(block.x == x && block.y == y && block.location == myLocation) dryNextSpace = true;
   })
   return (
     dryNextSpace
   )
 }
 function isLava(x, y, lavaD) {
-  const mapData = getCurrentMapData();
   let lavaNextSpace = false;
   Object.keys(lavaD).forEach((key) => {
     const block = lavaD[key];
-    if(block.x == x && block.y == y) lavaNextSpace = true;
+    if(block.x == x && block.y == y && block.location == myLocation) lavaNextSpace = true;
   })
   return (
     lavaNextSpace
@@ -364,6 +393,8 @@ function delay(milliseconds){
   let earthCrawlElements = {};
   let earthBlock = {};
   let earthBlockElements = {};
+  let redZone = {};
+  let redZoneElements = {};
   let isButton = false;
   let chatMsg = 0;
 
@@ -391,7 +422,325 @@ function delay(milliseconds){
         respawnContainer.appendChild(buttonElement);
         isButton = true;
       }
+      if(players[playerId].isSpectator)
+      {
+        redZoneTime++;
+        if(redZoneTime === 30)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 40)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 50)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 60)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 70)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 80)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 90)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 100)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 110)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 120)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 130)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 140)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 150)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 160)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        if(redZoneTime === 170)
+        {
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzb" + redZoneXpos + "x" + i).set({
+              x: redZoneXpos, 
+              y: i, 
+              location: "Beach", 
+              id: "rzb" + redZoneXpos + "x" + i
+            })
+          };
+          for (var i = 0; i < 13; i++) {
+            firebase.database().ref("red-zone/rzd" + (14-redZoneXpos) + "x" + i).set({
+              x: 14-redZoneXpos, 
+              y: i, 
+              location: "Desert", 
+              id: "rzd" + (14-redZoneXpos) + "x" + i
+            })
+          };
+          redZoneXpos++;
+        }
+        firebase.database().ref().update({
+          redZoneTime
+        })
+      }
     }
+    Object.keys(redZone).forEach((key) => {
+      const theRedZone = redZone[key];
+      if(theRedZone.x == players[playerId].x && theRedZone.y == players[playerId].y && theRedZone.location == myLocation)
+      {
+        me = firebase.database().ref("players/" + playerId);
+        var damage = 1;
+        me.update({
+          health: players[playerId].health - damage
+        })
+      }
+    })
     if(octopusArms.length > 0 && myBending == "Water" && myMoveId == 3)
     {
       myAttackIdx++;
@@ -431,7 +780,7 @@ function delay(milliseconds){
     //repeat
     setTimeout(() => {
       oneSecondLoop();
-    }, 1000);
+    }, 1000);  
   }
   function fourthSecondLoop() {
     if(myBending == "Water")
@@ -466,7 +815,8 @@ function delay(milliseconds){
         let playerToAttack;
         Object.keys(players).forEach((key) => {
           const characterState = players[key];
-          if(characterState.x === attackWater.x && characterState.y === attackWater.y)
+          //console.log(key)
+          if(characterState.x === attackWater.x && characterState.y === attackWater.y && characterState.location === water[playerId].location)
           {
             playerToAttack = key;
           }
@@ -525,14 +875,14 @@ function delay(milliseconds){
         let playerToAttack;
         Object.keys(players).forEach((key) => {
           const characterState = players[key];
-          if(characterState.x === attackWater.x && characterState.y === attackWater.y)
+          if(characterState.x === attackWater.x && characterState.y === attackWater.y && characterState.location === water[playerId].location)
           {
             playerToAttack = key;
           }
         })
         Object.keys(fire).forEach((key) => {
           const fireToPutOut = fire[key];
-          if(fireToPutOut.x === attackWater.x && fireToPutOut.y === attackWater.y)
+          if(fireToPutOut.x === attackWater.x && fireToPutOut.y === attackWater.y && fireToPutOut.location === water[playerId].location)
           {
             firebase.database().ref(`fire/${key}`).remove();
           }
@@ -556,28 +906,32 @@ function delay(milliseconds){
             y: attackWater.y, 
             useable: false, 
             id: playerId + "ice1", 
-            state: "ice"
+            state: "ice", 
+            location: water[playerId].location
           });
           firebase.database().ref(`water/${key}ice2`).set({
             x: attackWater.x - 1, 
             y: attackWater.y, 
             useable: false, 
             id: playerId + "ice2", 
-            state: "ice"
+            state: "ice", 
+            location: water[playerId].location
           });
           firebase.database().ref(`water/${key}ice3`).set({
             x: attackWater.x, 
             y: attackWater.y + 1, 
             useable: false, 
             id: playerId + "ice3", 
-            state: "ice"
+            state: "ice", 
+            location: water[playerId].location
           });
           firebase.database().ref(`water/${key}ice4`).set({
             x: attackWater.x, 
             y: attackWater.y - 1, 
             useable: false, 
             id: playerId + "ice4", 
-            state: "ice"
+            state: "ice", 
+            location: water[playerId].location
           });
           myWater = 0;
           cooldown = 2;
@@ -614,14 +968,14 @@ function delay(milliseconds){
         let playerToAttack;
         Object.keys(players).forEach((key) => {
           const characterState = players[key];
-          if(characterState.x === attackWater.x && characterState.y === attackWater.y)
+          if(characterState.x === attackWater.x && characterState.y === attackWater.y && characterState.location === water[playerId].location)
           {
             playerToAttack = key;
           }
         })
         Object.keys(fire).forEach((key) => {
           const fireToPutOut = fire[key];
-          if(fireToPutOut.x === attackWater.x && fireToPutOut.y === attackWater.y)
+          if(fireToPutOut.x === attackWater.x && fireToPutOut.y === attackWater.y && fireToPutOut.location === water[playerId].location)
           {
             firebase.database().ref(`fire/${key}`).remove();
           }
@@ -658,19 +1012,20 @@ function delay(milliseconds){
           const waterRef = firebase.database().ref(`water/${playerId+i}`);
           waterRef.update({
             x: playerTorrent[i].x, 
-            y: playerTorrent[i].y
+            y: playerTorrent[i].y, 
+            location: myLocation
           })
           let playerToAttack;
           Object.keys(players).forEach((key) => {
             const characterState = players[key];
-            if(characterState.x === playerTorrent[i].x && characterState.y === playerTorrent[i].y)
+            if(characterState.x === playerTorrent[i].x && characterState.y === playerTorrent[i].y && characterState.location === playerTorrent[playerId+i].location)
             {
               playerToAttack = key;
             }
           })
           Object.keys(fire).forEach((key) => {
             const fireToPutOut = fire[key];
-            if(fireToPutOut.x === playerTorrent[i].x && fireToPutOut.y === playerTorrent[i].y)
+            if(fireToPutOut.x === playerTorrent[i].x && fireToPutOut.y === playerTorrent[i].y && fireToPutOut.location === playerTorrent[i].location)
             {
               firebase.database().ref(`fire/${key}`).remove();
             }
@@ -705,19 +1060,20 @@ function delay(milliseconds){
           const waterRef = firebase.database().ref(`water/${playerId+i}`);
           waterRef.update({
             x: playerTorrent[i].x, 
-            y: playerTorrent[i].y
+            y: playerTorrent[i].y, 
+            location: myLocation
           })
           let playerToAttack;
           Object.keys(players).forEach((key) => {
             const characterState = players[key];
-            if(characterState.x === playerTorrent[i].x && characterState.y === playerTorrent[i].y)
+            if(characterState.x === playerTorrent[i].x && characterState.y === playerTorrent[i].y && characterState.location === water[playerId + i].location)
             {
               playerToAttack = key;
             }
           })
           Object.keys(fire).forEach((key) => {
             const fireToPutOut = fire[key];
-            if(fireToPutOut.x === playerTorrent[i].x && fireToPutOut.y === playerTorrent[i].y)
+            if(fireToPutOut.x === playerTorrent[i].x && fireToPutOut.y === playerTorrent[i].y && fireToPutOut.location === water[playerId+i].location)
             {
               firebase.database().ref(`fire/${key}`).remove();
             }
@@ -749,19 +1105,20 @@ function delay(milliseconds){
           const waterRef = firebase.database().ref(`water/${playerId+"octo"+i}`);
           waterRef.update({
             x: octopusArms[i].x, 
-            y: octopusArms[i].y
+            y: octopusArms[i].y, 
+            location: myLocation
           })
           let playerToAttack;
           Object.keys(players).forEach((key) => {
             const characterState = players[key];
-            if(characterState.x === octopusArms[i].x && characterState.y === octopusArms[i].y)
+            if(characterState.x === octopusArms[i].x && characterState.y === octopusArms[i].y && characterState.location === water[playerId+"octo"+i].location)
             {
               playerToAttack = key;
             }
           })
           Object.keys(fire).forEach((key) => {
             const fireToPutOut = fire[key];
-            if(fireToPutOut.x === octopusArms[i].x && fireToPutOut.y === octopusArms[i].y)
+            if(fireToPutOut.x === octopusArms[i].x && fireToPutOut.y === octopusArms[i].y && fireToPutOut.location === water[playerId+"octo"+i].location)
             {
               firebase.database().ref(`fire/${key}`).remove();
             }
@@ -801,7 +1158,8 @@ function delay(milliseconds){
           const waterRef = firebase.database().ref(`water/${playerId+"arms"+i}`);
           waterRef.update({
             x: waterArms[i].x, 
-            y: waterArms[i].y
+            y: waterArms[i].y, 
+            location: myLocation
           })
         }
       }
@@ -823,7 +1181,7 @@ function delay(milliseconds){
         let playerToAttack;
         Object.keys(players).forEach((key) => {
           const characterState = players[key];
-          if(characterState.x === attackAirVaccum.x && characterState.y === attackAirVaccum.y)
+          if(characterState.x === attackAirVaccum.x && characterState.y === attackAirVaccum.y && characterState.location === myLocation)
           {
             playerToAttack = key;
           }
@@ -905,12 +1263,13 @@ function delay(milliseconds){
         }
         firebase.database().ref("lava/" + playerId+"torrent").update({
           x: shotEncase.x, 
-          y: shotEncase.y
+          y: shotEncase.y, 
+          location: myLocation
         });
         let playerToAttack;
         Object.keys(players).forEach((key) => {
           const characterState = players[key];
-          if(characterState.x === shotEncase.x && characterState.y === shotEncase.y)
+          if(characterState.x === shotEncase.x && characterState.y === shotEncase.y && characterState.location === myLocation)
           {
             playerToAttack = key;
           }
@@ -928,35 +1287,40 @@ function delay(milliseconds){
             y: shotEncase.y, 
             useable: false, 
             dis: true, 
-            id: playerId + "encase"
+            id: playerId + "encase", 
+            location: myLocation
           });
           firebase.database().ref(`earth-block/${playerId}encase1`).set({
             x: shotEncase.x + 1, 
             y: shotEncase.y, 
             useable: false, 
             dis: true, 
-            id: playerId + "encase1"
+            id: playerId + "encase1", 
+            location: myLocation
           });
           firebase.database().ref(`earth-block/${playerId}encase2`).set({
             x: shotEncase.x - 1, 
             y: shotEncase.y, 
             useable: false, 
             dis: true, 
-            id: playerId + "encase2"
+            id: playerId + "encase2", 
+            location: myLocation
           });
           firebase.database().ref(`earth-block/${playerId}encase3`).set({
             x: shotEncase.x, 
             y: shotEncase.y + 1, 
             useable: false, 
             dis: true, 
-            id: playerId + "encase3"
+            id: playerId + "encase3", 
+            location: myLocation
           });
           firebase.database().ref(`earth-block/${playerId}encase4`).set({
             x: shotEncase.x, 
             y: shotEncase.y - 1, 
             useable: false, 
             dis: true, 
-            id: playerId + "encase4"
+            id: playerId + "encase4", 
+            location: myLocation
           });
           cooldown = 5;
           coolDown.innerText = "Cooldown: " + cooldown;
@@ -980,7 +1344,7 @@ function delay(milliseconds){
           Object.keys(players).forEach((key) => {
             const thePlayer = players[key];
             const thisPlayerRef = firebase.database().ref(`players/${key}`);
-            if(theSlice.x === thePlayer.x && theSlice.y === thePlayer.y)
+            if(theSlice.x === thePlayer.x && theSlice.y === thePlayer.y && theSlice.location === thePlayer.location)
             {
               if(!isSolid(thePlayer.x + theSlice.direction.x, thePlayer.y + theSlice.direction.y, earthBlock))
               {
@@ -1010,7 +1374,7 @@ function delay(milliseconds){
           Object.keys(players).forEach((key) => {
             const thePlayer = players[key];
             const thisPlayerRef = firebase.database().ref(`players/${key}`);
-            if(theBall.x === thePlayer.x && theBall.y === thePlayer.y)
+            if(theBall.x === thePlayer.x && theBall.y === thePlayer.y && theBall.location === thePlayer.location)
             {
               if(!isSolid(thePlayer.x + theBall.direction.x, thePlayer.y + theBall.direction.y, earthBlock))
               {
@@ -1025,10 +1389,11 @@ function delay(milliseconds){
     }
     Object.keys(fire).forEach((key) => {
       const theFire = fire[key];
-      if(theFire.x == players[playerId].x && theFire.y == players[playerId].y)
+      if(theFire.x == players[playerId].x && theFire.y == players[playerId].y && theFire.location == myLocation)
       {
         me = firebase.database().ref("players/" + playerId);
-        var damage = randomFromArray([0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+        var damage = randomFromArray([0, 0, 0, 1, 1, 1, 1, 1]);
+        if(theFire.id.includes(playerId) && theFire.protect != null) damage = 0;
         me.update({
           health: players[playerId].health - damage
         })
@@ -1036,7 +1401,7 @@ function delay(milliseconds){
     })
     Object.keys(explosion).forEach((key) => {
       const theExplosion = explosion[key];
-      if(distanceBetween({x: theExplosion.x, y: theExplosion.y}, {x: players[playerId].x, y: players[playerId].y}) < 4)
+      if(distanceBetween({x: theExplosion.x, y: theExplosion.y}, {x: players[playerId].x, y: players[playerId].y}) < 4 && theExplosion.location == myLocation)
       {
         me = firebase.database().ref("players/" + playerId);
         var damage = 3 - distanceBetween({x: theExplosion.x, y: theExplosion.y}, {x: players[playerId].x, y: players[playerId].y});
@@ -1049,7 +1414,7 @@ function delay(milliseconds){
     })
     Object.keys(sand).forEach((key) => {
       const theSand = sand[key];
-      if(theSand.x == players[playerId].x && theSand.y == players[playerId].y)
+      if(theSand.x == players[playerId].x && theSand.y == players[playerId].y && theSand.location == myLocation)
       {
         me = firebase.database().ref("players/" + playerId);
         var damage = randomFromArray([0, 1, 1, 1, 1]);
@@ -1060,7 +1425,7 @@ function delay(milliseconds){
     })
     Object.keys(lava).forEach((key) => {
       const theLava = lava[key];
-      if(theLava.x == players[playerId].x && theLava.y == players[playerId].y)
+      if(theLava.x == players[playerId].x && theLava.y == players[playerId].y && theLava.location == myLocation)
       {
         me = firebase.database().ref("players/" + playerId);
         var damage = randomFromArray([0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
@@ -1071,7 +1436,7 @@ function delay(milliseconds){
     })
     Object.keys(earthCrawl).forEach((key) => {
       const theLava = earthCrawl[key];
-      if(theLava.x == players[playerId].x && theLava.y == players[playerId].y)
+      if(theLava.x == players[playerId].x && theLava.y == players[playerId].y && theLava.location == myLocation)
       {
         me = firebase.database().ref("players/" + playerId);
         var damage = randomFromArray([0, 0, 0, 1, 1, 1, 1]);
@@ -1083,7 +1448,7 @@ function delay(milliseconds){
     Object.keys(lightning).forEach((key) => {
       const theLightning = lightning[key];
       const date = new Date();
-      if(theLightning.x == players[playerId].x && theLightning.y == players[playerId].y && !redirected)
+      if(theLightning.x == players[playerId].x && theLightning.y == players[playerId].y && !redirected && theLightning.location == myLocation)
       {
         redirect = true;
         me = firebase.database().ref("players/" + playerId);
@@ -1101,7 +1466,7 @@ function delay(milliseconds){
 
     Object.keys(tornado).forEach((key) => {
       const theTornado = tornado[key];
-      if(distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: theTornado.x, y: theTornado.y}) < 4 && theTornado.id != playerId)
+      if(distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: theTornado.x, y: theTornado.y}) < 4 && theTornado.id != playerId && theTornado.location == myLocation)
       {
         me = firebase.database().ref("players/" + playerId);
         var damage = randomFromArray([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]);
@@ -1139,7 +1504,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x, 
             y: theCombust.y - theCombust.direction.y, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1147,7 +1513,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x + 1, 
             y: theCombust.y - theCombust.direction.y, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1155,7 +1522,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x - 1, 
             y: theCombust.y - theCombust.direction.y, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1163,7 +1531,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x, 
             y: theCombust.y - theCombust.direction.y + 1, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1171,7 +1540,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x, 
             y: theCombust.y - theCombust.direction.y - 1, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1179,7 +1549,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x + 1, 
             y: theCombust.y - theCombust.direction.y + 1, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1187,7 +1558,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x - 1, 
             y: theCombust.y - theCombust.direction.y + 1, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1195,7 +1567,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x + 1, 
             y: theCombust.y - theCombust.direction.y - 1, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1203,7 +1576,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x - 1, 
             y: theCombust.y - theCombust.direction.y - 1, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1211,7 +1585,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x + 2, 
             y: theCombust.y - theCombust.direction.y, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1219,7 +1594,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x - 2, 
             y: theCombust.y - theCombust.direction.y, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1227,7 +1603,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x, 
             y: theCombust.y - theCombust.direction.y + 2, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1235,7 +1612,8 @@ function delay(milliseconds){
             x: theCombust.x - theCombust.direction.x, 
             y: theCombust.y - theCombust.direction.y - 2, 
             useable: true, 
-            id: playerId + ExplodeId
+            id: playerId + ExplodeId, 
+            location: myLocation
           })
           ExplodeId++;
           cooldown = 7;
@@ -1245,14 +1623,15 @@ function delay(milliseconds){
         Object.keys(players).forEach((key) => {
           const thePlayer = players[key];
           const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(theCombust.x === thePlayer.x && theCombust.y === thePlayer.y)
+          if(theCombust.x === thePlayer.x && theCombust.y === thePlayer.y && theCombust.location === thePlayer.location)
           {
             let explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
             explodeRef.set({
               x: theCombust.x, 
               y: theCombust.y, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1260,7 +1639,8 @@ function delay(milliseconds){
               x: theCombust.x + 1, 
               y: theCombust.y, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1268,7 +1648,8 @@ function delay(milliseconds){
               x: theCombust.x - 1, 
               y: theCombust.y, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1276,7 +1657,8 @@ function delay(milliseconds){
               x: theCombust.x, 
               y: theCombust.y + 1, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1284,7 +1666,8 @@ function delay(milliseconds){
               x: theCombust.x, 
               y: theCombust.y - 1, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1292,7 +1675,8 @@ function delay(milliseconds){
               x: theCombust.x + 1, 
               y: theCombust.y + 1, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1300,7 +1684,8 @@ function delay(milliseconds){
               x: theCombust.x - 1, 
               y: theCombust.y + 1, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1308,7 +1693,8 @@ function delay(milliseconds){
               x: theCombust.x + 1, 
               y: theCombust.y - 1, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1316,7 +1702,8 @@ function delay(milliseconds){
               x: theCombust.x - 1, 
               y: theCombust.y - 1, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1324,7 +1711,8 @@ function delay(milliseconds){
               x: theCombust.x + 2, 
               y: theCombust.y, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1332,7 +1720,8 @@ function delay(milliseconds){
               x: theCombust.x - 2, 
               y: theCombust.y, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1340,7 +1729,8 @@ function delay(milliseconds){
               x: theCombust.x, 
               y: theCombust.y + 2, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -1348,7 +1738,8 @@ function delay(milliseconds){
               x: theCombust.x, 
               y: theCombust.y - 2, 
               useable: true, 
-              id: playerId + ExplodeId
+              id: playerId + ExplodeId, 
+              location: myLocation
             })
             ExplodeId++;
             cooldown = 7;
@@ -1364,6 +1755,78 @@ function delay(milliseconds){
     }, 125);
   }
   function tickLoop() {
+    for(let x in waterElements)
+    {
+      if(water[x] != null) waterElements[x].querySelector(".Water_sprite").setAttribute("data-location", water[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in redZoneElements)
+    {
+      if(redZone[x] != null) 
+      {
+        redZoneElements[x].querySelector(".RedZone_sprite").setAttribute("data-location", redZone[x].location == myLocation ? "some" : "none");
+        redZoneElements[x].setAttribute("data-location", redZone[x].location == myLocation ? "some" : "none");
+      }
+    }
+    for(let x in fireElements)
+    {
+      if(fire[x] != null) fireElements[x].querySelector(".Fire_sprite").setAttribute("data-location", fire[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in fireballElements)
+    {
+      if(fireball[x] != null) fireballElements[x].querySelector(".Fireball_sprite").setAttribute("data-location", fireball[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in lightningElements)
+    {
+      if(lightning[x] != null) lightningElements[x].querySelector(".Lightning_sprite").setAttribute("data-location", lightning[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in explosionElements)
+    {
+      if(explosion[x] != null) explosionElements[x].querySelector(".Explosion_sprite").setAttribute("data-location", explosion[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in combustElements)
+    {
+      if(combust[x] != null) combustElements[x].querySelector(".Combust_sprite").setAttribute("data-location", combust[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in windElements)
+    {
+      if(wind[x] != null) windElements[x].querySelector(".Wind_sprite").setAttribute("data-location", wind[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in airSliceElements)
+    {
+      if(airSlice[x] != null) airSliceElements[x].querySelector(".AirSlice_sprite").setAttribute("data-location", airSlice[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in tornadoElements)
+    {
+      if(tornado[x] != null) tornadoElements[x].querySelector(".Tornado_sprite").setAttribute("data-location", tornado[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in projectionElements)
+    {
+      if(projection[x] != null) projectionElements[x].querySelector(".Projection_sprite").setAttribute("data-location", projection[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in airVaccumElements)
+    {
+      if(airVaccum[x] != null) airVaccumElements[x].querySelector(".AirVaccum_sprite").setAttribute("data-location", airVaccum[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in earthBlockElements)
+    {
+      if(earthBlock[x] != null) earthBlockElements[x].querySelector(".EarthBlock_sprite").setAttribute("data-location", earthBlock[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in rockElements)
+    {
+      if(rock[x] != null) rockElements[x].querySelector(".Rock_sprite").setAttribute("data-location", rock[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in lavaElements)
+    {
+      if(lava[x] != null) lavaElements[x].querySelector(".Lava_sprite").setAttribute("data-location", lava[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in sandElements)
+    {
+      if(sand[x] != null) sandElements[x].querySelector(".Sand_sprite").setAttribute("data-location", sand[x].location == myLocation ? "some" : "none");
+    }
+    for(let x in earthCrawlElements)
+    {
+      if(earthCrawl[x] != null) earthCrawlElements[x].querySelector(".EarthCrawl_sprite").setAttribute("data-location", earthCrawl[x].location == myLocation ? "some" : "none");
+    }
     if(players[playerId] != null) {
       if(players[playerId].health <= 0) {
         cooldown = 1;
@@ -1387,7 +1850,8 @@ function delay(milliseconds){
           x: attackAirVaccum.x, 
           y: attackAirVaccum.y, 
           useable: false, 
-          id: playerId
+          id: playerId, 
+          location: myLocation
         })
       }
       if(myAttackIdx < 16 && myMoveId == 7)
@@ -1398,7 +1862,8 @@ function delay(milliseconds){
         const airVaccumRef = firebase.database().ref(`projection/${key}`);
         airVaccumRef.update({
           x: projectionSelf.x, 
-          y: projectionSelf.y
+          y: projectionSelf.y, 
+          location: myLocation
         })
       }
       Object.keys(wind).forEach((key) => {
@@ -1407,7 +1872,7 @@ function delay(milliseconds){
         Object.keys(players).forEach((key) => {
           const thePlayer = players[key];
           const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(theWind.x === thePlayer.x && theWind.y === thePlayer.y)
+          if(theWind.x === thePlayer.x && theWind.y === thePlayer.y && theWind.location == thePlayer.location)
           {
             if(!isSolid(thePlayer.x + theWind.direction.x, thePlayer.y + theWind.direction.y, earthBlock))
             {
@@ -1430,12 +1895,13 @@ function delay(milliseconds){
           x: mouseTile.x, 
           y: mouseTile.y, 
           useable: false, 
-          id: playerId
+          id: playerId, 
+          location: myLocation
         })
         Object.keys(players).forEach((key) => {
           const thePlayer = players[key];
           const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y)
+          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y && thePlayer.location === myLocation)
           {
             thisPlayerRef.update({
               health: thePlayer.health - 1
@@ -1455,12 +1921,13 @@ function delay(milliseconds){
           x: mouseTile.x, 
           y: mouseTile.y, 
           useable: false, 
-          id: playerId
+          id: playerId, 
+          location: myLocation
         })
         Object.keys(players).forEach((key) => {
           const thePlayer = players[key];
           const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y)
+          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y && thePlayer.location === myLocation)
           {
             thisPlayerRef.update({
               health: thePlayer.health - randomFromArray([1, 1, 1, 1, 1, 1, 1, 1, 1, 2])
@@ -1472,24 +1939,6 @@ function delay(milliseconds){
           }
         })
       }
-      Object.keys(wind).forEach((key) => {
-        const theWind = wind[key];
-        const windRef = firebase.database().ref(`wind/${key}`);
-        Object.keys(players).forEach((key) => {
-          const thePlayer = players[key];
-          const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(theWind.x === thePlayer.x && theWind.y === thePlayer.y)
-          {
-            if(!isSolid(thePlayer.x + theWind.direction.x, thePlayer.y + theWind.direction.y, earthBlock))
-            {
-              thisPlayerRef.update({
-                x: thePlayer.x + theWind.direction.x, 
-                y: thePlayer.y + theWind.direction.y
-              });
-            }
-          }
-        })
-      })
     }
     if(myBending == "Water")
     {
@@ -1535,7 +1984,7 @@ function delay(milliseconds){
       Object.keys(players).forEach((key) => {
         const thePlayer = players[key];
         const thisPlayerRef = firebase.database().ref(`players/${key}`);
-        if(theSlice.x === thePlayer.x && theSlice.y === thePlayer.y)
+        if(theSlice.x === thePlayer.x && theSlice.y === thePlayer.y && airSlice.location === thePlayer.location)
         {
           if(!isSolid(thePlayer.x + theSlice.direction.x, thePlayer.y + theSlice.direction.y, earthBlock))
           {
@@ -1553,7 +2002,7 @@ function delay(milliseconds){
       Object.keys(players).forEach((key) => {
         const thePlayer = players[key];
         const thisPlayerRef = firebase.database().ref(`players/${key}`);
-        if(theBall.x === thePlayer.x && theBall.y === thePlayer.y)
+        if(theBall.x === thePlayer.x && theBall.y === thePlayer.y && theBall.location === thePlayer.location)
         {
           if(!isSolid(thePlayer.x + theBall.direction.x, thePlayer.y + theBall.direction.y, earthBlock))
           {
@@ -1586,10 +2035,84 @@ function delay(milliseconds){
     if(Object.values(water).length < 1)
     {
       waterRef.update({
-        "3x5": {x: 3, y: 5, useable: true, id: "tl", state: "water"}, 
-        "3x9": {x: 3, y: 9, useable: true, id: "tr", state: "water"}, 
-        "11x5": {x: 11, y: 5, useable: true, id: "bl", state: "water"}, 
-        "11x9": {x: 11, y: 9, useable: true, id: "br", state: "water"}
+        "tl": {x: 3, y: 5, useable: true, id: "tl", state: "water", location: "Arena"}, 
+        "tr": {x: 3, y: 9, useable: true, id: "tr", state: "water", location: "Arena"}, 
+        "bl": {x: 11, y: 5, useable: true, id: "bl", state: "water", location: "Arena"}, 
+        "br": {x: 11, y: 9, useable: true, id: "br", state: "water", location: "Arena"}, 
+        "b00": {x: 0, y: 0, useable: true, id: "b00", state: "water", location: "Beach"}, 
+        "b01": {x: 0, y: 1, useable: true, id: "b01", state: "water", location: "Beach"}, 
+        "b02": {x: 0, y: 2, useable: true, id: "b02", state: "water", location: "Beach"}, 
+        "b03": {x: 0, y: 3, useable: true, id: "b03", state: "water", location: "Beach"}, 
+        "b04": {x: 0, y: 4, useable: true, id: "b04", state: "water", location: "Beach"}, 
+        "b05": {x: 0, y: 5, useable: true, id: "b05", state: "water", location: "Beach"}, 
+        "b06": {x: 0, y: 6, useable: true, id: "b06", state: "water", location: "Beach"}, 
+        "b07": {x: 0, y: 7, useable: true, id: "b07", state: "water", location: "Beach"}, 
+        "b08": {x: 0, y: 8, useable: true, id: "b08", state: "water", location: "Beach"}, 
+        "b09": {x: 0, y: 9, useable: true, id: "b09", state: "water", location: "Beach"}, 
+        "b010": {x: 0, y: 10, useable: true, id: "b010", state: "water", location: "Beach"}, 
+        "b011": {x: 0, y: 11, useable: true, id: "b011", state: "water", location: "Beach"}, 
+        "b012": {x: 0, y: 12, useable: true, id: "b012", state: "water", location: "Beach"}, 
+        "b10": {x: 1, y: 0, useable: true, id: "b10", state: "water", location: "Beach"}, 
+        "b11": {x: 1, y: 1, useable: true, id: "b11", state: "water", location: "Beach"}, 
+        "b12": {x: 1, y: 2, useable: true, id: "b12", state: "water", location: "Beach"}, 
+        "b13": {x: 1, y: 3, useable: true, id: "b13", state: "water", location: "Beach"}, 
+        "b14": {x: 1, y: 4, useable: true, id: "b14", state: "water", location: "Beach"}, 
+        "b15": {x: 1, y: 5, useable: true, id: "b15", state: "water", location: "Beach"}, 
+        "b16": {x: 1, y: 6, useable: true, id: "b16", state: "water", location: "Beach"}, 
+        "b17": {x: 1, y: 7, useable: true, id: "b17", state: "water", location: "Beach"}, 
+        "b18": {x: 1, y: 8, useable: true, id: "b18", state: "water", location: "Beach"}, 
+        "b19": {x: 1, y: 9, useable: true, id: "b19", state: "water", location: "Beach"}, 
+        "b110": {x: 1, y: 10, useable: true, id: "b110", state: "water", location: "Beach"}, 
+        "b111": {x: 1, y: 11, useable: true, id: "b111", state: "water", location: "Beach"}, 
+        "b112": {x: 1, y: 12, useable: true, id: "b112", state: "water", location: "Beach"}, 
+        "b20": {x: 2, y: 0, useable: true, id: "b20", state: "water", location: "Beach"}, 
+        "b21": {x: 2, y: 1, useable: true, id: "b21", state: "water", location: "Beach"}, 
+        "b22": {x: 2, y: 2, useable: true, id: "b22", state: "water", location: "Beach"}, 
+        "b23": {x: 2, y: 3, useable: true, id: "b23", state: "water", location: "Beach"}, 
+        "b24": {x: 2, y: 4, useable: true, id: "b24", state: "water", location: "Beach"}, 
+        "b25": {x: 2, y: 5, useable: true, id: "b25", state: "water", location: "Beach"}, 
+        "b26": {x: 2, y: 6, useable: true, id: "b26", state: "water", location: "Beach"}, 
+        "b27": {x: 2, y: 7, useable: true, id: "b27", state: "water", location: "Beach"}, 
+        "b28": {x: 2, y: 8, useable: true, id: "b28", state: "water", location: "Beach"}, 
+        "b29": {x: 2, y: 9, useable: true, id: "b29", state: "water", location: "Beach"}, 
+        "b210": {x: 2, y: 10, useable: true, id: "b210", state: "water", location: "Beach"}, 
+        "b211": {x: 2, y: 11, useable: true, id: "b211", state: "water", location: "Beach"}, 
+        "b212": {x: 2, y: 12, useable: true, id: "b212", state: "water", location: "Beach"}, 
+        "b30": {x: 3, y: 0, useable: true, id: "b30", state: "water", location: "Beach"}, 
+        "b31": {x: 3, y: 1, useable: true, id: "b31", state: "water", location: "Beach"}, 
+        "b32": {x: 3, y: 2, useable: true, id: "b32", state: "water", location: "Beach"}, 
+        "b33": {x: 3, y: 3, useable: true, id: "b33", state: "water", location: "Beach"}, 
+        "b34": {x: 3, y: 4, useable: true, id: "b34", state: "water", location: "Beach"}, 
+        "b35": {x: 3, y: 5, useable: true, id: "b35", state: "water", location: "Beach"}, 
+        "b36": {x: 3, y: 6, useable: true, id: "b36", state: "water", location: "Beach"}, 
+        "b37": {x: 3, y: 7, useable: true, id: "b37", state: "water", location: "Beach"}, 
+        "b38": {x: 3, y: 8, useable: true, id: "b38", state: "water", location: "Beach"}, 
+        "b39": {x: 3, y: 9, useable: true, id: "b39", state: "water", location: "Beach"}, 
+        "b310": {x: 3, y: 10, useable: true, id: "b310", state: "water", location: "Beach"}, 
+        "b311": {x: 3, y: 11, useable: true, id: "b311", state: "water", location: "Beach"}, 
+        "b312": {x: 3, y: 12, useable: true, id: "b312", state: "water", location: "Beach"}, 
+        "b40": {x: 4, y: 0, useable: true, id: "b40", state: "water", location: "Beach"}, 
+        "b41": {x: 4, y: 1, useable: true, id: "b41", state: "water", location: "Beach"}, 
+        "b42": {x: 4, y: 2, useable: true, id: "b42", state: "water", location: "Beach"}, 
+        "b43": {x: 4, y: 3, useable: true, id: "b43", state: "water", location: "Beach"}, 
+        "b44": {x: 4, y: 4, useable: true, id: "b44", state: "water", location: "Beach"}, 
+        "b45": {x: 4, y: 5, useable: true, id: "b45", state: "water", location: "Beach"}, 
+        "b46": {x: 4, y: 6, useable: true, id: "b46", state: "water", location: "Beach"}, 
+        "b47": {x: 4, y: 7, useable: true, id: "b47", state: "water", location: "Beach"}, 
+        "b48": {x: 4, y: 8, useable: true, id: "b48", state: "water", location: "Beach"}, 
+        "b49": {x: 4, y: 9, useable: true, id: "b49", state: "water", location: "Beach"}, 
+        "b410": {x: 4, y: 10, useable: true, id: "b410", state: "water", location: "Beach"}, 
+        "b411": {x: 4, y: 11, useable: true, id: "b411", state: "water", location: "Beach"}, 
+        "b412": {x: 4, y: 12, useable: true, id: "b412", state: "water", location: "Beach"}, 
+        "b50": {x: 5, y: 0, useable: true, id: "b50", state: "water", location: "Beach"}, 
+        "b51": {x: 5, y: 1, useable: true, id: "b51", state: "water", location: "Beach"}, 
+        "b52": {x: 5, y: 2, useable: true, id: "b52", state: "water", location: "Beach"}, 
+        "b55": {x: 5, y: 5, useable: true, id: "b55", state: "water", location: "Beach"}, 
+        "b58": {x: 5, y: 8, useable: true, id: "b58", state: "water", location: "Beach"}, 
+        "b511": {x: 5, y: 11, useable: true, id: "b511", state: "water", location: "Beach"}, 
+        "b512": {x: 5, y: 12, useable: true, id: "b512", state: "water", location: "Beach"}, 
+        "b60": {x: 6, y: 0, useable: true, id: "b60", state: "water", location: "Beach"}, 
+        "b612": {x: 6, y: 12, useable: true, id: "b612", state: "water", location: "Beach"}
       })
     }
   }
@@ -1598,7 +2121,6 @@ function delay(milliseconds){
     const newY = players[playerId].y + yChange;
     const oldX = players[playerId].x;
     const oldY = players[playerId].y;
-    console.log(document.activeElement.nodeName)
     if (!isSolid(newX, newY, earthBlock) && !players[playerId].isDead && players[playerId].health > 0 && !isIce(newX, newY, water) && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') {
       if(!(isLava(oldX, oldY, lava) && Math.random() > 0.5) && !isIce(oldX, oldY, water))
       {
@@ -1616,6 +2138,97 @@ function delay(milliseconds){
               players[playerId].direction = "left";
             }
             playerRef.set(players[playerId]);
+            Object.keys(wind).forEach((key) => {
+              const theWind = wind[key];
+              if(theWind.x == players[playerId].x && theWind.y == players[playerId].y && theWind.location == myLocation)
+              {
+                me = firebase.database().ref("players/" + playerId);
+                var damage = randomFromArray([0, 0, 0, 0, 0, 0, 0, 0, 0, 1]);
+                me.update({
+                  health: players[playerId].health - damage, 
+                  x: oldX, 
+                  y: oldY
+                })
+              }
+            })
+            Object.keys(lightning).forEach((key) => {
+              const theLightning = lightning[key];
+              if(theLightning.x == players[playerId].x && theLightning.y == players[playerId].y && theLightning.location == myLocation)
+              {
+                me = firebase.database().ref("players/" + playerId);
+                var damage = randomFromArray([1, 2]);
+                me.update({
+                  health: players[playerId].health - damage
+                })
+              }
+            })
+            if(myMoveId == 2 && playerAirShield.length > 0)
+            {
+              playerAirShield[0] = {x: players[playerId].x + 2, y: players[playerId].y - 1, dir: {x: 1, y: 0}};
+              playerAirShield[1] = {x: players[playerId].x + 2, y: players[playerId].y, dir: {x: 1, y: 0}};
+              playerAirShield[2] = {x: players[playerId].x + 2, y: players[playerId].y + 1, dir: {x: 1, y: 0}};
+              playerAirShield[3] = {x: players[playerId].x + 1, y: players[playerId].y + 2, dir: {x: 0, y: 1}};
+              playerAirShield[4] = {x: players[playerId].x, y: players[playerId].y + 2, dir: {x: 0, y: 1}};
+              playerAirShield[5] = {x: players[playerId].x - 1, y: players[playerId].y + 2, dir: {x: 0, y: 1}};
+              playerAirShield[6] = {x: players[playerId].x - 2, y: players[playerId].y + 1, dir: {x: -1, y: 0}};
+              playerAirShield[7] = {x: players[playerId].x - 2, y: players[playerId].y, dir: {x: -1, y: 0}};
+              playerAirShield[8] = {x: players[playerId].x - 2, y: players[playerId].y - 1, dir: {x: -1, y: 0}};
+              playerAirShield[9] = {x: players[playerId].x - 1, y: players[playerId].y - 2, dir: {x: 0, y: -1}};
+              playerAirShield[10] = {x: players[playerId].x, y: players[playerId].y - 2, dir: {x: 0, y: -1}};
+              playerAirShield[11] = {x: players[playerId].x + 1, y: players[playerId].y - 2, dir: {x: 0, y: -1}};
+              for(let i = 0; i < playerAirShield.length; i++)
+              {
+                const airRef = firebase.database().ref(`wind/${playerId+i}`);
+                airRef.update({
+                  x: playerAirShield[i].x, 
+                  y: playerAirShield[i].y, 
+                  useable: false, 
+                  direction: playerAirShield[i].dir, 
+                  id: playerId+i, 
+                  location: myLocation
+                })
+              }
+            }
+          }
+        }
+      }
+    }
+    if (isSolid(newX, newY, earthBlock) && !players[playerId].isDead && players[playerId].health > 0 && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') {
+      if(!(isLava(oldX, oldY, lava) && Math.random() > 0.5) && !isIce(oldX, oldY, water))
+      {
+        if(!(octopusArms.length > 0 && Math.random() > 0.5))
+        {
+          if(!(isSand(oldX, oldY, sand) && Math.random() > 0.2))
+          {
+            const mapData = getCurrentMapData();
+            if(myLocation == "Arena" && newX == mapData.maxX)
+            {
+              myLocation = "Desert";
+              players[playerId].x = 0;
+              playerRef.set(players[playerId]);
+              gameContainer.setAttribute("data-location", myLocation);
+            } else if(myLocation == "Desert" && newX == -1)
+            {
+              myLocation = "Arena";
+              players[playerId].x = mapData.maxX - 1;
+              playerRef.set(players[playerId]);
+              gameContainer.setAttribute("data-location", myLocation);
+            } else if(myLocation == "Arena" && newX == -1)
+            {
+              myLocation = "Beach";
+              players[playerId].x = mapData.maxX - 1;
+              playerRef.set(players[playerId]);
+              gameContainer.setAttribute("data-location", myLocation);
+            } else if(myLocation == "Beach" && newX == mapData.maxX)
+            {
+              myLocation = "Arena";
+              players[playerId].x = 0;
+              playerRef.set(players[playerId]);
+              gameContainer.setAttribute("data-location", myLocation);
+            }
+            playerRef.update({
+              location: myLocation
+            })
             Object.keys(wind).forEach((key) => {
               const theWind = wind[key];
               if(theWind.x == players[playerId].x && theWind.y == players[playerId].y)
@@ -1676,14 +2289,21 @@ function delay(milliseconds){
     {
       for(var i = 1; i < 5; i++) {
         let breathRef = firebase.database().ref("fire/" + playerId + FireId);
-        if(isSolid(players[playerId].x + currentDir.x * i, players[playerId].y + currentDir.y * i, earthBlock) || isWater(players[playerId].x + currentDir.x * i, players[playerId].y + currentDir.y * i, water)) break
+        if(isSolid(players[playerId].x + currentDir.x * i, players[playerId].y + currentDir.y * i, earthBlock) || isWater(players[playerId].x + currentDir.x * i, players[playerId].y + currentDir.y * i, water)) break;
         breathRef.set({
           x: players[playerId].x + currentDir.x * i, 
           y: players[playerId].y + currentDir.y * i, 
           useable: false, 
-          id: playerId + FireId
+          id: playerId + FireId, 
+          location: myLocation, 
+          protect: true
         });
         FireId++;
+      }
+      fBID++;
+      if(fBID > 50)
+      {
+        isFireBreath = false;
       }
       cooldown = 3;
       coolDown.innerText = "Cooldown: " + cooldown;
@@ -1704,8 +2324,10 @@ function delay(milliseconds){
         y: attackWater.y, 
         useable: false, 
         id: playerId, 
-        state: "water"
+        state: "water", 
+        location: myLocation
       })
+      console.log(myLocation)
     }
     if(myWater > 0 && myBending == "Water" && myMoveId == 4 && cooldown == 0)
     {
@@ -1718,7 +2340,8 @@ function delay(milliseconds){
         y: attackWater.y, 
         useable: false, 
         id: playerId, 
-        state: "water"
+        state: "water", 
+        location: myLocation
       })
     }
     if(myWater > 0 && myBending == "Water" && myMoveId == 5 && cooldown == 0)
@@ -1738,7 +2361,8 @@ function delay(milliseconds){
           y: waterArms[i].y, 
           useable: false, 
           id: playerId+"arms"+i, 
-          state: "water"
+          state: "water", 
+          location: myLocation
         })
       }
       myAttackIdx = 0;
@@ -1774,7 +2398,8 @@ function delay(milliseconds){
           y: playerTorrent[i].y, 
           useable: false, 
           id: playerId+i, 
-          state: "water"
+          state: "water", 
+          location: myLocation
         })
       }
     } else if(playerTorrent.length > 0 && myBending == "Water" && myMoveId == 1)
@@ -1812,7 +2437,8 @@ function delay(milliseconds){
           y: playerTorrent[i].y, 
           useable: false, 
           id: playerId+i, 
-          state: "water"
+          state: "water", 
+          location: myLocation
         })
       }
       octopusArms[0] = {x: players[playerId].x + 3, y: players[playerId].y + 1};
@@ -1831,7 +2457,8 @@ function delay(milliseconds){
           y: octopusArms[i].y, 
           useable: false, 
           id: playerId+"octo"+i, 
-          state: "water"
+          state: "water", 
+          location: myLocation
         })
       }
     } else if(playerTorrent.length > 0 && myBending == "Water" && myMoveId == 3)
@@ -1860,7 +2487,8 @@ function delay(milliseconds){
         x: attackAirVaccum.x, 
         y: attackAirVaccum.y, 
         useable: false, 
-        id: playerId
+        id: playerId, 
+        location: myLocation
       })
       myAir = 0;
     } else if(myAir < 1 && myBending == "Air" && myMoveId == 0)
@@ -1882,7 +2510,8 @@ function delay(milliseconds){
         x: projectionSelf.x, 
         y: projectionSelf.y, 
         useable: false, 
-        id: playerId
+        id: playerId, 
+        location: myLocation
       })
     } else if(myBending == "Air" && myMoveId == 7)
     {
@@ -1916,7 +2545,8 @@ function delay(milliseconds){
           y: playerAirShield[i].y, 
           useable: false, 
           direction: playerAirShield[i].dir, 
-          id: playerId+i
+          id: playerId+i, 
+          location: myLocation
         })
       }
       myAir = 0;
@@ -1943,7 +2573,8 @@ function delay(milliseconds){
             y: players[playerId].y + (direction.y * i), 
             useable: true, 
             direction, 
-            id: playerId + windId
+            id: playerId + windId, 
+            location: myLocation
           })
           windId++;
         }
@@ -1957,7 +2588,8 @@ function delay(milliseconds){
             y: players[playerId].y + (direction.y * i) + direction.x, 
             useable: true, 
             direction, 
-            id: playerId + windId
+            id: playerId + windId, 
+            location: myLocation
           })
           windId++;
         }
@@ -1971,7 +2603,8 @@ function delay(milliseconds){
             y: players[playerId].y + (direction.y * i) - direction.x, 
             useable: true, 
             direction, 
-            id: playerId + windId
+            id: playerId + windId, 
+            location: myLocation
           })
           windId++;
         }
@@ -1985,7 +2618,8 @@ function delay(milliseconds){
             y: players[playerId].y + (direction.y * i) + direction.x * 2, 
             useable: true, 
             direction, 
-            id: playerId + windId
+            id: playerId + windId, 
+            location: myLocation
           })
           windId++;
         }
@@ -1999,7 +2633,8 @@ function delay(milliseconds){
             y: players[playerId].y + (direction.y * i) - direction.x * 2, 
             useable: true, 
             direction, 
-            id: playerId + windId
+            id: playerId + windId, 
+            location: myLocation
           })
           windId++;
         }
@@ -2014,7 +2649,7 @@ function delay(milliseconds){
       Object.keys(players).forEach((key) => {
         const thePlayer = players[key];
         const thisPlayerRef = firebase.database().ref(`players/${key}`);
-        if(distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: thePlayer.x, y: thePlayer.y}) < 4 && thePlayer.id != playerId && !isSolid(thePlayer.x + (thePlayer.x > players[playerId].x ? 1 : -1), thePlayer.y + (thePlayer.y > players[playerId].y ? 1 : -1), earthBlock))
+        if(distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: thePlayer.x, y: thePlayer.y}) < 4 && thePlayer.id != playerId && !isSolid(thePlayer.x + (thePlayer.x > players[playerId].x ? 1 : -1), thePlayer.y + (thePlayer.y > players[playerId].y ? 1 : -1), earthBlock) && thePlayer.location == myLocation)
         {
           thisPlayerRef.update({
             x: thePlayer.x + (thePlayer.x > players[playerId].x ? 1 : -1), 
@@ -2037,7 +2672,8 @@ function delay(milliseconds){
             x: players[playerId].x + (direction.x * i), 
             y: players[playerId].y + (direction.y * i), 
             useable: false, 
-            id: playerId + fireRowId
+            id: playerId + fireRowId, 
+            location: myLocation
           })
           fireRowId++;
         } else {
@@ -2057,7 +2693,8 @@ function delay(milliseconds){
             x: players[playerId].x + (direction.x * i) + direction.y, 
             y: players[playerId].y + (direction.y * i) + direction.x, 
             useable: false, 
-            id: playerId + fireRowId
+            id: playerId + fireRowId, 
+            location: myLocation
           })
           fireRowId++;
         } else {
@@ -2076,7 +2713,8 @@ function delay(milliseconds){
             x: players[playerId].x + (direction.x * i) - direction.y, 
             y: players[playerId].y + (direction.y * i) - direction.x, 
             useable: false, 
-            id: playerId + fireRowId
+            id: playerId + fireRowId, 
+            location: myLocation
           })
           fireRowId++;
         } else {
@@ -2095,7 +2733,8 @@ function delay(milliseconds){
             x: players[playerId].x + (direction.x * i) + direction.y * 2, 
             y: players[playerId].y + (direction.y * i) + direction.x * 2, 
             useable: false, 
-            id: playerId + fireRowId
+            id: playerId + fireRowId, 
+            location: myLocation
           })
           fireRowId++;
         } else {
@@ -2110,7 +2749,8 @@ function delay(milliseconds){
             x: players[playerId].x + (direction.x * i) - direction.y * 2, 
             y: players[playerId].y + (direction.y * i) - direction.x * 2, 
             useable: false, 
-            id: playerId + fireRowId
+            id: playerId + fireRowId, 
+            location: myLocation
           })
           fireRowId++;
         } else {
@@ -2129,7 +2769,8 @@ function delay(milliseconds){
         direction, 
         useable: false, 
         id: playerId + FireId, 
-        player: playerId
+        player: playerId, 
+        location: myLocation
       });
       FireId++;
       cooldown = 1;
@@ -2144,7 +2785,8 @@ function delay(milliseconds){
         direction, 
         useable: false, 
         id: playerId + FireId, 
-        player: playerId
+        player: playerId, 
+        location: myLocation
       });
       FireId++;
       cooldown = 5;
@@ -2159,10 +2801,12 @@ function delay(milliseconds){
           x: players[playerId].x + currentDir.x * i, 
           y: players[playerId].y + currentDir.y * i, 
           useable: false, 
-          id: playerId + FireId
+          id: playerId + FireId, 
+          location: myLocation
         });
         FireId++;
       }
+      fBID = 0;
       isFireBreath = true;
     } else if(myBending == "Fire" && myMoveId == 5 && isFireBreath) {
       isFireBreath = false;
@@ -2176,7 +2820,8 @@ function delay(milliseconds){
         direction, 
         useable: false, 
         id: playerId + windId, 
-        player: playerId
+        player: playerId, 
+        location: myLocation
       });
       windId++;
       cooldown = 1;
@@ -2193,12 +2838,13 @@ function delay(milliseconds){
             x: players[playerId].x + (direction.x * i), 
             y: players[playerId].y + (direction.y * i), 
             useable: false, 
-            id: playerId + EarthBlockId
+            id: playerId + EarthBlockId, 
+            location: myLocation
           })
           let Attack;
           Object.keys(players).forEach((key) => {
             const characterState = players[key];
-            if(characterState.x === players[playerId].x + (direction.x * i) && characterState.y === players[playerId].y + (direction.y * i))
+            if(characterState.x === players[playerId].x + (direction.x * i) && characterState.y === players[playerId].y + (direction.y * i) && characterState.location === myLocation)
             {
               Attack = key;
             }
@@ -2355,28 +3001,32 @@ function delay(milliseconds){
           y: attackWater.y, 
           useable: false, 
           id: playerId + "ice1", 
-          state: "ice"
+          state: "ice", 
+          location: myLocation
         });
         firebase.database().ref(`water/${key}ice2`).set({
           x: attackWater.x - 1, 
           y: attackWater.y, 
           useable: false, 
           id: playerId + "ice2", 
-          state: "ice"
+          state: "ice", 
+          location: myLocation
         });
         firebase.database().ref(`water/${key}ice3`).set({
           x: attackWater.x, 
           y: attackWater.y + 1, 
           useable: false, 
           id: playerId + "ice3", 
-          state: "ice"
+          state: "ice", 
+          location: myLocation
         });
         firebase.database().ref(`water/${key}ice4`).set({
           x: attackWater.x, 
           y: attackWater.y - 1, 
           useable: false, 
           id: playerId + "ice4", 
-          state: "ice"
+          state: "ice", 
+          location: myLocation
         });
         myWater = 0;
         cooldown = 2;
@@ -2449,6 +3099,7 @@ function delay(milliseconds){
       }
     }
     experience++;
+    experience = 10;
     setTimeout(() => {
       regenLoop();
     }, 30000);
@@ -2459,7 +3110,15 @@ function delay(milliseconds){
       Object.keys(players).forEach((key) => {
         const thePlayer = players[key];
         const thisPlayerRef = firebase.database().ref(`players/${key}`);
-        if(distanceBetween({x: waterArms[6].x, y: waterArms[6].y}, {x: thePlayer.x, y: thePlayer.y}) <= 2)
+        if(distanceBetween({x: waterArms[7].x, y: waterArms[7].y}, {x: thePlayer.x, y: thePlayer.y}) <= 2 && myLocation == thePlayer.location)
+        {
+          thisPlayerRef.update({
+            x: waterArms[6].x, 
+            y: waterArms[6].y
+          });
+          holdingPlayer = thePlayer.id;
+        }
+        if(distanceBetween({x: waterArms[6].x, y: waterArms[6].y}, {x: thePlayer.x, y: thePlayer.y}) <= 2 && myLocation == thePlayer.location)
         {
           thisPlayerRef.update({
             x: waterArms[6].x, 
@@ -2527,6 +3186,7 @@ function delay(milliseconds){
     const allProjectionRef = firebase.database().ref(`projection`);
     const allCombustRef = firebase.database().ref(`combust`);
     const allEarthCrawlRef = firebase.database().ref(`earth-crawl`);
+    const allRedZoneRef = firebase.database().ref(`red-zone`);
 
     allPlayersRef.on("value", (snapshot) => {
       //change
@@ -2539,6 +3199,10 @@ function delay(milliseconds){
         el.setAttribute("data-direction", characterState.direction);
         el.querySelector(".Character_health_bar").setAttribute("data-health", characterState.health);
         el.setAttribute("data-cloak", characterState.cloak);
+        if(characterState.location != myLocation)
+        {
+          el.setAttribute("data-cloak", "wind");
+        }
         const left = 16 * characterState.x + "px";
         const top = 16 * characterState.y - 4 + "px";
         el.style.transform = `translate3d(${left}, ${top}, 0)`;
@@ -2618,7 +3282,7 @@ function delay(milliseconds){
       if(water.useable)
       {
         waterElement.querySelector(".Water_sprite").addEventListener("click", () => {
-          if(distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: water.x, y: water.y}) <= 2 && myBending == "Water")
+          if(distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: water.x, y: water.y}) <= 2 && myBending == "Water" && players[playerId].location == water.location)
           {
             myWater = 1;
           }
@@ -3231,7 +3895,7 @@ function delay(milliseconds){
       earthBlockElement.style.transform = `translate3d(${left}, ${top}, 0)`;
 
       earthBlockElement.querySelector(".EarthBlock_sprite").addEventListener("click", () => {
-        if(distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: earthBlock.x, y: earthBlock.y}) <= 3 && myBending == "Earth")
+        if(distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: earthBlock.x, y: earthBlock.y}) <= 3 && myBending == "Earth" && earthBlock.location == myLocation)
         {
           firebase.database().ref(`earth-block/${earthBlock.id}`).remove();
           EarthBlockCount--;
@@ -3254,6 +3918,37 @@ function delay(milliseconds){
       const keyToRemove = id;
       gameContainer.removeChild(earthBlockElements[keyToRemove]);
       delete earthBlockElements[keyToRemove];
+    })
+
+    allRedZoneRef.on("value", (snapshot) => {
+      redZone = snapshot.val() || {};
+    });
+    allRedZoneRef.on("child_added", (snapshot) => {
+      const redZone = snapshot.val();
+      const key = redZone.id;
+      redZone[key] = true;
+
+      // Create the DOM Element
+      const redZoneElement = document.createElement("div");
+      redZoneElement.classList.add("RedZone", "grid-cell");
+      redZoneElement.innerHTML = `
+        <div class="RedZone_sprite grid-cell" id="RedZone"></div>
+      `;
+
+      // Position the Element
+      const left = 16 * redZone.x + "px";
+      const top = 16 * redZone.y + "px";
+      redZoneElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+
+      // Keep a reference for removal later and add to DOM
+      redZoneElements[key] = redZoneElement;
+      gameContainer.appendChild(redZoneElement);
+    })
+    allRedZoneRef.on("child_removed", (snapshot) => {
+      const {id} = snapshot.val();
+      const keyToRemove = id;
+      gameContainer.removeChild(redZoneElements[keyToRemove]);
+      delete redZoneElements[keyToRemove];
     })
 
     playerNameInput.addEventListener("change", (e) => { 
@@ -3329,10 +4024,10 @@ function delay(milliseconds){
       let margin = {x: (screenDim.x - 720) / 2, y: (screenDim.y - 624) / 2};
       mouseTile = {x: Math.floor((mousePos.x - margin.x) / 48), y: Math.floor((mousePos.y - margin.y) / 48)};
       //1919, 977
-      if(mouseTile.x > mapData.maxX - 1) mouseTile.x = mapData.maxX - 1;
-      if(mouseTile.y > mapData.maxY - 1) mouseTile.y = mapData.maxY - 1;
-      if(mouseTile.x < mapData.minX) mouseTile.x = mapData.minX;
-      if(mouseTile.y < mapData.minY) mouseTile.y = mapData.minY;
+      if(mouseTile.x > arenaMapData.maxX - 1) mouseTile.x = arenaMapData.maxX - 1;
+      if(mouseTile.y > arenaMapData.maxY - 1) mouseTile.y = arenaMapData.maxY - 1;
+      if(mouseTile.x < arenaMapData.minX) mouseTile.x = arenaMapData.minX;
+      if(mouseTile.y < arenaMapData.minY) mouseTile.y = arenaMapData.minY;
     });
     document.onclick = async function(event) {
       if(event === undefined) event = window.event;
@@ -3346,7 +4041,7 @@ function delay(milliseconds){
         Object.keys(players).forEach((key) => {
           const thePlayer = players[key];
           const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y && thePlayer.health < 5)
+          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y && thePlayer.health < 5 && thePlayer.location === myLocation)
           {
             let thisDamage = randomFromArray([0, 1]);
             firebase.database().ref("players/" + thePlayer.id).update({
@@ -3357,19 +4052,20 @@ function delay(milliseconds){
           }
         })
       }
-      if(myBending == "Earth" && target.id != "EarthBlock" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 4 && myMoveId == 0 && EarthBlockCount < 12 && cooldown == 0)
+      if(myBending == "Earth" && target.id != "EarthBlock" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 4 && myMoveId == 0 && EarthBlockCount < 12 && cooldown == 0 && !isWater(mouseTile.x, mouseTile.y, water))
       {
         const earthBlockRef = firebase.database().ref(`earth-block/${playerId + EarthBlockId}`);
         earthBlockRef.set({
           x: mouseTile.x, 
           y: mouseTile.y, 
           useable: true, 
-          id: playerId + EarthBlockId
+          id: playerId + EarthBlockId, 
+          location: myLocation 
         })
         let Attack;
         Object.keys(players).forEach((key) => {
           const characterState = players[key];
-          if(characterState.x === mouseTile.x && characterState.y === mouseTile.y)
+          if(characterState.x === mouseTile.x && characterState.y === mouseTile.y && characterState.location === myLocation)
           {
             Attack = key;
           }
@@ -3395,7 +4091,8 @@ function delay(milliseconds){
           x: mouseTile.x, 
           y: mouseTile.y, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3403,7 +4100,8 @@ function delay(milliseconds){
           x: mouseTile.x + 1, 
           y: mouseTile.y, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3411,7 +4109,8 @@ function delay(milliseconds){
           x: mouseTile.x - 1, 
           y: mouseTile.y, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3419,7 +4118,8 @@ function delay(milliseconds){
           x: mouseTile.x, 
           y: mouseTile.y + 1, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3427,7 +4127,8 @@ function delay(milliseconds){
           x: mouseTile.x, 
           y: mouseTile.y - 1, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3435,7 +4136,8 @@ function delay(milliseconds){
           x: mouseTile.x + 1, 
           y: mouseTile.y + 1, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3443,7 +4145,8 @@ function delay(milliseconds){
           x: mouseTile.x - 1, 
           y: mouseTile.y + 1, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3451,7 +4154,8 @@ function delay(milliseconds){
           x: mouseTile.x + 1, 
           y: mouseTile.y - 1, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3459,7 +4163,8 @@ function delay(milliseconds){
           x: mouseTile.x - 1, 
           y: mouseTile.y - 1, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3467,7 +4172,8 @@ function delay(milliseconds){
           x: mouseTile.x + 2, 
           y: mouseTile.y, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3475,7 +4181,8 @@ function delay(milliseconds){
           x: mouseTile.x - 2, 
           y: mouseTile.y, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3483,7 +4190,8 @@ function delay(milliseconds){
           x: mouseTile.x, 
           y: mouseTile.y + 2, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         explodeRef = firebase.database().ref(`explosion/${playerId + ExplodeId}`);
@@ -3491,7 +4199,8 @@ function delay(milliseconds){
           x: mouseTile.x, 
           y: mouseTile.y - 2, 
           useable: true, 
-          id: playerId + ExplodeId
+          id: playerId + ExplodeId, 
+          location: myLocation
         })
         ExplodeId++;
         cooldown = 8;
@@ -3504,7 +4213,8 @@ function delay(milliseconds){
           x: mouseTile.x, 
           y: mouseTile.y, 
           useable: true, 
-          id: playerId + SandId
+          id: playerId + SandId, 
+          location: myLocation
         })
         SandId++;
         cooldown = 2;
@@ -3536,7 +4246,8 @@ function delay(milliseconds){
             x: lavaPos.x, 
             y: lavaPos.y, 
             useable: true, 
-            id: playerId + LavaId
+            id: playerId + LavaId, 
+            location: myLocation
           })
           LavaId++;
           await delay(150);
@@ -3570,7 +4281,8 @@ function delay(milliseconds){
             x: crawlPos.x, 
             y: crawlPos.y, 
             useable: true, 
-            id: playerId + LavaId
+            id: playerId + LavaId, 
+            location: myLocation
           })
           LavaId++;
           await delay(100);
@@ -3606,13 +4318,14 @@ function delay(milliseconds){
             useable: true, 
             state: "water", 
             delete: true, 
-            id: playerId + waterWhipId
+            id: playerId + waterWhipId, 
+            location: myLocation
           })
           waterWhipId++;
           Object.keys(players).forEach((key) => {
             const thePlayer = players[key];
             const thisPlayerRef = firebase.database().ref(`players/${key}`);
-            if(whipPos.x === thePlayer.x && whipPos.y === thePlayer.y)
+            if(whipPos.x === thePlayer.x && whipPos.y === thePlayer.y && thePlayer.location === myLocation)
             {
               let thisDamage = randomFromArray([0, 1, 1]);
               firebase.database().ref("players/" + thePlayer.id).update({
@@ -3654,7 +4367,8 @@ function delay(milliseconds){
             x: lightningPos.x, 
             y: lightningPos.y, 
             useable: true, 
-            id: playerId + LightningId
+            id: playerId + LightningId, 
+            location: myLocation
           })
           LightningId++;
         }
@@ -3686,7 +4400,8 @@ function delay(milliseconds){
             x: lightningPos.x, 
             y: lightningPos.y, 
             useable: true, 
-            id: playerId + LightningId
+            id: playerId + LightningId, 
+            location: myLocation
           })
           LightningId++;
         }
@@ -3700,7 +4415,8 @@ function delay(milliseconds){
           x: mouseTile.x, 
           y: mouseTile.y, 
           useable: true, 
-          id: playerId + FireId
+          id: playerId + FireId, 
+          location: myLocation
         })
         FireId++;
         cooldown = FireId % 6 == 0 ? 1 : 0;
@@ -3715,7 +4431,8 @@ function delay(milliseconds){
           useable: true, 
           state: "water", 
           delete: true, 
-          id: playerId + WaterId
+          id: playerId + WaterId, 
+          location: myLocation
         })
         WaterId++;
         cooldown = WaterId % 2 == 0 ? 2 : 0;
@@ -3735,18 +4452,19 @@ function delay(milliseconds){
           {
             changeIsY = 1;
           }
-          if(isSolid(mouseTile.x + idx * changeIsY, mouseTile.y + idx * changeIsX, earthBlock)) continue;
+          if(isSolid(mouseTile.x + idx * changeIsY, mouseTile.y + idx * changeIsX, earthBlock) || isWater(mouseTile.x + idx * changeIsY, mouseTile.y + idx * changeIsX, water)) continue;
           const earthBlockRef = firebase.database().ref(`earth-block/${playerId + EarthBlockId}`);
           earthBlockRef.set({
             x: mouseTile.x + idx * changeIsY, 
             y: mouseTile.y + idx * changeIsX, 
             useable: true, 
-            id: playerId + EarthBlockId
+            id: playerId + EarthBlockId, 
+            location: myLocation
           })
           let Attack;
           Object.keys(players).forEach((key) => {
             const characterState = players[key];
-            if(characterState.x === mouseTile.x + idx * changeIsY && characterState.y === mouseTile.y + idx * changeIsX)
+            if(characterState.x === mouseTile.x + idx * changeIsY && characterState.y === mouseTile.y + idx * changeIsX && characterState.location === myLocation)
             {
               Attack = key;
             }
@@ -3786,7 +4504,8 @@ function delay(milliseconds){
             x: mouseTile.x + idx * changeIsY, 
             y: mouseTile.y + idx * changeIsX, 
             useable: true, 
-            id: playerId + FireId
+            id: playerId + FireId, 
+            location: myLocation
           })
           FireId++;
           cooldown = 2;
@@ -3804,7 +4523,8 @@ function delay(milliseconds){
           y: attackWater.y, 
           useable: false, 
           id: playerId, 
-          state: "water"
+          state: "water", 
+          location: myLocation
         })
         shotTorrent = true;
         for(let i in playerTorrent)
@@ -3843,7 +4563,8 @@ function delay(milliseconds){
             useable: true, 
             state: "water", 
             delete: true, 
-            id: playerId + WaterShieldId
+            id: playerId + WaterShieldId, 
+            location: myLocation
           })
           WaterShieldId++;
         }
@@ -3872,7 +4593,8 @@ function delay(milliseconds){
             useable: true, 
             state: "water", 
             delete: true, 
-            id: playerId + WaterShieldId
+            id: playerId + WaterShieldId, 
+            location: myLocation
           })
           WaterShieldId++;
         }
@@ -3880,7 +4602,7 @@ function delay(milliseconds){
         cooldown = 2;
         coolDown.innerText = "Cooldown: " + cooldown;
       }
-      if(myBending == "Earth" && myMoveId == 4 && cooldown == 0 && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 2)
+      if(myBending == "Earth" && myMoveId == 4 && cooldown == 0 && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 2 && !isWater(mouseTile.x, mouseTile.y, water))
       {
         let rockRef = firebase.database().ref("rock/" + playerId);
         rockRef.set({
@@ -3888,7 +4610,8 @@ function delay(milliseconds){
           y: mouseTile.y, 
           type: "boulder", 
           useable: false, 
-          id: playerId
+          id: playerId, 
+          location: myLocation
         });
         myAttackIdx = 0;
         cooldown = 1;
@@ -3902,7 +4625,8 @@ function delay(milliseconds){
           y: mouseTile.y, 
           type: "disk", 
           useable: false, 
-          id: playerId
+          id: playerId, 
+          location: myLocation
         });
         myAttackIdx = 0;
         cooldown = 2;
@@ -3915,7 +4639,8 @@ function delay(milliseconds){
           x: mouseTile.x, 
           y: mouseTile.y, 
           useable: false, 
-          id: playerId+"torrent"
+          id: playerId+"torrent", 
+          location: myLocation
         });
         shotEncase = {x: mouseTile.x, y: mouseTile.y};
         myAttackIdx = 0;
@@ -3930,7 +4655,8 @@ function delay(milliseconds){
             x: mouseTile.x, 
             y: mouseTile.y, 
             useable: false, 
-            id: playerId
+            id: playerId, 
+            location: myLocation
           });
           myAttackIdx = 0;
           setTimeout(() => {
@@ -3946,7 +4672,7 @@ function delay(milliseconds){
         Object.keys(players).forEach((key) => {
           const thePlayer = players[key];
           const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y)
+          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y && myLocation === thePlayer.location)
           {
             thisPlayerRef.update({
               health: thePlayer.health - 1
@@ -3958,7 +4684,7 @@ function delay(milliseconds){
         Object.keys(players).forEach((key) => {
           const thePlayer = players[key];
           const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y)
+          if(mouseTile.x === thePlayer.x && mouseTile.y === thePlayer.y && myLocation === thePlayer.location)
           {
             thisPlayerRef.update({
               health: thePlayer.health - 1
@@ -3966,12 +4692,12 @@ function delay(milliseconds){
           }
         })
       }
-      if(myBending == "Water" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 2 && !players[playerId].isDead && myMoveId == 7 && friendbend == null)
+      if(myBending == "Water" && distanceBetween({x: players[playerId].x, y: players[playerId].y}, {x: mouseTile.x, y: mouseTile.y}) <= 5 && !players[playerId].isDead && myMoveId == 7 && friendbend == null)
       {
         Object.keys(players).forEach((key) => {
           const thePlayer = players[key];
           const thisPlayerRef = firebase.database().ref(`players/${key}`);
-          if(distanceBetween({x: thePlayer.x, y: thePlayer.y}, {x: mouseTile.x, y: mouseTile.y}) < 2)
+          if(distanceBetween({x: thePlayer.x, y: thePlayer.y}, {x: mouseTile.x, y: mouseTile.y}) < 2 && myLocation == thePlayer.location)
           {
             friendbend = thePlayer.id;
             myAttackIdx = 0;
@@ -3982,6 +4708,10 @@ function delay(milliseconds){
         friendbend = null;
         cooldown = 4;
         coolDown.innerText = "Cooldown: " + cooldown;
+      }
+      if(myBending == "Water" && isWater(mouseTile.x, mouseTile.y, water))
+      {
+        //myWater = 1;
       }
     };
     setMove(0);
@@ -4029,7 +4759,9 @@ function delay(milliseconds){
         health: 5, 
         isDead: false, 
         bending: localStorage.getItem("Bending"), 
-        cloak: "none"
+        cloak: "none", 
+        location: myLocation, 
+        isSpectator: false
       })
 
       myBending = localStorage.getItem("Bending");
