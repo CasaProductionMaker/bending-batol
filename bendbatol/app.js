@@ -1025,7 +1025,7 @@ function delay(milliseconds){
           })
           Object.keys(fire).forEach((key) => {
             const fireToPutOut = fire[key];
-            if(fireToPutOut.x === playerTorrent[i].x && fireToPutOut.y === playerTorrent[i].y && fireToPutOut.location === playerTorrent[i].location)
+            if(fireToPutOut.x === playerTorrent[i].x && fireToPutOut.y === playerTorrent[i].y && fireToPutOut.location === myLocation)
             {
               firebase.database().ref(`fire/${key}`).remove();
             }
