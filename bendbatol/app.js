@@ -1018,7 +1018,7 @@ function delay(milliseconds){
           let playerToAttack;
           Object.keys(players).forEach((key) => {
             const characterState = players[key];
-            if(characterState.x === playerTorrent[i].x && characterState.y === playerTorrent[i].y && characterState.location === playerTorrent[playerId+i].location)
+            if(characterState.x === playerTorrent[i].x && characterState.y === playerTorrent[i].y && characterState.location === myLocation)
             {
               playerToAttack = key;
             }
