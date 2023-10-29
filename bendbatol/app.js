@@ -3099,7 +3099,6 @@ function delay(milliseconds){
       }
     }
     experience++;
-    experience = 10;
     setTimeout(() => {
       regenLoop();
     }, 30000);
