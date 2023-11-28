@@ -325,7 +325,7 @@ function getRandomSafeSpot() {
     }
     for(let i = -20; i < 20; i++) {
       blockRef = firebase.database().ref(`block/init` + i + "x" + "-1");
-      if(Math.random() < 0.4)
+      if(Math.random() < 0.0)
       {
         blockRef.set({
           x: i, 
