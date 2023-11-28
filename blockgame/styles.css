@@ -1,0 +1,315 @@
+/* General */
+
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	background: linear-gradient(180deg, #64BEFF -50%, #6e96ff 69.71%, #2a65ff 150%);
+	font-family: sans-serif;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+h3 {
+	margin: 0.3em;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+/* Game Container */
+
+.game-container {
+	position: relative;
+	width: 240px;
+	height: 208px;
+	transform: scale(3);
+	image-rendering: pixelated;
+	overflow: hidden;
+}
+
+/* Respawn */
+
+.respawn-container {
+	z-index: 2;
+	align-items: center;
+	justify-content: center;
+}
+
+#respawn {
+	text-align: center;
+}
+
+/* Player Customization */
+
+.player-info {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 1em;
+	display: flex;
+	gap: 0.5em;
+	align-items: flex-end;
+}
+
+/* Player info */
+
+.player-dur-info {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 1em;
+	display: flex;
+	gap: 0.5em;
+	align-items: flex-end;
+}
+
+/* Chat */
+
+.chat-box {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	padding: 1em;
+	display: flex;
+	gap: 0.5em;
+	align-items: flex-end;
+}
+
+.chat-message {
+	position: relative;
+	bottom: 300px;
+}
+
+/* More General */
+
+label {
+	display: block;
+	font-weight: bold;
+}
+
+input[type="text"], 
+button {
+	font-family: inherit;
+	font-weight: bold;
+	font-size: 18px;
+	height: 44px;
+	border-radius: 4px;
+	outline: 0;
+}
+
+input[type="text"] {
+	outline: 0;
+	padding-left: 0.5em;
+	border: 3px solid #222034;
+	width: 150px;
+	text-transform: uppercase;
+}
+
+input[type="text"]:focus {
+	border-color: #f000ff;
+}
+
+button {
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	background: #59ff5a;
+	border: 0;
+	border-bottom: 2px solid #1e830b;
+	cursor: pointer;
+}
+
+button:active:not(#exit-button) {
+	position: relative;
+	top: 1px;
+}
+
+/* More Chat */
+
+#chat-display {
+	text-align: right;
+	align-self: right;
+	right: 0px;
+	font-weight: bold;
+	position: relative;
+	bottom: 70px;
+	left: 210px;
+	overflow: hidden;
+}
+
+/* Characters */
+
+.grid-cell {
+	position: absolute;
+	width: 16px;
+	height: 16px;
+}
+
+.Character {
+	transition: transform 0.1s;
+	text-align: center;
+}
+
+.Character.you {
+	z-index: 1;
+}
+.Character.you .Character_you-arrow {
+	display: block;
+}
+
+.Character_you-arrow {
+	display: none;
+	position: absolute;
+	top: -18px;
+	left: 5px;
+	width: 7px;
+	height: 5px;
+	background: url(images/arrow.png) no-repeat no-repeat;
+}
+
+.Character_health_bar[data-health="5"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthfive.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="4"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthfour.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="3"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healththree.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="2"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthtwo.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="1"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthone.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="0"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthzero.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="-1"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthzero.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="-2"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthzero.png) no-repeat no-repeat;
+}
+
+.Character_sprite {
+	overflow: hidden;
+	top: -3px;
+	background: url(images/characters.png);
+}
+
+.Character[data-direction="right"] .Character_sprite {
+  background-position-x: 16px;
+}
+.Character[data-color="red"] .Character_sprite {
+  background-position-y: -16px;
+}
+.Character[data-color="orange"] .Character_sprite {
+  background-position-y: -32px;
+}
+.Character[data-color="yellow"] .Character_sprite {
+  background-position-y: -48px;
+}
+.Character[data-color="green"] .Character_sprite {
+  background-position-y: -64px;
+}
+.Character[data-color="purple"] .Character_sprite {
+  background-position-y: -80px;
+}
+
+.Character_name-container {
+  position: absolute;
+  top: -12px;
+  left: -5px;
+  font-size: 5px;
+  padding: 1px 2px 1px;
+  border-radius: 3px;
+  background: #333;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
+  white-space: nowrap;
+  align-items: center;
+}
+.Character_name {
+  color: white;
+}
+.Character_coins {
+  margin-left: 1px;
+  color: gold;
+}
+
+/* Block */
+
+.Block_sprite {
+	background: url(images/block.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="grass"] {
+	background: url(images/grass.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="bedrock"] {
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="stone"] {
+	background: url(images/stone.png) no-repeat no-repeat;
+}
+.Block_sprite[data-far="true"] {
+	background: url(images/none.png) no-repeat no-repeat;
+}
+.Block_break_sprite_overlay[data-hp="5"] {
+	background: url(images/none.png) no-repeat no-repeat;
+}
+.Block {
+	transition: transform 0.1s;
+}
