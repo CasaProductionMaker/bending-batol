@@ -22,6 +22,7 @@ let xVel = 0;
 let mineIdx = 0;
 let myBlockId = 0;
 let renderDistance = 5;
+let isMapG;
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 
@@ -325,7 +326,7 @@ function getRandomSafeSpot() {
     }
     for(let i = -20; i < 20; i++) {
       blockRef = firebase.database().ref(`block/init` + i + "x" + "-1");
-      if(Math.random() < 0.0)
+      if(Math.random() < 0.5)
       {
         blockRef.set({
           x: i, 
@@ -356,6 +357,7 @@ function getRandomSafeSpot() {
 
     const allPlayersRef = firebase.database().ref(`players`);
     const allBlockRef = firebase.database().ref(`block`);
+    const isMap = firebase.database().ref(`isMapGen`);
 
     allPlayersRef.on("value", (snapshot) => {
       //change
@@ -405,9 +407,13 @@ function getRandomSafeSpot() {
       characterElement.style.transform = `translate3d(${left}, ${top}, 0)`;
       gameContainer.appendChild(characterElement);
       setTimeout(() => {
-        if(block["init010"] === undefined)
+        console.log(isMapG);
+        if(isMapG === false)
         {
           generateMap();
+          firebase.database().ref().update({
+            isMapGen: true
+          })
         }
       }, 1000)
     })
@@ -455,6 +461,10 @@ function getRandomSafeSpot() {
       gameContainer.removeChild(blockElements[keyToRemove]);
       delete blockElements[keyToRemove];
     })
+
+    isMap.on("value", (snapshot) => {
+      isMapG = snapshot.val();
+    });
 
     playerNameInput.addEventListener("change", (e) => {
       const newName = e.target.value || createName();
