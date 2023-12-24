@@ -304,6 +304,13 @@ button:active:not(#exit-button) {
 .Block_sprite[data-type="stone"] {
 	background: url(images/stone.png) no-repeat no-repeat;
 }
+.Block_sprite[data-type="log"] {
+	background: url(images/log.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="leaves"] {
+	background: url(images/leaves.png) no-repeat no-repeat;
+}
+
 .Block_sprite[data-far="true"] {
 	background: url(images/none.png) no-repeat no-repeat;
 }

@@ -23,6 +23,8 @@ let mineIdx = 0;
 let myBlockId = 0;
 let renderDistance = 5;
 let isMapG;
+let worldRad = 20;
+let action = 0;
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 
@@ -91,6 +93,20 @@ function getRandomSafeSpot() {
     y = Math.floor(Math.random() * 11);
   }
   return {x, y};
+}
+var M = 4294967296, 
+A = 1664525, 
+C = 1;
+var Z = Math.floor(Math.random() * M);
+function rand(){
+  Z = (A * Z + C) % M;
+  return Z / M - 0.5;
+};
+
+function interpolate(pa, pb, px){
+  var ft = px * Math.PI,
+  f = (1 - Math.cos(ft)) * 0.5;
+  return pa * (1 - f) + pb * f;
 }
 
 (function() {
@@ -184,10 +200,12 @@ function getRandomSafeSpot() {
   function mineLoop() {
     if(mouseDown)
     {
+      let isBlock = false;
       Object.keys(block).forEach((key) => {
         const blockState = block[key];
-        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y)
+        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y && action != 2)
         {
+          isBlock = true;
           let hpRed = 0;
           if(mineIdx % blockState.strength == 0)
           {
@@ -200,8 +218,25 @@ function getRandomSafeSpot() {
           {
             firebase.database().ref("block/" + key).remove();
           }
+          action = 1;
         }
       })
+      if(!isBlock && action != 1)
+      {
+        blockRef = firebase.database().ref(`block/` + playerId + myBlockId);
+        blockRef.set({
+          x: mouseTile.x, 
+          y: mouseTile.y, 
+          id: playerId + myBlockId, 
+          type: "grass", 
+          sizeX: 1.0, 
+          sizeY: 1.0, 
+          hp: 5, 
+          strength: 30
+        })
+        myBlockId++;
+        action = 2;
+      }
     }
     mineIdx += 1;
 
@@ -234,7 +269,7 @@ function getRandomSafeSpot() {
       let isCollision = false;
       Object.keys(block).forEach((key) => {
         const blockState = block[key];
-        if(myX + 0.25 > blockState.x - (blockState.sizeX/2) && myX - 0.25 < blockState.x + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > blockState.y - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < blockState.y + (blockState.sizeY/2))
+        if(myX + 0.25 > blockState.x - (blockState.sizeX/2) && myX - 0.25 < blockState.x + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > blockState.y - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < blockState.y + (blockState.sizeY/2) && !(blockState.sizeX == 0))
         {
           isCollision = true;
         }
@@ -272,12 +307,12 @@ function getRandomSafeSpot() {
   }
   function generateStoneLayer(y)
   {
-    for(let i = -20; i < 20; i++) {
-      blockRef = firebase.database().ref(`block/init` + i + y);
+    for(let i = -worldRad; i < worldRad; i++) {
+      blockRef = firebase.database().ref(`block/init` + i + "x" + y);
       blockRef.set({
         x: i, 
         y, 
-        id: "init" + i + y, 
+        id: "init" + i + "x" + y, 
         type: "stone", 
         sizeX: 1.0, 
         sizeY: 1.0, 
@@ -286,10 +321,24 @@ function getRandomSafeSpot() {
       })
     }
   }
+  function placeBlock(type, x, y, Xs, Ys, str, uniquifier)
+  {
+    let blockRef = firebase.database().ref(`block/` + uniquifier + x + "x" + y);
+    blockRef.set({
+      x, 
+      y, 
+      id: uniquifier + x + "x" + y,  
+      type, 
+      sizeX: Xs, 
+      sizeY: Ys, 
+      hp: 5, 
+      strength: str
+    })
+  }
   function generateMap()
   {
     let blockRef;
-    for(let i = -20; i < 20; i++) {
+    for(let i = -worldRad; i < worldRad; i++) {
       blockRef = firebase.database().ref(`block/init` + i + "x" + "10");
       blockRef.set({
         x: i, 
@@ -311,7 +360,7 @@ function getRandomSafeSpot() {
     generateStoneLayer(3);
     generateStoneLayer(2);
     generateStoneLayer(1);
-    for(let i = -20; i < 20; i++) {
+    for(let i = -worldRad; i < worldRad; i++) {
       blockRef = firebase.database().ref(`block/init` + i + "x" + "0");
       blockRef.set({
         x: i, 
@@ -324,14 +373,46 @@ function getRandomSafeSpot() {
         strength: 30
       })
     }
-    for(let i = -20; i < 20; i++) {
-      blockRef = firebase.database().ref(`block/init` + i + "x" + "-1");
-      if(Math.random() < 0.5)
+
+    var x = -worldRad,
+    y = 10,
+    amp = -3, //amplitude
+    wl = 5, //wavelength
+    a = rand(),
+    b = rand(), 
+    worldSurface = -2;
+
+    let treePos = [];
+    while(x < worldRad){
+      if(x % wl === 0){
+        a = b;
+        b = rand();
+        y = worldSurface + a * amp;
+      }else{
+        y = worldSurface + interpolate(a, b, (x % wl) / wl) * amp;
+      }
+      blockRef = firebase.database().ref(`block/pn` + Math.round(x) + "x" + Math.round(y));
+      blockRef.set({
+        x: Math.round(x), 
+        y: Math.round(y), 
+        id: "pn" + Math.round(x) + "x" + Math.round(y), 
+        type: "grass", 
+        sizeX: 1.0, 
+        sizeY: 1.0, 
+        hp: 5, 
+        strength: 30
+      })
+      if(Math.random() < 0.1)
       {
+        treePos.push([Math.round(x), Math.round(y-1)]);
+      }
+      for(let i = 0; i < Math.abs(Math.round(y)); i++)
+      {
+        blockRef = firebase.database().ref(`block/pn` + Math.round(x) + "x" + Math.round(y+i));
         blockRef.set({
-          x: i, 
-          y: -1, 
-          id: "init" + i + "x" + "-1", 
+          x: Math.round(x), 
+          y: Math.round(y+i), 
+          id: "pn" + Math.round(x) + "x" + Math.round(y+i), 
           type: "grass", 
           sizeX: 1.0, 
           sizeY: 1.0, 
@@ -339,12 +420,120 @@ function getRandomSafeSpot() {
           strength: 30
         })
       }
+      x += 1;
+    }
+    for(var i = 0; i < treePos.length; i++) {
+      for (var Hi = 0; Hi < 5; Hi++) {
+        if(Math.random() < (1 - (Hi/5)) || Hi < 2)
+        {
+          blockRef = firebase.database().ref(`block/pn` + treePos[i][0] + "x" + (treePos[i][1] - Hi));
+          blockRef.set({
+            x: treePos[i][0], 
+            y: (treePos[i][1] - Hi), 
+            id: "pn" + treePos[i][0] + "x" + (treePos[i][1] - Hi), 
+            type: "log", 
+            sizeX: 0.0, 
+            sizeY: 0.0, 
+            hp: 5, 
+            strength: 30
+          })
+        } else {
+          placeBlock("leaves", treePos[i][0], (treePos[i][1] - Hi), 0.0, 0.0, 15, "pn");
+          placeBlock("leaves", treePos[i][0] + 1, (treePos[i][1] - Hi) + 1, 0.0, 0.0, 15, "pn");
+          placeBlock("leaves", treePos[i][0] - 1, (treePos[i][1] - Hi) + 1, 0.0, 0.0, 15, "pn");
+          if(Math.random() < 0.6)
+          {
+            placeBlock("leaves", treePos[i][0] + 2, (treePos[i][1] - Hi) + 1, 0.0, 0.0, 15, "pn");
+            if(Math.random() < 0.4)
+            {
+              placeBlock("leaves", treePos[i][0] + 3, (treePos[i][1] - Hi) + 1, 0.0, 0.0, 15, "pn");
+              if(Math.random() < 0.2)
+              {
+                placeBlock("leaves", treePos[i][0] + 4, (treePos[i][1] - Hi) + 1, 0.0, 0.0, 15, "pn");
+              }
+            }
+            if(Math.random() < 0.4)
+            {
+              placeBlock("leaves", treePos[i][0] + 1, (treePos[i][1] - Hi), 0.0, 0.0, 15, "pn");
+              if(Math.random() < 0.2)
+              {
+                placeBlock("leaves", treePos[i][0] + 2, (treePos[i][1] - Hi), 0.0, 0.0, 15, "pn");
+                if(Math.random() < 0.1)
+                {
+                  placeBlock("leaves", treePos[i][0] + 3, (treePos[i][1] - Hi), 0.0, 0.0, 15, "pn");
+                }
+              }
+              if(Math.random() < 0.2)
+              {
+                placeBlock("leaves", treePos[i][0] + 1, (treePos[i][1] - Hi) - 1, 0.0, 0.0, 15, "pn");
+                if(Math.random() < 0.1)
+                {
+                  placeBlock("leaves", treePos[i][0] + 2, (treePos[i][1] - Hi) - 1, 0.0, 0.0, 15, "pn");
+                  if(Math.random() < 0.05)
+                  {
+                    placeBlock("leaves", treePos[i][0] + 3, (treePos[i][1] - Hi) - 1, 0.0, 0.0, 15, "pn");
+                  }
+                }
+              }
+            }
+          }
+          if(Math.random() < 0.6)
+          {
+            placeBlock("leaves", treePos[i][0] - 2, (treePos[i][1] - Hi) + 1, 0.0, 0.0, 15, "pn");
+            if(Math.random() < 0.4)
+            {
+              placeBlock("leaves", treePos[i][0] - 3, (treePos[i][1] - Hi) + 1, 0.0, 0.0, 15, "pn");
+              if(Math.random() < 0.2)
+              {
+                placeBlock("leaves", treePos[i][0] - 4, (treePos[i][1] - Hi) + 1, 0.0, 0.0, 15, "pn");
+              }
+            }
+            if(Math.random() < 0.4)
+            {
+              placeBlock("leaves", treePos[i][0] - 1, (treePos[i][1] - Hi), 0.0, 0.0, 15, "pn");
+              if(Math.random() < 0.2)
+              {
+                placeBlock("leaves", treePos[i][0] - 2, (treePos[i][1] - Hi), 0.0, 0.0, 15, "pn");
+                if(Math.random() < 0.1)
+                {
+                  placeBlock("leaves", treePos[i][0] - 3, (treePos[i][1] - Hi), 0.0, 0.0, 15, "pn");
+                }
+              }
+              if(Math.random() < 0.2)
+              {
+                placeBlock("leaves", treePos[i][0] - 1, (treePos[i][1] - Hi) - 1, 0.0, 0.0, 15, "pn");
+                if(Math.random() < 0.1)
+                {
+                  placeBlock("leaves", treePos[i][0] - 2, (treePos[i][1] - Hi) - 1, 0.0, 0.0, 15, "pn");
+                  if(Math.random() < 0.05)
+                  {
+                    placeBlock("leaves", treePos[i][0] - 3, (treePos[i][1] - Hi) - 1, 0.0, 0.0, 15, "pn");
+                  }
+                }
+              }
+            }
+          }
+          if(Math.random() < 0.6)
+          {
+            placeBlock("leaves", treePos[i][0], (treePos[i][1] - Hi) - 1, 0.0, 0.0, 15, "pn");
+            if(Math.random() < 0.4)
+            {
+              placeBlock("leaves", treePos[i][0], (treePos[i][1] - Hi) - 2, 0.0, 0.0, 15, "pn");
+              if(Math.random() < 0.2)
+              {
+                placeBlock("leaves", treePos[i][0], (treePos[i][1] - Hi) - 3, 0.0, 0.0, 15, "pn");
+              }
+            }
+          }
+          break;
+        }
+      }
     }
   }
 
   function initGame() {
     new KeyPressListener("ArrowUp", () => {
-      if(yVel == 0.001) handleMovement(0, -0.07)
+      if(yVel == 0.001) handleMovement(0, -0.05)
     }, () => handleMovement(0, 0))
     new KeyPressListener("ArrowLeft", () => {xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
     new KeyPressListener("ArrowRight", () => {xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
@@ -525,32 +714,10 @@ function getRandomSafeSpot() {
     });
     window.onmousedown = () => {
       mouseDown = true;
-      let isBlock = false;
-      Object.keys(block).forEach((key) => {
-        const blockState = block[key];
-        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y)
-        {
-          isBlock = true;
-        }
-      })
-      if(!isBlock)
-      {
-        blockRef = firebase.database().ref(`block/` + playerId + myBlockId);
-        blockRef.set({
-          x: mouseTile.x, 
-          y: mouseTile.y, 
-          id: playerId + myBlockId, 
-          type: "grass", 
-          sizeX: 1.0, 
-          sizeY: 1.0, 
-          hp: 5, 
-          strength: 30
-        })
-        myBlockId++;
-      }
     }
     window.onmouseup = () => {
       mouseDown = false;
+      action = 0;
     }
 
     oneSecondLoop();
@@ -577,7 +744,7 @@ function getRandomSafeSpot() {
         direction: "right",
         color: randomFromArray(playerColors),
         x: 1,
-        y: -1,
+        y: -5,
         coins: 0,
         potionDuration: 0,
         health: 5, 
