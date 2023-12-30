@@ -159,6 +159,27 @@ function interpolate(pa, pb, px){
       oneSecondLoop();
     }, 1000);
   }
+  function worldLoop() {
+    Object.keys(block).forEach((key) => {
+      const blockState = block[key];
+      if(blockState.type == "grass")
+      {
+        Object.keys(block).forEach((key) => {
+          const blockStateT = block[key];
+          if(blockStateT.y === blockState.y - 1)
+          {
+            firebase.database().ref("block/" + blockState.id).update({
+              type: "dirt"
+            });//blockState.type = "dirt";
+          }
+        })
+      }
+    })
+    //repeat
+    setTimeout(() => {
+      worldLoop();
+    }, 1000);
+  }
   function tickLoop() {
     if(players[playerId] != null) {
       if(players[playerId].health <= 0) {
@@ -186,6 +207,7 @@ function interpolate(pa, pb, px){
         const top = 16 * ((blockState.y - myY) + 7) + "px";
         el.style.transform = `translate3d(${left}, ${top}, 0)`;
         el.querySelector(".Block_sprite").setAttribute("data-far", "false");
+        el.querySelector(".Block_sprite").setAttribute("data-type", blockState.type);
       } else {
         let el = blockElements[blockState.id];
         el.querySelector(".Block_sprite").setAttribute("data-far", "true");
@@ -221,7 +243,27 @@ function interpolate(pa, pb, px){
           action = 1;
         }
       })
-      if(!isBlock && action != 1)
+      let beside = false;
+      Object.keys(block).forEach((key) => {
+        const blockState = block[key];
+        if(blockState.x === mouseTile.x - 1 && blockState.y === mouseTile.y)
+        {
+          beside = true;
+        }
+        if(blockState.x === mouseTile.x + 1 && blockState.y === mouseTile.y)
+        {
+          beside = true;
+        }
+        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y - 1)
+        {
+          beside = true;
+        }
+        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y + 1)
+        {
+          beside = true;
+        }
+      })
+      if(!isBlock && action != 1 && beside)
       {
         blockRef = firebase.database().ref(`block/` + playerId + myBlockId);
         blockRef.set({
@@ -724,6 +766,7 @@ function interpolate(pa, pb, px){
     setTimeout(() => tickLoop(), 1000);
     setTimeout(() => renderLoop(), 1000);
     setTimeout(() => mineLoop(), 1000);
+    //setTimeout(() => worldLoop(), 1000);
   }
 	firebase.auth().onAuthStateChanged((user) =>{
     console.log(user)
