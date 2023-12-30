@@ -49,6 +49,10 @@ chat.on("child_added", (snapshot) => {
   // Keep a reference for removal later and add to DOM
   //coinElements[key] = messageElement;
   chatContainer.appendChild(messageElement);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+  //if (chatContainer.scrollTop + chatContainer.clientHeight === chatContainer.scrollHeight) {
+    //chatContainer.scrollTop = chatContainer.scrollHeight;
+  //}
 })
 firebase.database().ref("reloader").set({
   rl: Math.random()*Math.random()*Math.random()*Math.random()*Math.random()
