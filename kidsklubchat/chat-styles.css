@@ -37,6 +37,15 @@ button {
 .Message {
 	margin: 4px;
 }
+.Message:hover {
+	background-color: #00000033;
+}
+.Mention {
+	background-color: #ffffff55;
+}
+.Mention:hover {
+	background-color: #ffffff99;
+}
 
 .message-name {
 	margin: 0px;

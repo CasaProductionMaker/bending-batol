@@ -36,6 +36,7 @@ function sendMessage() {
 const chatContainer = document.querySelector("#chat-container");
 let chatD = firebase.database().ref("chat");
 const chat = firebase.database().ref("chat");
+let previousload = {sender: "blub"};
 chat.on("child_added", (snapshot) => {
   const thismessage = snapshot.val();
   const key = thismessage.id;
@@ -44,7 +45,17 @@ chat.on("child_added", (snapshot) => {
   // Create the DOM Element
   const messageElement = document.createElement("div");
   messageElement.classList.add("Message");
-  messageElement.innerHTML = "<div class='message-name'>" + thismessage.sender + "</div>" + thismessage.message;
+  if (thismessage.message.indexOf("@" + user) > -1)
+  {
+    messageElement.classList.add("Mention");
+  }
+  if(previousload.sender == thismessage.sender)
+  {
+    messageElement.innerHTML = thismessage.message;
+  } else {
+    messageElement.innerHTML = "<div class='message-name'>" + thismessage.sender + "</div>" + thismessage.message;
+  }
+  previousload = thismessage;
 
   // Keep a reference for removal later and add to DOM
   //coinElements[key] = messageElement;
