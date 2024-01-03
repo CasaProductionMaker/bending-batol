@@ -16,6 +16,11 @@ if(user == "null")
 {
   window.location.href = "index.html"
 }
+function logUserOut() {
+  localStorage.setItem("username", "null");
+  window.location.href = "index.html"
+}
+let replytomsg = null;
 
 window.addEventListener('beforeunload', (event) => {
   localStorage.setItem("username", "null");
@@ -28,9 +33,11 @@ function sendMessage() {
   chatRef.set({
     message: document.querySelector("#bottom-bar").querySelector("#chat_input").value, 
     id: date, 
-    sender: user
+    sender: user, 
+    replyto: replytomsg
   })
   document.querySelector("#bottom-bar").querySelector("#chat_input").value = "";
+  replytomsg = null;
 }
 
 const chatContainer = document.querySelector("#chat-container");
@@ -49,11 +56,16 @@ chat.on("child_added", (snapshot) => {
   {
     messageElement.classList.add("Mention");
   }
-  if(previousload.sender == thismessage.sender)
+  if(previousload.sender == thismessage.sender && thismessage.replyto == null)
   {
-    messageElement.innerHTML = thismessage.message;
+    messageElement.innerHTML = thismessage.message + "<button onclick='replytomsg = " + thismessage.id + "' class='reply-button'>Reply</button>";
   } else {
-    messageElement.innerHTML = "<div class='message-name'>" + thismessage.sender + "</div>" + thismessage.message;
+    if(thismessage.replyto != null)
+    {
+      messageElement.innerHTML = "<div class='reply-text'>" + chatD[thismessage.replyto].sender + ": " + chatD[thismessage.replyto].message + "</div><div class='message-name'>" + thismessage.sender + "</div>" + thismessage.message + "<button onclick='replytomsg = " + thismessage.id + "' class='reply-button'>Reply</button>";
+    } else {
+      messageElement.innerHTML = "<div class='message-name'>" + thismessage.sender + "</div>" + thismessage.message + "<button onclick='replytomsg = " + thismessage.id + "' class='reply-button'>Reply</button>";
+    }
   }
   previousload = thismessage;
 
@@ -70,3 +82,6 @@ firebase.database().ref("reloader").set({
 });
 
 new KeyPressListener("Enter", () => sendMessage());
+new KeyPressListener("KeyQ", () => {
+  console.log(replytomsg)
+});

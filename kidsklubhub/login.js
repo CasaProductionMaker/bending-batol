@@ -31,7 +31,7 @@ function Login()
     if(user.value == thisuser.username && pass.value == thisuser.password)
     {
       localStorage.setItem("username", thisuser.username);
-      window.location.href = "chat.html";
+      window.location.href = "homepage.html";
     }
   })
 }
