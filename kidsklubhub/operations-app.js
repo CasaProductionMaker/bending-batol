@@ -54,3 +54,7 @@ function createOperation() {
 		followers: {}
 	});
 }
+
+function joinOperation(thisoperation) {
+  firebase.database().ref("operations/" + thisoperation + "/followers/" + user).set(true);
+}
