@@ -27,6 +27,7 @@ window.addEventListener('beforeunload', (event) => {
 });
 
 const operations = firebase.database().ref("operations");
+let operationsElements = {};
 let operationsD = {};
 operations.on("child_added", (snapshot) => {
   const thisoperation = snapshot.val();
@@ -36,25 +37,65 @@ operations.on("child_added", (snapshot) => {
   // Create the DOM Element
 	const operationEl = document.createElement("div");
 	operationEl.classList.add("operation", "col-lg-5");
-	operationEl.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4><p>" + thisoperation.desc + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button>";
+  let followerList = "";
+  let peopleIn = 0;
+  for (let follower in thisoperation.followers) {
+    followerList = followerList + ", " + follower;
+    peopleIn++;
+  }
+  followerList = followerList.substring(2);
+	operationEl.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button>";
 
   document.body.appendChild(operationEl);
+  operationsElements[key] = operationEl;
 })
+
+operations.on("value", (snapshot) => {
+  operationsD = snapshot.val() || {};
+  Object.keys(operationsD).forEach((key) => {
+    const thisoperation = operationsD[key];
+    let el = operationsElements[key];
+    let followerList = "";
+    let peopleIn = 0;
+    for (let follower in thisoperation.followers) {
+      followerList = followerList + ", " + follower;
+      peopleIn++;
+    }
+    followerList = followerList.substring(2);
+    operationEl.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button>";
+  })
+})
+
+operations.on("child_removed", (snapshot) => {
+  const obj = snapshot.val();
+  document.body.removeChild(operationsElements[obj.id]);
+  delete operationsElements[operationsElements[obj.id]];
+})
+
 firebase.database().ref("reloader").set({
   rl: Math.random()*Math.random()*Math.random()*Math.random()*Math.random()
 });
 
 function createOperation() {
-	const date = Date.now();
-	firebase.database().ref("operations/" + date).set({
-		id: date, 
-		name: document.getElementById("opname").value, 
-		desc: document.getElementById("opdesc").value, 
-		creator: user, 
-		followers: {}
-	});
+  if(document.getElementById("opname").value != "" && document.getElementById("opdesc").value != "")
+  {
+  	const date = Date.now();
+  	firebase.database().ref("operations/" + date).set({
+  		id: date, 
+  		name: document.getElementById("opname").value, 
+  		desc: document.getElementById("opdesc").value, 
+  		creator: user, 
+  		followers: {}
+  	});
+    document.getElementById("opname").value = "";
+    document.getElementById("opdesc").value = "";
+  }
 }
 
 function joinOperation(thisoperation) {
   firebase.database().ref("operations/" + thisoperation + "/followers/" + user).set(true);
+}
+
+function deleteOperation(thisoperation) {
+  firebase.database().ref("operations/" + thisoperation).remove();
 }
