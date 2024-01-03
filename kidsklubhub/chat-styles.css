@@ -55,6 +55,9 @@ button {
 #logout-button {
 	float: right;
 }
+#home-button {
+	float: right;
+}
 
 .reply-button {
 	width: 35px;

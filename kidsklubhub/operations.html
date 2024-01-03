@@ -15,6 +15,8 @@
     	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     	<p>Here, all the Kids Club Operations will be posted. Operations are plans to do something fun, useful, or any plans that have a codename, and are planned over a long stretch of time. Anyone can create operations, and delete their own operations. If you are interested in participating in an operation, press the "I'm In" button on the operation. To create an operation, fill in the form below</p>
     	<script type="text/javascript" src="operations-app.js"></script>
+    	<button onclick="logUserOut()" id="logout-button">Logout</button>
+	    <button onclick="loadHomepage()" id="home-button">Home</button>
 	    <div id="createOp" class="col-lg-11">
 	    	<label for="name">Name</label><input type="text" name="name" id="opname"><br>
 	    	<textarea cols="30" rows="6" id="opdesc"></textarea><br>

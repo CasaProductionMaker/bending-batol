@@ -12,18 +12,27 @@ const app = firebase.initializeApp(firebaseConfig);
 
 //My Code
 let user = localStorage.getItem("username");
+let saveUser = false;
 if(user == "null")
 {
-  window.location.href = "index.html"
+  window.location.href = "index.html";
+}
+function loadHomepage() {
+  saveUser = true;
+  console.log(saveUser)
+  window.location.href = "homepage.html";
 }
 function logUserOut() {
   localStorage.setItem("username", "null");
-  window.location.href = "index.html"
+  window.location.href = "index.html";
 }
 
 window.addEventListener('beforeunload', (event) => {
-  localStorage.setItem("username", "null");
-  event.returnValue = '';
+  if(!saveUser)
+  {
+    localStorage.setItem("username", "null");
+    event.returnValue = '';
+  }
 });
 
 const operations = firebase.database().ref("operations");
@@ -62,7 +71,7 @@ operations.on("value", (snapshot) => {
       peopleIn++;
     }
     followerList = followerList.substring(2);
-    operationEl.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button>";
+    el.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button>";
   })
 })
 

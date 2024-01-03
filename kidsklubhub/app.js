@@ -12,19 +12,29 @@ const app = firebase.initializeApp(firebaseConfig);
 
 //My Code
 let user = localStorage.getItem("username");
+let saveUser = false;
 if(user == "null")
 {
-  window.location.href = "index.html"
+  window.location.href = "index.html";
+}
+function loadHomepage() {
+  saveUser = true;
+  console.log(saveUser)
+  window.location.href = "homepage.html";
 }
 function logUserOut() {
   localStorage.setItem("username", "null");
-  window.location.href = "index.html"
+  window.location.href = "index.html";
 }
+
 let replytomsg = null;
 
 window.addEventListener('beforeunload', (event) => {
-  localStorage.setItem("username", "null");
-  event.returnValue = '';
+  if(!saveUser)
+  {
+    localStorage.setItem("username", "null");
+    event.returnValue = '';
+  }
 });
 
 function sendMessage() {
