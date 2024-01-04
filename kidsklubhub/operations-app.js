@@ -53,7 +53,7 @@ operations.on("child_added", (snapshot) => {
     peopleIn++;
   }
   followerList = followerList.substring(2);
-	operationEl.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button>";
+	operationEl.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button><button onclick='leaveOperation(" + thisoperation.id + ")'>I'm Out!</button>";
 
   document.body.appendChild(operationEl);
   operationsElements[key] = operationEl;
@@ -71,7 +71,7 @@ operations.on("value", (snapshot) => {
       peopleIn++;
     }
     followerList = followerList.substring(2);
-    el.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button>";
+    el.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button><button onclick='leaveOperation(" + thisoperation.id + ")'>I'm Out!</button>";
   })
 })
 
@@ -103,6 +103,9 @@ function createOperation() {
 
 function joinOperation(thisoperation) {
   firebase.database().ref("operations/" + thisoperation + "/followers/" + user).set(true);
+}
+function leaveOperation(thisoperation) {
+  firebase.database().ref("operations/" + thisoperation + "/followers/" + user).remove();
 }
 
 function deleteOperation(thisoperation) {

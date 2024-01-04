@@ -81,3 +81,13 @@ button {
 	font-size: 10px;
 	font-weight: bold;
 }
+
+.leader {
+	color: slateblue;
+}
+.manager {
+	color: purple;
+}
+.worker {
+	color: black;
+}

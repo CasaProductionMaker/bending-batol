@@ -50,6 +50,16 @@ function sendMessage() {
   replytomsg = null;
 }
 
+let usersD = firebase.database().ref("users");
+const users = firebase.database().ref("users");
+users.on("child_added", (snapshot) => {
+  const thisuser = snapshot.val();
+  const key = thisuser.username;
+  usersD[key] = thisuser;
+})
+firebase.database().ref("reloader").set({
+  rl: Math.random()*Math.random()*Math.random()*Math.random()*Math.random()
+});
 const chatContainer = document.querySelector("#chat-container");
 let chatD = firebase.database().ref("chat");
 const chat = firebase.database().ref("chat");
@@ -66,15 +76,22 @@ chat.on("child_added", (snapshot) => {
   {
     messageElement.classList.add("Mention");
   }
+  let thisrank = "worker";
+  for (let auser in usersD) {
+    if(usersD[auser]["username"] == thismessage.sender)
+    {
+      thisrank = usersD[auser]["rank"];
+    }
+  }
   if(previousload.sender == thismessage.sender && thismessage.replyto == null)
   {
     messageElement.innerHTML = thismessage.message + "<button onclick='replytomsg = " + thismessage.id + "' class='reply-button'>Reply</button>";
   } else {
     if(thismessage.replyto != null)
     {
-      messageElement.innerHTML = "<div class='reply-text'>" + chatD[thismessage.replyto].sender + ": " + chatD[thismessage.replyto].message + "</div><div class='message-name'>" + thismessage.sender + "</div>" + thismessage.message + "<button onclick='replytomsg = " + thismessage.id + "' class='reply-button'>Reply</button>";
+      messageElement.innerHTML = "<div class='reply-text'>" + chatD[thismessage.replyto].sender + ": " + chatD[thismessage.replyto].message + "</div><div class='message-name " + thisrank + "'>" + thismessage.sender + "</div>" + thismessage.message + "<button onclick='replytomsg = " + thismessage.id + "' class='reply-button'>Reply</button>";
     } else {
-      messageElement.innerHTML = "<div class='message-name'>" + thismessage.sender + "</div>" + thismessage.message + "<button onclick='replytomsg = " + thismessage.id + "' class='reply-button'>Reply</button>";
+      messageElement.innerHTML = "<div class='message-name " + thisrank + "'>" + thismessage.sender + "</div>" + thismessage.message + "<button onclick='replytomsg = " + thismessage.id + "' class='reply-button'>Reply</button>";
     }
   }
   previousload = thismessage;
