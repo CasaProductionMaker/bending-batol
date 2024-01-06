@@ -35,6 +35,7 @@ window.addEventListener('beforeunload', (event) => {
   }
 });
 
+let ranks = ["worker", "manager", "leader"];
 const operations = firebase.database().ref("operations");
 let operationsD = {};
 const jokeoperations = firebase.database().ref("joke-operations");
@@ -67,6 +68,62 @@ firebase.database().ref("reloader").set({
   rl: Math.random()*Math.random()*Math.random()*Math.random()*Math.random()
 });
 
+function rankup(unit) {
+  let theirRank = "worker";
+  let myRank = "worker";
+  let tRn = 0;
+  let mRn = 0;
+  for(thisuser in usersD)
+  {
+    if(usersD[thisuser]["username"] == unit)
+    {
+      theirRank = usersD[thisuser]["rank"];
+    }
+    if(usersD[thisuser]["username"] == user)
+    {
+      myRank = usersD[thisuser]["rank"];
+    }
+  }
+  for (var i = 0; i < ranks.length; i++) {
+    if(ranks[i] == theirRank) tRn = i;
+    if(ranks[i] == myRank) mRn = i;
+  }
+  if(mRn > tRn)
+  {
+    firebase.database().ref("users/" + unit + "/rank").set(ranks[tRn+1]);
+  } else if(mRn <= tRn){
+    alert("You must be above the unit to rank them down!")
+  }
+}
+function rankdown(unit) {
+  let theirRank = "worker";
+  let myRank = "worker";
+  let tRn = 0;
+  let mRn = 0;
+  for(thisuser in usersD)
+  {
+    if(usersD[thisuser]["username"] == unit)
+    {
+      theirRank = usersD[thisuser]["rank"];
+    }
+    if(usersD[thisuser]["username"] == user)
+    {
+      myRank = usersD[thisuser]["rank"];
+    }
+  }
+  for (var i = 0; i < ranks.length; i++) {
+    if(ranks[i] == theirRank) tRn = i;
+    if(ranks[i] == myRank) mRn = i;
+  }
+  if(mRn > tRn && tRn > 0)
+  {
+    firebase.database().ref("users/" + unit + "/rank").set(ranks[tRn-1]);
+  } else if(mRn <= tRn){
+    alert("You must be above the unit to rank them down!")
+  } else if(tRn <= 0){
+    alert("You cannot make someone lower than a worker! What will they be? A slave?")
+  }
+}
 function rank_gen() {
   for(thisuser in usersD)
   {
@@ -102,8 +159,8 @@ function rank_gen() {
       <h6>Chat Messages: ` + chatMessages + `</h6>
       <h6>Operations: ` + ops + `</h6>
       <h6>Joke Operations: ` + jops + `</h6>
-      <button onclick="rankup(` + usersD[thisuser]["username"] + `)">Rank Up</button>
-      <button onclick="rankdown(` + usersD[thisuser]["username"] + `)">Rank Down</button>
+      <button onclick="rankup('` + usersD[thisuser]["username"] + `')">Rank Up</button>
+      <button onclick="rankdown('` + usersD[thisuser]["username"] + `')">Rank Down</button>
     `;
     document.body.appendChild(rankEl);
   }
