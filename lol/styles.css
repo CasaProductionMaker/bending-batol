@@ -1,0 +1,51 @@
+body {
+	background-color: #EFEFEF;
+	text-align: center;
+}
+.content {
+	text-align: center;
+	width: 75vw;
+	padding: 10px;
+	margin-left: auto;
+	margin-right: auto;
+}
+.signIn {
+	text-align: center;
+	width: 70vw;
+	background-color: #FFFFFF;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 30vh;
+	border-radius: 25px;
+	padding: 25px;
+}
+.country {
+	float: left;
+	margin: 25px;
+}
+.buttons {
+	float: right;
+	margin: 15px;
+}
+.button {
+	float: right;
+	margin-left: 15px;
+}
+.signintxt {
+	position: relative;
+	text-align: left;
+}
+.inputfields {
+	position: relative;
+	text-align: right;
+}
+input {
+	font-size: 40px;
+	border-radius: 3px;
+	border-color: gray;
+	border-width: 1px;
+	border-style: solid;
+}
+a {
+	text-decoration: none;
+}
