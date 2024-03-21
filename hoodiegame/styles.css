@@ -32,15 +32,6 @@ h3 {
 .game-container[data-map="Lobby"] {
 	background: url(images/map.png) no-repeat no-repeat;
 }
-.game-container[data-map="Shop"] {
-	background: url(images/shop.png) no-repeat no-repeat;
-}
-.game-container[data-map="Graveyard"] {
-	background: url(images/graveyard.png) no-repeat no-repeat;
-}
-.game-container[data-map="Field"] {
-	background: url(images/field.png) no-repeat no-repeat;
-}
 
 /* Leaderboard */
 .leaderboard {

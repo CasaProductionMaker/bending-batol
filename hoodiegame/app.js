@@ -13,6 +13,9 @@ const app = firebase.initializeApp(firebaseConfig);
 
 //My code
 let myLocation = "Lobby";
+let Xmove = 0;
+let Ymove = 0;
+let isDialogueOpen = false;
 
 const lobbyMapData = {
   minX: 1,
@@ -38,92 +41,10 @@ const lobbyMapData = {
     "13x3": true,
     "7x7": true
   }, 
-  portals: {
-    "8x9": "Graveyard", 
-    "3x3": "Shop", 
-    "11x3": "Field"
-  }, 
+  portals: {}, 
   portalBlocked: {
-    "8x9": true, 
-    "3x3": true, 
-    "11x3": true
+    "8x9": false
   }
-};
-const shopMapData = {
-  minX: 2,
-  maxX: 13,
-  minY: 2,
-  maxY: 12,
-  blockedSpaces: {
-    "2x11": true, 
-    "3x11": true, 
-    "4x11": true, 
-    "5x11": true, 
-    "6x11": true, 
-    "8x11": true, 
-    "9x11": true, 
-    "10x11": true, 
-    "11x11": true, 
-    "12x11": true, 
-    "2x7": true, 
-    "2x8": true, 
-    "3x5": true, 
-    "3x6": true, 
-    "4x8": true, 
-    "4x9": true, 
-    "10x7": true, 
-    "10x8": true, 
-    "12x6": true, 
-    "12x7": true, 
-    "4x2": true, 
-    "4x3": true, 
-    "5x3": true, 
-    "6x3": true, 
-    "7x3": true, 
-    "8x3": true, 
-    "8x2": true,  
-    "10x4": true, 
-    "11x4": true
-  }, 
-  portals: {
-    "7x11": "Lobby"
-  }, 
-  portalBlocked: {
-    "7x11": true
-  }
-  //shopkeeper at 6x3
-};
-const graveyardMapData = {
-  minX: 2,
-  maxX: 13,
-  minY: 2,
-  maxY: 11,
-  blockedSpaces: {
-    "2x11": false
-  }, 
-  portals: {
-    "7x2": "Lobby"
-  }, 
-  portalBlocked: {
-    "7x2": true
-  }
-  //shopkeeper at 6x3
-};
-const fieldMapData = {
-  minX: 2,
-  maxX: 13,
-  minY: 4,
-  maxY: 12,
-  blockedSpaces: {
-    "2x11": false
-  }, 
-  portals: {
-    "11x11": "Lobby"
-  }, 
-  portalBlocked: {
-    "11x11": true
-  }
-  //shopkeeper at 6x3
 };
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
@@ -186,18 +107,6 @@ function getCurrentMapData(location=myLocation) {
   if(location == "Lobby")
   {
     mapData = lobbyMapData;
-  }
-  if(location == "Shop")
-  {
-    mapData = shopMapData;
-  }
-  if(location == "Graveyard")
-  {
-    mapData = graveyardMapData;
-  }
-  if(location == "Field")
-  {
-    mapData = fieldMapData;
   }
   return mapData;
 }
@@ -317,6 +226,14 @@ function getRandomSafeSpot() {
       oneSecondLoop();
     }, 1000);
   }
+  function moveLoop() {
+    if(players[playerId] != null && (Xmove != 0 || Ymove != 0)) {
+      handleArrowPress(Xmove, Ymove);
+    }
+    setTimeout(() => {
+      moveLoop();
+    }, 250);
+  }
   function sort_by_property(list, property_name_list) {
     list.sort((a, b) => {
       for (var p = 0; p < property_name_list.length; p++) {
@@ -406,7 +323,7 @@ function getRandomSafeSpot() {
     const newY = players[playerId].y + yChange;
     const oldX = players[playerId].x;
     const oldY = players[playerId].y;
-    if ((!isSolid(newX, newY) || players[playerId].isDev) && !players[playerId].isDead) {
+    if((!isSolid(newX, newY) || players[playerId].isDev) && !players[playerId].isDead && !isDialogueOpen) {
       //move to the next space
       players[playerId].x = newX;
       players[playerId].y = newY;
@@ -422,48 +339,23 @@ function getRandomSafeSpot() {
       if(mapData.portals[getKeyString(newX, newY)])
       {
         const portalToEnter = mapData.portals[getKeyString(newX, newY)];
-        if(portalToEnter == "Shop")
-        {
-          players[playerId].x = 7;
-          players[playerId].y = 11;
-        }
-        if(portalToEnter == "Lobby" && myLocation == "Shop")
-        {
-          players[playerId].x = 3;
-          players[playerId].y = 3;
-        }
-        if(portalToEnter == "Lobby" && myLocation == "Graveyard")
-        {
-          players[playerId].x = 8;
-          players[playerId].y = 9;
-        }
-        if(portalToEnter == "Graveyard")
-        {
-          players[playerId].x = 7;
-          players[playerId].y = 2;
-        }
-        if(portalToEnter == "Lobby" && myLocation == "Field")
-        {
-          players[playerId].x = 11;
-          players[playerId].y = 3;
-        }
-        if(portalToEnter == "Field")
-        {
-          players[playerId].x = 11;
-          players[playerId].y = 11;
-        }
         myLocation = portalToEnter;
         gameContainer.setAttribute("data-map", myLocation);
       }
-      if(myLocation == "Shop" && getKeyString(newX, newY) == "6x4")
-      {
-        //Talk to shopkeeper
-        //OpenDialogue();
-      }
-      if(myLocation == "Shop" && getKeyString(oldX, oldY) == "6x4")
+      if(myLocation == "Lobby" && getKeyString(oldX, oldY) == "3x3")
       {
         //End talk to shopkeeper
         CloseDialogue();
+      }
+      if(myLocation == "Lobby" && getKeyString(newX, newY) == "3x3")
+      {
+        //Talk to shopkeeper
+        if(players[playerId].coins >= 4)
+        {
+          OpenDialogue("Hello there, I have hoodies for sale for 4 coins each.", "I'll buy 1", "I'll buy 2", "item", "item", {item: "hoodie", amount: 1, price: 4}, {item: "hoodie", amount: 2, price: 4}, true);
+        } else {
+          OpenDialogue("Hello there, I have hoodies for sale for 4 coins each.", "I'll buy 1", "I'm too poor", "item", "dialogue", {item: "hoodie", amount: 1, price: 4}, () => {CloseDialogue();}, true);
+        }
       }
       playerRef.set(players[playerId]);
     }
@@ -499,9 +391,9 @@ function getRandomSafeSpot() {
       }
     }
   }
-  function OpenDialogue(message, buttonone, buttontwo, b1func, b2func, b1fdata, b2fdata) {
+  function OpenDialogue(message, buttonone, buttontwo, b1func, b2func, b1fdata, b2fdata, unclosable) {
     //open a dialogue
-    let number = 2;
+    let buttons = 2;
     dialogueDisplay.querySelector("#dialogue-text").innerText = message;
     dialogueDisplay.querySelector("#first-button").innerText = buttonone;
     dialogueDisplay.querySelector("#second-button").innerText = buttontwo;
@@ -511,13 +403,13 @@ function getRandomSafeSpot() {
     {
       dialogueDisplay.querySelector("#first-button").setAttribute("data-show", "false");
       dialogueDisplay.querySelector("#second-button").setAttribute("data-show", "false");
-      number = 0;
+      buttons = 0;
     } else if(buttontwo == null)
     {
       dialogueDisplay.querySelector("#second-button").setAttribute("data-show", "false");
-      number = 1;
+      buttons = 1;
     }
-    dialogueDisplay.querySelector("#exit-button").setAttribute("data-show", "true");
+    if(!unclosable) dialogueDisplay.querySelector("#exit-button").setAttribute("data-show", "true");
     dialogueDisplay.setAttribute("data-show", "true");
     dialogueDisplay.querySelector("#exit-button").addEventListener("click", () => {
       CloseDialogue();
@@ -525,20 +417,25 @@ function getRandomSafeSpot() {
     if(b1func == "item")
     {
       dialogueDisplay.querySelector("#first-button").addEventListener("click", () => {
-        if(players[playerId].coins >= b1fdata.price)
+        if(players[playerId].coins >= b1fdata.price * b1fdata.amount)
         {
-          //buy item
+          playerRef.update({
+            coins: players[playerId].coins - (b1fdata.price * b1fdata.amount)
+          });
+          CloseDialogue();
         }
-        console.log(players[playerId].coins);
         dialogueDisplay.querySelector("#first-button").replaceWith(dialogueDisplay.querySelector("#first-button").cloneNode(true));
       })
     }
     if(b2func == "item")
     {
       dialogueDisplay.querySelector("#second-button").addEventListener("click", () => {
-        if(players[playerId].coins >= b2fdata.price)
+        if(players[playerId].coins >= b2fdata.price * b2fdata.amount)
         {
-          //buy item
+          playerRef.update({
+            coins: players[playerId].coins - (b2fdata.price * b2fdata.amount)
+          });
+          CloseDialogue();
         }
         dialogueDisplay.querySelector("#second-button").replaceWith(dialogueDisplay.querySelector("#second-button").cloneNode(true));
       })
@@ -557,7 +454,8 @@ function getRandomSafeSpot() {
         b2fdata();
       })
     }
-    dialogueDisplay.querySelector("#dialogue-text").setAttribute("data-number", number);
+    dialogueDisplay.querySelector("#dialogue-text").setAttribute("data-number", buttons);
+    isDialogueOpen = true;
   }
   function CloseDialogue() {
     //open a dialogue
@@ -568,14 +466,14 @@ function getRandomSafeSpot() {
     dialogueDisplay.querySelector("#second-button").setAttribute("data-show", "false");
     dialogueDisplay.querySelector("#exit-button").setAttribute("data-show", "false");
     dialogueDisplay.setAttribute("data-show", "false");
+    isDialogueOpen = false;
   }
 
   function initGame() {
-
-    new DoubleKeyPressListener("ArrowUp", "KeyW", () => handleArrowPress(0, -1))
-    new DoubleKeyPressListener("ArrowDown", "KeyS", () => handleArrowPress(0, 1))
-    new DoubleKeyPressListener("ArrowLeft", "KeyA", () => handleArrowPress(-1, 0))
-    new DoubleKeyPressListener("ArrowRight", "KeyD", () => handleArrowPress(1, 0))
+    new DoubleKeyPressListener("ArrowUp", "KeyW", () => {Ymove = -1;}, () => {if(Ymove == -1) Ymove = 0;})
+    new DoubleKeyPressListener("ArrowDown", "KeyS", () => {Ymove = 1;}, () => {if(Ymove == 1) Ymove = 0;})
+    new DoubleKeyPressListener("ArrowLeft", "KeyA", () => {Xmove = -1;}, () => {if(Xmove == -1) Xmove = 0;})
+    new DoubleKeyPressListener("ArrowRight", "KeyD", () => {Xmove = 1;}, () => {if(Xmove == 1) Xmove = 0;})
     new KeyPressListener("Space", () => handleAttack())
 
     const allPlayersRef = firebase.database().ref(`players`);
@@ -725,6 +623,7 @@ function getRandomSafeSpot() {
 
     placeCoin();
     oneSecondLoop();
+    moveLoop();
     tickLoop();
   }
 	firebase.auth().onAuthStateChanged((user) =>{
@@ -749,7 +648,8 @@ function getRandomSafeSpot() {
         y,
         coins: 0,
         location: myLocation, 
-        isDev: false
+        isDev: false, 
+        hoodieOn: false
       })
 
       const date = new Date();

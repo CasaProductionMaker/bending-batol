@@ -47,3 +47,28 @@ a:visited {
 a:hover {
 	font-size: 30px;
 }
+
+@media (max-width: 767px) {
+  	.activity {
+		width: 35%;
+		background-color: lightskyblue;
+		padding: 5px;
+		border-width: 3px;
+		border-style: solid;
+		border-radius: 4px;
+		font-size: 20px;
+		text-align: center;
+		margin: 10px;
+		float: left;
+	}
+	a {
+		text-decoration: none;
+		font-size: 20px;
+		font-family: "copperplate";
+		color: black;
+		transition: font-size 0.5s;
+	}
+	a:hover {
+		font-size: 23px;
+	}
+}

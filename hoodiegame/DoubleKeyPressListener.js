@@ -1,5 +1,5 @@
 class DoubleKeyPressListener {
-  constructor(keyCode, secondCode, callback) {
+  constructor(keyCode, secondCode, callback, lastcallback) {
     let keySafe = true;
     this.keydownFunction = function(event) {
       if (event.code === keyCode || event.code === secondCode) {
@@ -12,6 +12,7 @@ class DoubleKeyPressListener {
    this.keyupFunction = function(event) {
       if (event.code === keyCode || event.code === secondCode) {
          keySafe = true;
+         lastcallback();
       }         
    };
    document.addEventListener("keydown", this.keydownFunction);
