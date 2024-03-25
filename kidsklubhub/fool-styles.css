@@ -46,11 +46,31 @@ h4 {
 	text-align: center;
 }
 
+#editF {
+	position: fixed;
+	left: 35vw;
+	top: 40vh;
+	background-color: rgba(0, 0, 0, 0.3);
+	width: 20vw;
+	visibility: hidden;
+}
+
 #fdesc {
 	height: 112px;
 	font-size: 14px;
 	overflow-wrap: break-word;
 	overflow-y: scroll;
+}
+#edesc {
+	height: 112px;
+	width: 18vw;
+	font-size: 14px;
+	overflow-wrap: break-word;
+	overflow-y: scroll;
+	margin: 1vw;
+}
+#ename {
+	width: 10vw;
 }
 
 #logout-button {

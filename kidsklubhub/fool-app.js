@@ -13,6 +13,8 @@ const app = firebase.initializeApp(firebaseConfig);
 //My Code
 let user = localStorage.getItem("username");
 let saveUser = false;
+let userId;
+let foolToEdit;
 if(user == "null")
 {
   window.location.href = "index.html";
@@ -60,7 +62,7 @@ fools.on("child_added", (snapshot) => {
     }
   }
   followerList = followerList.substring(2);
-	foolEl.innerHTML = "<h3>" + thisfool.name + "</h3><h4>" + thisfool.creator + "</h4>" + (thisfool.creator == user ? "<button onclick='deleteFool(" + thisfool.id + ")'>Delete</button>" : "") + "<p>" + thisfool.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='inviteFool(" + thisfool.id + ")'>Invite a Friend</button>" + (thisfool.creator == user ? "" : "<button onclick='leaveFool(" + thisfool.id + ")'>Leave Fool</button>");
+	foolEl.innerHTML = "<h3>" + thisfool.name + "</h3><h4>" + thisfool.creator + "</h4>" + (thisfool.creator == user ? "<button onclick='editFool(" + thisfool.id + ")'>Edit</button><button onclick='deleteFool(" + thisfool.id + ")'>Delete</button>" : "") + "<p>" + thisfool.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='inviteFool(" + thisfool.id + ")'>Invite a Friend</button>" + (thisfool.creator == user ? "" : "<button onclick='leaveFool(" + thisfool.id + ")'>Leave Fool</button>");
 
   if(isIn || thisfool.creator == user)
   {
@@ -92,7 +94,7 @@ fools.on("value", (snapshot) => {
     followerList = followerList.substring(2);
     if(isIn)
     {
-      el.innerHTML = "<h3>" + thisfool.name + "</h3><h4>" + thisfool.creator + "</h4>" + (thisfool.creator == user ? "<button onclick='deleteFool(" + thisfool.id + ")'>Delete</button>" : "") + "<p>" + thisfool.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='inviteFool(" + thisfool.id + ")'>Invite a Friend</button>" + (thisfool.creator == user ? "" : "<button onclick='leaveFool(" + thisfool.id + ")'>Leave Fool</button>");
+      el.innerHTML = "<h3>" + thisfool.name + "</h3><h4>" + thisfool.creator + "</h4>" + (thisfool.creator == user ? "<button onclick='editFool(" + thisfool.id + ")'>Edit</button><button onclick='deleteFool(" + thisfool.id + ")'>Delete</button>" : "") + "<p>" + thisfool.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='inviteFool(" + thisfool.id + ")'>Invite a Friend</button>" + (thisfool.creator == user ? "" : "<button onclick='leaveFool(" + thisfool.id + ")'>Leave Fool</button>");
     }
   })
 })
@@ -120,7 +122,6 @@ function createFool() {
   	});
     document.getElementById("fname").value = "";
     document.getElementById("fdesc").value = "";
-    //firebase.database().ref("fools/" + date + "/followers/" + user).set(true);
   }
 }
 
@@ -131,7 +132,21 @@ function inviteFool(thisfool) {
 function leaveFool(thisfool) {
   firebase.database().ref("fools/" + thisfool + "/followers/" + user).remove();
 }
-
 function deleteFool(thisfool) {
   firebase.database().ref("fools/" + thisfool).remove();
+}
+function editFool(thisfool) {
+  document.querySelector("#editF").style.visibility = "visible";
+  document.getElementById("ename").value = foolsD[thisfool].name;
+  document.getElementById("edesc").value = foolsD[thisfool].desc;
+  foolToEdit = thisfool;
+}
+function applyEditToFool() {
+  document.querySelector("#editF").style.visibility = "hidden";
+  firebase.database().ref("fools/" + foolToEdit).update({
+    name: document.getElementById("ename").value, 
+    desc: document.getElementById("edesc").value
+  });
+  document.getElementById("ename").value = "";
+  document.getElementById("edesc").value = "";
 }

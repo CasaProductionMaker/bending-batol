@@ -638,7 +638,6 @@ function getRandomSafeSpot() {
 
       const {x, y} = getRandomSafeSpot();
 
-
       playerRef.set({
         id: playerId,
         name, 

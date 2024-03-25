@@ -53,7 +53,7 @@ operations.on("child_added", (snapshot) => {
     peopleIn++;
   }
   followerList = followerList.substring(2);
-	operationEl.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button><button onclick='leaveOperation(" + thisoperation.id + ")'>I'm Out!</button>";
+	operationEl.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='editOperation(" + thisoperation.id + ")'>Edit</button><button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button><button onclick='leaveOperation(" + thisoperation.id + ")'>I'm Out!</button>";
 
   document.body.appendChild(operationEl);
   operationsElements[key] = operationEl;
@@ -71,7 +71,7 @@ operations.on("value", (snapshot) => {
       peopleIn++;
     }
     followerList = followerList.substring(2);
-    el.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button><button onclick='leaveOperation(" + thisoperation.id + ")'>I'm Out!</button>";
+    el.innerHTML = "<h3>" + thisoperation.name + "</h3><h4>" + thisoperation.creator + "</h4>" + (thisoperation.creator == user ? "<button onclick='editOperation(" + thisoperation.id + ")'>Edit</button><button onclick='deleteOperation(" + thisoperation.id + ")'>Delete</button>" : "") + "<p>" + thisoperation.desc + "</p><p>" + peopleIn + " people are in: " + followerList + "</p><button onclick='joinOperation(" + thisoperation.id + ")'>I'm In!</button><button onclick='leaveOperation(" + thisoperation.id + ")'>I'm Out!</button>";
   })
 })
 
@@ -110,4 +110,19 @@ function leaveOperation(thisoperation) {
 
 function deleteOperation(thisoperation) {
   firebase.database().ref("operations/" + thisoperation).remove();
+}
+function editOperation(thisfool) {
+  document.querySelector("#editOp").style.visibility = "visible";
+  document.getElementById("ename").value = operationsD[thisfool].name;
+  document.getElementById("edesc").value = operationsD[thisfool].desc;
+  foolToEdit = thisfool;
+}
+function applyEditToOperation() {
+  document.querySelector("#editOp").style.visibility = "hidden";
+  firebase.database().ref("operation/" + foolToEdit).update({
+    name: document.getElementById("ename").value, 
+    desc: document.getElementById("edesc").value
+  });
+  document.getElementById("ename").value = "";
+  document.getElementById("edesc").value = "";
 }
