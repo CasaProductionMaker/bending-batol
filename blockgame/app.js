@@ -23,8 +23,79 @@ let mineIdx = 0;
 let myBlockId = 0;
 let renderDistance = 5;
 let isMapG;
-let worldRad = 20;
+let worldRad = 25;
 let action = 0;
+let biomeMap = [];
+let BiomeRules = {
+  "forest": ["plains", "ocean"], 
+  "plains": ["forest", "desert", "ocean"], 
+  "desert": ["plains"], 
+  "ocean": ["plains", "forest"]
+};
+let BiomeBlock = {
+  desert: "sand", 
+  plains: "grass", 
+  forest: "grass", 
+  ocean: "water"
+}
+let BlockProperties = {
+  "bedrock": {
+    sizeX: 1.0, 
+    sizeY: 1.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 9000000000000000000000000000000000000000000000000
+  }, 
+  "stone": {
+    sizeX: 1.0, 
+    sizeY: 1.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 50
+  }, 
+  "grass": {
+    sizeX: 1.0, 
+    sizeY: 1.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 30
+  }, 
+  "sand": {
+    sizeX: 1.0, 
+    sizeY: 1.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 20
+  }, 
+  "dirt": {
+    sizeX: 1.0, 
+    sizeY: 1.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 30
+  }, 
+  "leaves": {
+    sizeX: 0.0, 
+    sizeY: 0.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 50
+  }, 
+  "log": {
+    sizeX: 0.0, 
+    sizeY: 0.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 50
+  }, 
+  "water": {
+    sizeX: 0.0, 
+    sizeY: 0.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 9000000000000000000000000000000000000000000000
+  }
+};
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 
@@ -164,9 +235,9 @@ function interpolate(pa, pb, px){
       const blockState = block[key];
       if(blockState.type == "grass")
       {
-        Object.keys(block).forEach((key) => {
-          const blockStateT = block[key];
-          if(blockStateT.y === blockState.y - 1)
+        Object.keys(block).forEach((tkey) => {
+          const blockStateT = block[tkey];
+          if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x && Math.random() > 0.3)
           {
             firebase.database().ref("block/" + blockState.id).update({
               type: "dirt"
@@ -174,11 +245,28 @@ function interpolate(pa, pb, px){
           }
         })
       }
+      if(blockState.type == "dirt")
+      {
+        let found = false;
+        Object.keys(block).forEach((tkey) => {
+          const blockStateT = block[tkey];
+          if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x)
+          {
+            found = true;
+          }
+        })
+        if(!found)
+        {
+          firebase.database().ref("block/" + blockState.id).update({
+            type: "grass"
+          });//blockState.type = "dirt";
+        }
+      }
     })
     //repeat
     setTimeout(() => {
       worldLoop();
-    }, 1000);
+    }, 60000);
   }
   function tickLoop() {
     if(players[playerId] != null) {
@@ -189,7 +277,7 @@ function interpolate(pa, pb, px){
       }
       handleMovement(0, yVel);
       handleMovement(xVel, 0);
-      yVel += 0.001;
+      yVel += 0.002;
     }
 
     //repeat
@@ -207,10 +295,12 @@ function interpolate(pa, pb, px){
         const top = 16 * ((blockState.y - myY) + 7) + "px";
         el.style.transform = `translate3d(${left}, ${top}, 0)`;
         el.querySelector(".Block_sprite").setAttribute("data-far", "false");
+        el.querySelector(".Block_break_sprite_overlay").setAttribute("data-far", "false");
         el.querySelector(".Block_sprite").setAttribute("data-type", blockState.type);
       } else {
         let el = blockElements[blockState.id];
         el.querySelector(".Block_sprite").setAttribute("data-far", "true");
+        el.querySelector(".Block_break_sprite_overlay").setAttribute("data-far", "true");
       }
     })
 
@@ -222,6 +312,8 @@ function interpolate(pa, pb, px){
   function mineLoop() {
     if(mouseDown)
     {
+      let margin = {x: (screenDim.x - 720) / 2, y: (screenDim.y - 624) / 2};
+      mouseTile = {x: Math.floor((((mousePos.x + ((myX - 7) * 48)) - margin.x)) / 48), y: Math.floor(((mousePos.y + ((myY - 7) * 48)) - margin.y) / 48)};
       let isBlock = false;
       Object.keys(block).forEach((key) => {
         const blockState = block[key];
@@ -236,7 +328,7 @@ function interpolate(pa, pb, px){
           firebase.database().ref("block/" + key).update({
             hp: blockState.hp - hpRed
           })
-          if(blockState.hp - 1 <= 0)
+          if(blockState.hp - 1 < 0)
           {
             firebase.database().ref("block/" + key).remove();
           }
@@ -272,7 +364,9 @@ function interpolate(pa, pb, px){
           id: playerId + myBlockId, 
           type: "grass", 
           sizeX: 1.0, 
-          sizeY: 1.0, 
+          sizeY: 1.0,
+          centerX: 0.0, 
+          centerY: 0.0,  
           hp: 5, 
           strength: 30
         })
@@ -311,7 +405,7 @@ function interpolate(pa, pb, px){
       let isCollision = false;
       Object.keys(block).forEach((key) => {
         const blockState = block[key];
-        if(myX + 0.25 > blockState.x - (blockState.sizeX/2) && myX - 0.25 < blockState.x + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > blockState.y - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < blockState.y + (blockState.sizeY/2) && !(blockState.sizeX == 0))
+        if(myX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && myX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && !(blockState.sizeX == 0))
         {
           isCollision = true;
         }
@@ -357,7 +451,9 @@ function interpolate(pa, pb, px){
         id: "init" + i + "x" + y, 
         type: "stone", 
         sizeX: 1.0, 
-        sizeY: 1.0, 
+        sizeY: 1.0,
+        centerX: 0.0, 
+        centerY: 0.0,  
         hp: 5, 
         strength: 50
       })
@@ -373,6 +469,8 @@ function interpolate(pa, pb, px){
       type, 
       sizeX: Xs, 
       sizeY: Ys, 
+      centerX: 0.0, 
+      centerY: 0.0, 
       hp: 5, 
       strength: str
     })
@@ -388,7 +486,9 @@ function interpolate(pa, pb, px){
         id: "init" + i + "x" + "10", 
         type: "bedrock", 
         sizeX: 1.0, 
-        sizeY: 1.0, 
+        sizeY: 1.0,
+        centerX: 0.0, 
+        centerY: 0.0,  
         hp: 5, 
         strength: 9000000000000000000000000000000000000000000000000
       })
@@ -402,19 +502,36 @@ function interpolate(pa, pb, px){
     generateStoneLayer(3);
     generateStoneLayer(2);
     generateStoneLayer(1);
+
+    let changeCount = 0;
+    let initBiome = randomFromArray(["plains", "forest", "desert"]);
+    let currentBiome = initBiome;
+    for (var i = 0; i <= worldRad*2; i++) {
+      biomeMap[i] = currentBiome;
+      changeCount++;
+      if(Math.random() * 20 < changeCount - 6)
+      {
+        currentBiome = randomFromArray(BiomeRules[currentBiome]);
+        changeCount = 0;
+      }
+    }
     for(let i = -worldRad; i < worldRad; i++) {
       blockRef = firebase.database().ref(`block/init` + i + "x" + "0");
+      let thisGroundBlock = BiomeBlock[biomeMap[i+worldRad]];
       blockRef.set({
         x: i, 
         y: 0, 
         id: "init" + i + "x" + "0", 
-        type: "grass", 
-        sizeX: 1.0, 
-        sizeY: 1.0, 
+        type: thisGroundBlock, 
+        sizeX: BlockProperties[thisGroundBlock].sizeX, 
+        sizeY: BlockProperties[thisGroundBlock].sizeY,
+        centerX: BlockProperties[thisGroundBlock].centerX, 
+        centerY: BlockProperties[thisGroundBlock].centerY,  
         hp: 5, 
-        strength: 30
+        strength: BlockProperties[thisGroundBlock].strength
       })
     }
+    console.log(biomeMap);
 
     var x = -worldRad,
     y = 10,
@@ -433,18 +550,29 @@ function interpolate(pa, pb, px){
       }else{
         y = worldSurface + interpolate(a, b, (x % wl) / wl) * amp;
       }
+      if(biomeMap[x+worldRad] == "ocean")
+      {
+        y = worldSurface;
+      }
       blockRef = firebase.database().ref(`block/pn` + Math.round(x) + "x" + Math.round(y));
+      let thisGroundBlock = BiomeBlock[biomeMap[x+worldRad]];
       blockRef.set({
         x: Math.round(x), 
         y: Math.round(y), 
         id: "pn" + Math.round(x) + "x" + Math.round(y), 
-        type: "grass", 
-        sizeX: 1.0, 
-        sizeY: 1.0, 
+        type: thisGroundBlock, 
+        sizeX: BlockProperties[thisGroundBlock].sizeX, 
+        sizeY: BlockProperties[thisGroundBlock].sizeY,
+        centerX: BlockProperties[thisGroundBlock].centerX, 
+        centerY: BlockProperties[thisGroundBlock].centerY,  
         hp: 5, 
-        strength: 30
+        strength: BlockProperties[thisGroundBlock].strength
       })
-      if(Math.random() < 0.1)
+      if(Math.random() < 0.1 && biomeMap[x+worldRad] != "desert" && biomeMap[x+worldRad] != "ocean")
+      {
+        treePos.push([Math.round(x), Math.round(y-1)]);
+      }
+      if(Math.random() < 0.2 && biomeMap[x+worldRad] == "forest")
       {
         treePos.push([Math.round(x), Math.round(y-1)]);
       }
@@ -455,12 +583,30 @@ function interpolate(pa, pb, px){
           x: Math.round(x), 
           y: Math.round(y+i), 
           id: "pn" + Math.round(x) + "x" + Math.round(y+i), 
-          type: "grass", 
-          sizeX: 1.0, 
-          sizeY: 1.0, 
+          type: thisGroundBlock, 
+          sizeX: BlockProperties[thisGroundBlock].sizeX, 
+          sizeY: BlockProperties[thisGroundBlock].sizeY,
+          centerX: BlockProperties[thisGroundBlock].centerX, 
+          centerY: BlockProperties[thisGroundBlock].centerY,  
           hp: 5, 
-          strength: 30
+          strength: BlockProperties[thisGroundBlock].strength
         })
+        if(Math.round(y+1+i) == 0)
+        {
+          console.log(biomeMap[Math.round(x-2)+25])
+          console.log(Math.round(x))
+          if(biomeMap[Math.round(x-2)+25] != null && biomeMap[Math.round(x-2)+25] == "ocean" && biomeMap[Math.round(x+25)] == "ocean" && biomeMap[Math.round(x+2)+25] != null && biomeMap[Math.round(x+2)+25] == "ocean")
+          {
+            firebase.database().ref("block/init" + Math.round(x) + "x" + (Math.round(y+i)+2)).update({
+              type: "water", 
+              sizeX: BlockProperties["water"].sizeX, 
+              sizeY: BlockProperties["water"].sizeY, 
+              centerX: BlockProperties["water"].centerX, 
+              centerY: BlockProperties["water"].centerY, 
+              strength: BlockProperties["water"].strength
+            });
+          }
+        }
       }
       x += 1;
     }
@@ -475,7 +621,9 @@ function interpolate(pa, pb, px){
             id: "pn" + treePos[i][0] + "x" + (treePos[i][1] - Hi), 
             type: "log", 
             sizeX: 0.0, 
-            sizeY: 0.0, 
+            sizeY: 0.0,
+            centerX: 0.0, 
+            centerY: 0.0,  
             hp: 5, 
             strength: 30
           })
@@ -575,12 +723,12 @@ function interpolate(pa, pb, px){
 
   function initGame() {
     new KeyPressListener("ArrowUp", () => {
-      if(yVel == 0.001) handleMovement(0, -0.05)
+      if(yVel == 0.002) handleMovement(0, -0.07)
     }, () => handleMovement(0, 0))
     new KeyPressListener("ArrowLeft", () => {xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
     new KeyPressListener("ArrowRight", () => {xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("KeyW", () => {
-      if(yVel == 0.001) handleMovement(0, -0.05)
+      if(yVel == 0.002) handleMovement(0, -0.07)
     }, () => handleMovement(0, 0))
     new KeyPressListener("KeyA", () => {xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
     new KeyPressListener("KeyD", () => {xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
@@ -659,6 +807,7 @@ function interpolate(pa, pb, px){
       Object.keys(block).forEach((key) => {
         const blockState = block[key];
         let el = blockElements[blockState.id];
+        el.querySelector(".Block_break_sprite_overlay").setAttribute("data-hp", blockState.hp);
         const left = 16 * ((blockState.x - myX) + 7) + "px";
         const top = 16 * ((blockState.y - myY) + 7) + "px";
         el.style.transform = `translate3d(${left}, ${top}, 0)`;
@@ -766,7 +915,7 @@ function interpolate(pa, pb, px){
     setTimeout(() => tickLoop(), 1000);
     setTimeout(() => renderLoop(), 1000);
     setTimeout(() => mineLoop(), 1000);
-    //setTimeout(() => worldLoop(), 1000);
+    setTimeout(() => worldLoop(), 1000);
   }
 	firebase.auth().onAuthStateChanged((user) =>{
     console.log(user)

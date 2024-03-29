@@ -310,11 +310,38 @@ button:active:not(#exit-button) {
 .Block_sprite[data-type="leaves"] {
 	background: url(images/leaves.png) no-repeat no-repeat;
 }
+.Block_sprite[data-type="dirt"] {
+	background: url(images/dirt.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="sand"] {
+	background: url(images/sand.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="water"] {
+	background: url(images/water.png) no-repeat no-repeat;
+}
 
 .Block_sprite[data-far="true"] {
 	background: url(images/none.png) no-repeat no-repeat;
 }
 .Block_break_sprite_overlay[data-hp="5"] {
+	background: url(images/none.png) no-repeat no-repeat;
+}
+.Block_break_sprite_overlay[data-hp="4"] {
+	background: url(images/dmgoverlay1.png) no-repeat no-repeat;
+}
+.Block_break_sprite_overlay[data-hp="3"] {
+	background: url(images/dmgoverlay2.png) no-repeat no-repeat;
+}
+.Block_break_sprite_overlay[data-hp="2"] {
+	background: url(images/dmgoverlay3.png) no-repeat no-repeat;
+}
+.Block_break_sprite_overlay[data-hp="1"] {
+	background: url(images/dmgoverlay4.png) no-repeat no-repeat;
+}
+.Block_break_sprite_overlay[data-hp="0"] {
+	background: url(images/dmgoverlay5.png) no-repeat no-repeat;
+}
+.Block_break_sprite_overlay[data-far="true"] {
 	background: url(images/none.png) no-repeat no-repeat;
 }
 .Block {
