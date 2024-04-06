@@ -31,6 +31,177 @@ h3 {
 	overflow: hidden;
 }
 
+/* Inventory */
+
+.inventory {
+	position: absolute;
+	width: 240px;
+	height: 136px;
+	transform: scale(3);
+	image-rendering: pixelated;
+	bottom: 322px;
+	background: url(images/inventory.png) no-repeat no-repeat;
+}
+.inventory[data-inv="false"] {
+	visibility: hidden;
+}
+.inventory[data-inv="true"] {
+	visibility: visible;
+}
+
+/* Hotbar */
+
+.hotbar {
+	overflow: hidden;
+	width: 240px;
+	height: 72px;
+	position: absolute;
+	transform: scale(3);
+	image-rendering: pixelated;
+	background: url(images/inventory.png) no-repeat no-repeat;
+	background-position-y: -136px;
+	bottom: 72px;
+}
+
+/* Item UI */
+
+.hotbar-item-ui-1 {
+	top: 24px;
+	left: 48px;
+	background: url(images/none.png) no-repeat no-repeat;
+}
+.hotbar-item-ui-2 {
+	top: 24px;
+	left: 80px;
+	background: url(images/none.png) no-repeat no-repeat;
+}
+.hotbar-item-ui-3 {
+	top: 24px;
+	left: 112px;
+	background: url(images/none.png) no-repeat no-repeat;
+}
+.hotbar-item-ui-4 {
+	top: 24px;
+	left: 144px;
+	background: url(images/none.png) no-repeat no-repeat;
+}
+.hotbar-item-ui-5 {
+	top: 24px;
+	left: 176px;
+	background: url(images/none.png) no-repeat no-repeat;
+}
+
+.inventory-item-ui-1 {
+	top: 32px;
+	left: 48px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-2 {
+	top: 32px;
+	left: 80px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-3 {
+	top: 32px;
+	left: 112px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-4 {
+	top: 32px;
+	left: 144px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-5 {
+	top: 32px;
+	left: 176px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-6 {
+	top: 64px;
+	left: 48px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-7 {
+	top: 64px;
+	left: 80px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-8 {
+	top: 64px;
+	left: 112px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-9 {
+	top: 64px;
+	left: 144px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-10 {
+	top: 64px;
+	left: 176px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-11 {
+	top: 96px;
+	left: 48px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-12 {
+	top: 96px;
+	left: 80px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-13 {
+	top: 96px;
+	left: 112px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-14 {
+	top: 96px;
+	left: 144px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.inventory-item-ui-15 {
+	top: 96px;
+	left: 176px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+
+.mouse-holding-item {
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.mouse-holding-item[data-inv="false"] {
+	visibility: hidden;
+}
+.mouse-holding-item[data-inv="true"] {
+	visibility: visible;
+}
+.mouse-holding-item-special {
+	transform: scale(3);
+}
+
+.inventory-slot .stack-number {
+	font-size: 8px;
+	position: absolute;
+	left: 12px;
+	top: 2px;
+}
+
+.selected-slot {
+	position: absolute;
+	background: url(images/selected-slot.png) no-repeat no-repeat;
+	top: 21px;
+	left: 45px;
+	width: 22px;
+	height: 22px;
+}
+.selected-slot[data-inv="false"] {
+	visibility: hidden;
+}
+.selected-slot[data-inv="true"] {
+	visibility: visible;
+}
+
 /* Respawn */
 
 .respawn-container {

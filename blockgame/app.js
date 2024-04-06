@@ -11,6 +11,7 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 
 //My Code
+let seed = Math.random();
 let mousePos = {x: undefined, y: undefined};
 let screenDim = {x: undefined, y: undefined};
 let mouseTile = {x: undefined, y: undefined};
@@ -25,6 +26,8 @@ let renderDistance = 5;
 let isMapG;
 let worldRad = 25;
 let action = 0;
+let inWater = false;
+
 let biomeMap = [];
 let BiomeRules = {
   "forest": ["plains", "ocean"], 
@@ -89,13 +92,165 @@ let BlockProperties = {
     strength: 50
   }, 
   "water": {
-    sizeX: 0.0, 
-    sizeY: 0.0,
+    sizeX: 1.0, 
+    sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
     strength: 9000000000000000000000000000000000000000000000
   }
 };
+let BlockTraits = {
+  "bedrock": {
+    drop: "none", 
+    amount: 0
+  }, 
+  "stone": {
+    drop: "stone", 
+    amount: 1
+  }, 
+  "grass": {
+    drop: "grass", 
+    amount: 1
+  }, 
+  "sand": {
+    drop: "sand", 
+    amount: 1
+  }, 
+  "dirt": {
+    drop: "dirt", 
+    amount: 1
+  }, 
+  "leaves": {
+    drop: "leaves", 
+    amount: 1
+  }, 
+  "log": {
+    drop: "log", 
+    amount: 1
+  }, 
+  "water": {
+    drop: "none", 
+    amount: 0
+  }
+};
+let Inventory = [
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }
+];
+let currentSlot = 0;
+let ItemProperties = {
+  "stone": {
+    stackSize: 16
+  }, 
+  "grass": {
+    stackSize: 16
+  }, 
+  "sand": {
+    stackSize: 16
+  }, 
+  "dirt": {
+    stackSize: 16
+  }, 
+  "leaves": {
+    stackSize: 16
+  }, 
+  "log": {
+    stackSize: 8
+  }
+};
+let inventoryShown = false;
+let inventoryPositions = [
+  {x: 2, y: 4}
+];
+let hotbarPositions = [
+  {x: 2, y: 4}
+];
+let inventoryMouseSlot = {
+  item: "none", 
+  amount: 0
+};
+document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
+document.querySelector(".hotbar").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+document.querySelector(".mouse-holding-item").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
+document.querySelector(".selected-slot").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 
@@ -168,7 +323,7 @@ function getRandomSafeSpot() {
 var M = 4294967296, 
 A = 1664525, 
 C = 1;
-var Z = Math.floor(Math.random() * M);
+var Z = Math.floor(seed * M);
 function rand(){
   Z = (A * Z + C) % M;
   return Z / M - 0.5;
@@ -178,6 +333,44 @@ function interpolate(pa, pb, px){
   var ft = px * Math.PI,
   f = (1 - Math.cos(ft)) * 0.5;
   return pa * (1 - f) + pb * f;
+}
+
+function onClickItem(slotID) {
+  if(inventoryShown)
+  {
+    if(Inventory[slotID].item == "none")
+    {
+      Inventory[slotID].item = inventoryMouseSlot.item;
+      Inventory[slotID].amount = inventoryMouseSlot.amount;
+      inventoryMouseSlot.item = "none";
+      inventoryMouseSlot.amount = 0;
+    } else if(inventoryMouseSlot.item == "none"){
+      inventoryMouseSlot.item = Inventory[slotID].item;
+      inventoryMouseSlot.amount = Inventory[slotID].amount;
+      Inventory[slotID].item = "none";
+      Inventory[slotID].amount = 0;
+    } else if(inventoryMouseSlot.item != Inventory[slotID].item) {
+      let saveSlot = {
+        item: inventoryMouseSlot.item, 
+        amount: inventoryMouseSlot.amount
+      };
+      inventoryMouseSlot.item = Inventory[slotID].item;
+      inventoryMouseSlot.amount = Inventory[slotID].amount;
+      Inventory[slotID].item = saveSlot.item;
+      Inventory[slotID].amount = saveSlot.amount;
+    } else {
+      while(Inventory[slotID].amount < ItemProperties[Inventory[slotID].item].stackSize)
+      {
+        Inventory[slotID].amount++;
+        inventoryMouseSlot.amount--;
+        if (inventoryMouseSlot.amount <= 0)
+        {
+          inventoryMouseSlot.item = "none";
+          break;
+        }
+      }
+    }
+  }
 }
 
 (function() {
@@ -199,6 +392,28 @@ function interpolate(pa, pb, px){
   const chatInput = document.querySelector("#chat-input");
   const chatDisplay = document.querySelector("#chat-display");
 
+  function addToInventory(item, amount) {
+    for (var i = 0; i < amount; i++) {
+      let foundExistingItemStack = false;
+      for (var j = 0; j < Inventory.length; j++) {
+        if(Inventory[j].item == item && Inventory[j].amount < ItemProperties[Inventory[j].item].stackSize)
+        {
+          foundExistingItemStack = true;
+          Inventory[j].item = item;
+          Inventory[j].amount++;
+          break;
+        }
+      }
+      for (var j = 0; j < Inventory.length; j++) {
+        if(Inventory[j].item == "none" && !foundExistingItemStack)
+        {
+          Inventory[j].item = item;
+          Inventory[j].amount++;
+          break;
+        }
+      }
+    }
+  }
   function oneSecondLoop() {
     if(players[playerId] != null) {
       if(players[playerId].isDead > 0 && !isButton) {
@@ -275,6 +490,109 @@ function interpolate(pa, pb, px){
           isDead: true
         })
       }
+      document.querySelector(".hotbar-item-ui-1").style.background = "url(images/" + Inventory[0].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".hotbar-item-ui-1").children) {
+        child.innerText = Inventory[0].amount;
+        if(Inventory[0].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".hotbar-item-ui-2").style.background = "url(images/" + Inventory[1].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".hotbar-item-ui-2").children) {
+        child.innerText = Inventory[1].amount;
+        if(Inventory[1].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".hotbar-item-ui-3").style.background = "url(images/" + Inventory[2].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".hotbar-item-ui-3").children) {
+        child.innerText = Inventory[2].amount;
+        if(Inventory[2].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".hotbar-item-ui-4").style.background = "url(images/" + Inventory[3].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".hotbar-item-ui-4").children) {
+        child.innerText = Inventory[3].amount;
+        if(Inventory[3].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".hotbar-item-ui-5").style.background = "url(images/" + Inventory[4].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".hotbar-item-ui-5").children) {
+        child.innerText = Inventory[4].amount;
+        if(Inventory[4].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-1").style.background = "url(images/" + Inventory[5].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-1").children) {
+        child.innerText = Inventory[5].amount;
+        if(Inventory[5].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-2").style.background = "url(images/" + Inventory[6].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-2").children) {
+        child.innerText = Inventory[6].amount;
+        if(Inventory[6].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-3").style.background = "url(images/" + Inventory[7].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-3").children) {
+        child.innerText = Inventory[7].amount;
+        if(Inventory[7].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-4").style.background = "url(images/" + Inventory[8].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-4").children) {
+        child.innerText = Inventory[8].amount;
+        if(Inventory[8].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-5").style.background = "url(images/" + Inventory[9].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-5").children) {
+        child.innerText = Inventory[9].amount;
+        if(Inventory[9].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-6").style.background = "url(images/" + Inventory[10].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-6").children) {
+        child.innerText = Inventory[10].amount;
+        if(Inventory[10].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-7").style.background = "url(images/" + Inventory[11].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-7").children) {
+        child.innerText = Inventory[11].amount;
+        if(Inventory[11].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-8").style.background = "url(images/" + Inventory[12].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-8").children) {
+        child.innerText = Inventory[12].amount;
+        if(Inventory[12].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-9").style.background = "url(images/" + Inventory[13].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-9").children) {
+        child.innerText = Inventory[13].amount;
+        if(Inventory[13].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-10").style.background = "url(images/" + Inventory[14].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-10").children) {
+        child.innerText = Inventory[14].amount;
+        if(Inventory[14].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-11").style.background = "url(images/" + Inventory[15].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-11").children) {
+        child.innerText = Inventory[15].amount;
+        if(Inventory[15].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-12").style.background = "url(images/" + Inventory[16].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-12").children) {
+        child.innerText = Inventory[16].amount;
+        if(Inventory[16].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-13").style.background = "url(images/" + Inventory[17].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-13").children) {
+        child.innerText = Inventory[17].amount;
+        if(Inventory[17].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-14").style.background = "url(images/" + Inventory[18].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-14").children) {
+        child.innerText = Inventory[18].amount;
+        if(Inventory[18].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".inventory-item-ui-15").style.background = "url(images/" + Inventory[19].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".inventory-item-ui-15").children) {
+        child.innerText = Inventory[19].amount;
+        if(Inventory[19].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".mouse-holding-item").style.background = "url(images/" + inventoryMouseSlot.item + ".png) no-repeat no-repeat";
+      document.querySelector(".selected-slot").style.left = (45 + (currentSlot * 32)) + "px";
+
       handleMovement(0, yVel);
       handleMovement(xVel, 0);
       yVel += 0.002;
@@ -310,16 +628,19 @@ function interpolate(pa, pb, px){
     }, 1);
   }
   function mineLoop() {
-    if(mouseDown)
+    if(mouseDown && !inventoryShown)
     {
       let margin = {x: (screenDim.x - 720) / 2, y: (screenDim.y - 624) / 2};
       mouseTile = {x: Math.floor((((mousePos.x + ((myX - 7) * 48)) - margin.x)) / 48), y: Math.floor(((mousePos.y + ((myY - 7) * 48)) - margin.y) / 48)};
       let isBlock = false;
       Object.keys(block).forEach((key) => {
         const blockState = block[key];
-        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y && action != 2)
+        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y)
         {
           isBlock = true;
+        }
+        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y && action != 2)
+        {
           let hpRed = 0;
           if(mineIdx % blockState.strength == 0)
           {
@@ -330,6 +651,7 @@ function interpolate(pa, pb, px){
           })
           if(blockState.hp - 1 < 0)
           {
+            addToInventory(BlockTraits[blockState.type].drop, BlockTraits[blockState.type].amount);
             firebase.database().ref("block/" + key).remove();
           }
           action = 1;
@@ -355,23 +677,28 @@ function interpolate(pa, pb, px){
           beside = true;
         }
       })
-      if(!isBlock && action != 1 && beside)
+      if(!isBlock && action != 1 && beside && Inventory[currentSlot].amount > 0)
       {
         blockRef = firebase.database().ref(`block/` + playerId + myBlockId);
         blockRef.set({
           x: mouseTile.x, 
           y: mouseTile.y, 
           id: playerId + myBlockId, 
-          type: "grass", 
-          sizeX: 1.0, 
-          sizeY: 1.0,
-          centerX: 0.0, 
-          centerY: 0.0,  
+          type: Inventory[currentSlot].item, 
+          sizeX: BlockProperties[Inventory[currentSlot].item].sizeX, 
+          sizeY: BlockProperties[Inventory[currentSlot].item].sizeY,
+          centerX: BlockProperties[Inventory[currentSlot].item].centerX, 
+          centerY: BlockProperties[Inventory[currentSlot].item].centerY,  
           hp: 5, 
-          strength: 30
+          strength: BlockProperties[Inventory[currentSlot].item].strength
         })
         myBlockId++;
         action = 2;
+        Inventory[currentSlot].amount--;
+        if(Inventory[currentSlot].amount == 0)
+        {
+          Inventory[currentSlot].item = "none";
+        }
       }
     }
     mineIdx += 1;
@@ -403,11 +730,16 @@ function interpolate(pa, pb, px){
       myX = players[playerId].x;
       myY = players[playerId].y;
       let isCollision = false;
+      inWater = false;
       Object.keys(block).forEach((key) => {
         const blockState = block[key];
-        if(myX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && myX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && !(blockState.sizeX == 0))
+        if(myX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && myX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && !(blockState.sizeX == 0) && !(blockState.type == "water"))
         {
           isCollision = true;
+        }
+        if(myX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && myX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && blockState.type == "water")
+        {
+          inWater = true;
         }
       })
       if(isCollision && yChange != 0)
@@ -593,8 +925,6 @@ function interpolate(pa, pb, px){
         })
         if(Math.round(y+1+i) == 0)
         {
-          console.log(biomeMap[Math.round(x-2)+25])
-          console.log(Math.round(x))
           if(biomeMap[Math.round(x-2)+25] != null && biomeMap[Math.round(x-2)+25] == "ocean" && biomeMap[Math.round(x+25)] == "ocean" && biomeMap[Math.round(x+2)+25] != null && biomeMap[Math.round(x+2)+25] == "ocean")
           {
             firebase.database().ref("block/init" + Math.round(x) + "x" + (Math.round(y+i)+2)).update({
@@ -723,16 +1053,29 @@ function interpolate(pa, pb, px){
 
   function initGame() {
     new KeyPressListener("ArrowUp", () => {
-      if(yVel == 0.002) handleMovement(0, -0.07)
+      if(yVel == 0.002 || inWater) handleMovement(0, -0.07)
     }, () => handleMovement(0, 0))
     new KeyPressListener("ArrowLeft", () => {xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
     new KeyPressListener("ArrowRight", () => {xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("KeyW", () => {
-      if(yVel == 0.002) handleMovement(0, -0.07)
+      if(yVel == 0.002 || inWater) handleMovement(0, -0.07)
     }, () => handleMovement(0, 0))
     new KeyPressListener("KeyA", () => {xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
     new KeyPressListener("KeyD", () => {xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
-    new KeyPressListener("Space", () => handleAttack())
+    new KeyPressListener("Space", () => handleAttack(), () => {})
+    new KeyPressListener("KeyE", () => {
+      console.log(Inventory);
+      inventoryShown = !inventoryShown;
+      document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
+      document.querySelector(".hotbar").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+      document.querySelector(".mouse-holding-item").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
+      document.querySelector(".selected-slot").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+    }, () => {})
+    new KeyPressListener("Digit1", () => {currentSlot = 0}, () => {})
+    new KeyPressListener("Digit2", () => {currentSlot = 1}, () => {})
+    new KeyPressListener("Digit3", () => {currentSlot = 2}, () => {})
+    new KeyPressListener("Digit4", () => {currentSlot = 3}, () => {})
+    new KeyPressListener("Digit5", () => {currentSlot = 4}, () => {})
 
     const allPlayersRef = firebase.database().ref(`players`);
     const allBlockRef = firebase.database().ref(`block`);
@@ -887,7 +1230,6 @@ function interpolate(pa, pb, px){
       const date = new Date();
       if(addedMessage.time >= date.getHours() * 10000 + date.getMinutes() * 100 + date.getSeconds() && addedMessage.day == date.getDate())
       {
-        console.log(date.getDate());
         const messageElement = document.createElement("div");
         messageElement.classList.add("Chat-message");
         messageElement.innerHTML = addedMessage.message;
@@ -901,6 +1243,10 @@ function interpolate(pa, pb, px){
       screenDim = {x: window.innerWidth, y: window.innerHeight};
       let margin = {x: (screenDim.x - 720) / 2, y: (screenDim.y - 624) / 2};
       mouseTile = {x: Math.floor((((mousePos.x + ((myX - 7) * 48)) - margin.x)) / 48), y: Math.floor(((mousePos.y + ((myY - 7) * 48)) - margin.y) / 48)};
+      let mouseBlock = document.querySelector(".mouse-holding-item");
+      const left = mousePos.x - (screenDim.x/2);
+      const top = mousePos.y - (screenDim.y/2);
+      mouseBlock.style.transform = `translate3d(${left}px, ${top}px, 0) scale(3)`;
       //1919, 977
     });
     window.onmousedown = () => {
