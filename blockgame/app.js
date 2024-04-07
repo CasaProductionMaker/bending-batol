@@ -1101,26 +1101,29 @@ function onClickItem(slotID) {
           y: thisY
         };
         for (var h = 0; h < veinSize; h++) {
-          blockRef = firebase.database().ref("block/init" + oreSpawnPos.x + "x" + oreSpawnPos.y);
-          blockRef.set({
-            x: oreSpawnPos.x, 
-            y: oreSpawnPos.y, 
-            id: "init" + oreSpawnPos.x + "x" + oreSpawnPos.y, 
-            type: "coal_ore", 
-            sizeX: BlockProperties["coal_ore"].sizeX, 
-            sizeY: BlockProperties["coal_ore"].sizeY,
-            centerX: BlockProperties["coal_ore"].centerX, 
-            centerY: BlockProperties["coal_ore"].centerY,  
-            hp: 5, 
-            strength: BlockProperties["coal_ore"].strength
-          })
-          if(Math.random() < 0.5)
+          if(oreSpawnPos.y <= 9)
           {
-            oreSpawnPos.x += (Math.round(Math.random()) * 2) - 1;
-          }
-          if(Math.random() < 0.5)
-          {
-            oreSpawnPos.y += (Math.round(Math.random()) * 2) - 1;
+            blockRef = firebase.database().ref("block/init" + oreSpawnPos.x + "x" + oreSpawnPos.y);
+            blockRef.set({
+              x: oreSpawnPos.x, 
+              y: oreSpawnPos.y, 
+              id: "init" + oreSpawnPos.x + "x" + oreSpawnPos.y, 
+              type: "coal_ore", 
+              sizeX: BlockProperties["coal_ore"].sizeX, 
+              sizeY: BlockProperties["coal_ore"].sizeY,
+              centerX: BlockProperties["coal_ore"].centerX, 
+              centerY: BlockProperties["coal_ore"].centerY,  
+              hp: 5, 
+              strength: BlockProperties["coal_ore"].strength
+            })
+            if(Math.random() < 0.5)
+            {
+              oreSpawnPos.x += (Math.round(Math.random()) * 2) - 1;
+            }
+            if(Math.random() < 0.5)
+            {
+              oreSpawnPos.y += (Math.round(Math.random()) * 2) - 1;
+            }
           }
         }
       }
