@@ -168,6 +168,7 @@ h3 {
 }
 
 .mouse-holding-item {
+	image-rendering: pixelated;
 	background: url(images/bedrock.png) no-repeat no-repeat;
 }
 .mouse-holding-item[data-inv="false"] {
@@ -489,6 +490,9 @@ button:active:not(#exit-button) {
 }
 .Block_sprite[data-type="water"] {
 	background: url(images/water.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="coal_ore"] {
+	background: url(images/coal_ore.png) no-repeat no-repeat;
 }
 
 .Block_sprite[data-far="true"] {

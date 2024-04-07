@@ -97,40 +97,73 @@ let BlockProperties = {
     centerX: 0.0, 
     centerY: 0.0,  
     strength: 9000000000000000000000000000000000000000000000
+  }, 
+  "coal_ore": {
+    sizeX: 1.0, 
+    sizeY: 1.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 40
+  }, 
+  "iron_ore": {
+    sizeX: 1.0, 
+    sizeY: 1.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 60
+  }, 
+  "gold_ore": {
+    sizeX: 1.0, 
+    sizeY: 1.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 30
   }
 };
 let BlockTraits = {
   "bedrock": {
     drop: "none", 
-    amount: 0
+    amount: [0]
   }, 
   "stone": {
     drop: "stone", 
-    amount: 1
+    amount: [1]
   }, 
   "grass": {
     drop: "grass", 
-    amount: 1
+    amount: [1]
   }, 
   "sand": {
     drop: "sand", 
-    amount: 1
+    amount: [1]
   }, 
   "dirt": {
     drop: "dirt", 
-    amount: 1
+    amount: [1]
   }, 
   "leaves": {
     drop: "leaves", 
-    amount: 1
+    amount: [1]
   }, 
   "log": {
     drop: "log", 
-    amount: 1
+    amount: [1]
   }, 
   "water": {
     drop: "none", 
-    amount: 0
+    amount: [0]
+  }, 
+  "coal_ore": {
+    drop: "coal_ore", 
+    amount: [1, 2, 3]
+  }, 
+  "iron_ore": {
+    drop: "iron_ore", 
+    amount: [1]
+  }, 
+  "gold_ore": {
+    drop: "gold_ore", 
+    amount: [1]
   }
 };
 let Inventory = [
@@ -233,6 +266,15 @@ let ItemProperties = {
     stackSize: 16
   }, 
   "log": {
+    stackSize: 8
+  }, 
+  "coal_ore": {
+    stackSize: 16
+  }, 
+  "iron_ore": {
+    stackSize: 8
+  }, 
+  "gold_ore": {
     stackSize: 8
   }
 };
@@ -651,7 +693,7 @@ function onClickItem(slotID) {
           })
           if(blockState.hp - 1 < 0)
           {
-            addToInventory(BlockTraits[blockState.type].drop, BlockTraits[blockState.type].amount);
+            addToInventory(BlockTraits[blockState.type].drop, randomFromArray(BlockTraits[blockState.type].amount));
             firebase.database().ref("block/" + key).remove();
           }
           action = 1;
@@ -1046,6 +1088,40 @@ function onClickItem(slotID) {
             }
           }
           break;
+        }
+      }
+    }
+    for(let i = -worldRad; i < worldRad; i++) {
+      if(Math.random() < 0.4)
+      {
+        let veinSize = Math.round(Math.random() * 4) + 2;
+        let thisY = Math.round((Math.random() * 8) + 1);
+        let oreSpawnPos = {
+          x: i, 
+          y: thisY
+        };
+        for (var h = 0; h < veinSize; h++) {
+          blockRef = firebase.database().ref("block/init" + oreSpawnPos.x + "x" + oreSpawnPos.y);
+          blockRef.set({
+            x: oreSpawnPos.x, 
+            y: oreSpawnPos.y, 
+            id: "init" + oreSpawnPos.x + "x" + oreSpawnPos.y, 
+            type: "coal_ore", 
+            sizeX: BlockProperties["coal_ore"].sizeX, 
+            sizeY: BlockProperties["coal_ore"].sizeY,
+            centerX: BlockProperties["coal_ore"].centerX, 
+            centerY: BlockProperties["coal_ore"].centerY,  
+            hp: 5, 
+            strength: BlockProperties["coal_ore"].strength
+          })
+          if(Math.random() < 0.5)
+          {
+            oreSpawnPos.x += (Math.round(Math.random()) * 2) - 1;
+          }
+          if(Math.random() < 0.5)
+          {
+            oreSpawnPos.y += (Math.round(Math.random()) * 2) - 1;
+          }
         }
       }
     }
