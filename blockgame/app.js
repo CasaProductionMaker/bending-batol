@@ -761,6 +761,7 @@ function getRandomSafeSpot() {
   }
   return {x, y};
 }
+
 var M = 4294967296, 
 A = 1664525, 
 C = 1;
