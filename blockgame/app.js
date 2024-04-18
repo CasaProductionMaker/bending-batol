@@ -21,7 +21,7 @@ let myY;
 let yVel = 0.1;
 let xVel = 0;
 let mineIdx = 0;
-let myBlockId = 0;
+let myBlockId = localStorage.getItem("myOldBlockId");
 let renderDistance = 5;
 let isMapG;
 let worldRad = 25;
@@ -668,6 +668,22 @@ let craftingRecipes = [
     workplace: "hand", 
     pattern: false, 
     duration: 3
+  }, 
+  {
+    item: "stone_pickaxe", 
+    amount: 1, 
+    recipe: ["stone_pickaxe_head", "long_handle"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 3
+  }, 
+  {
+    item: "stone_axe", 
+    amount: 1, 
+    recipe: ["stone_axehead", "long_handle"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 4
   }
 ]
 let craftProgress = 0;
@@ -987,7 +1003,7 @@ function craftItem() {
             blockAbove = true;
           }
         })
-        if(Math.random() < 0.002 && !blockAbove)
+        if(Math.random() < 0.5 && !blockAbove)
         {
           let growGrass = firebase.database().ref(`block/pn` + Math.round(blockState.x) + "x" + Math.round(blockState.y-1));
           growGrass.set({
@@ -1157,6 +1173,7 @@ function craftItem() {
       handleMovement(xVel, 0);
       yVel += 0.002;
     }
+    localStorage.setItem("myOldBlockId", myBlockId);
 
     //repeat
     setTimeout(() => {
