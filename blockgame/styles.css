@@ -166,6 +166,21 @@ h3 {
 	left: 176px;
 	background: url(images/bedrock.png) no-repeat no-repeat;
 }
+.hand-crafting-item-ui-1 {
+	top: 32px;
+	left: 218px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.hand-crafting-item-ui-2 {
+	top: 64px;
+	left: 218px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.hand-crafting-item-ui-3 {
+	top: 96px;
+	left: 218px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
 
 .mouse-holding-item {
 	image-rendering: pixelated;
@@ -201,6 +216,24 @@ h3 {
 }
 .selected-slot[data-inv="true"] {
 	visibility: visible;
+}
+.crafting-progress-bar {
+	position: absolute;
+	width: 3px;
+	height: 62px;
+	image-rendering: pixelated;
+	left: 240px;
+	top: 41px;
+	background: url(images/crafting-progress/crafting-0.png) no-repeat no-repeat;
+}
+.crafting-button {
+	position: absolute;
+	width: 22px;
+	height: 11px;
+	image-rendering: pixelated;
+	left: 245px;
+	top: 65px;
+	background: url(images/craft-button.png) no-repeat no-repeat;
 }
 
 /* Respawn */
@@ -493,6 +526,18 @@ button:active:not(#exit-button) {
 }
 .Block_sprite[data-type="coal_ore"] {
 	background: url(images/coal_ore.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="iron_ore"] {
+	background: url(images/iron_ore.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="gold_ore"] {
+	background: url(images/gold_ore.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="stone_bricks"] {
+	background: url(images/stone_bricks.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="tall_grass"] {
+	background: url(images/tall_grass.png) no-repeat no-repeat;
 }
 
 .Block_sprite[data-far="true"] {

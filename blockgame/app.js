@@ -54,7 +54,7 @@ let BlockProperties = {
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 50
+    strength: 500
   }, 
   "grass": {
     sizeX: 1.0, 
@@ -82,7 +82,7 @@ let BlockProperties = {
     sizeY: 0.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 50
+    strength: 15
   }, 
   "log": {
     sizeX: 0.0, 
@@ -103,70 +103,104 @@ let BlockProperties = {
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 40
+    strength: 400
   }, 
   "iron_ore": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 60
+    strength: 600
   }, 
   "gold_ore": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 30
+    strength: 300
+  }, 
+  "stone_bricks": {
+    sizeX: 1.0, 
+    sizeY: 1.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 600
+  }, 
+  "tall_grass": {
+    sizeX: 0.0, 
+    sizeY: 0.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 10
   }
 };
 let BlockTraits = {
   "bedrock": {
-    drop: "none", 
+    drop: ["none"], 
     amount: [0]
   }, 
   "stone": {
-    drop: "stone", 
+    drop: ["stone"], 
     amount: [1]
   }, 
   "grass": {
-    drop: "grass", 
+    drop: ["grass"], 
     amount: [1]
   }, 
   "sand": {
-    drop: "sand", 
+    drop: ["sand"], 
     amount: [1]
   }, 
   "dirt": {
-    drop: "dirt", 
+    drop: ["dirt"], 
     amount: [1]
   }, 
   "leaves": {
-    drop: "leaves", 
+    drop: ["leaves", "stick"], 
     amount: [1]
   }, 
   "log": {
-    drop: "log", 
+    drop: ["log"], 
     amount: [1]
   }, 
   "water": {
-    drop: "none", 
+    drop: ["none"], 
     amount: [0]
   }, 
   "coal_ore": {
-    drop: "coal_ore", 
+    drop: ["coal_ore"], 
     amount: [1, 2, 3]
   }, 
   "iron_ore": {
-    drop: "iron_ore", 
+    drop: ["iron_ore"], 
     amount: [1]
   }, 
   "gold_ore": {
-    drop: "gold_ore", 
+    drop: ["gold_ore"], 
     amount: [1]
+  }, 
+  "stone_bricks": {
+    drop: ["stone_bricks"], 
+    amount: [1]
+  }, 
+  "tall_grass": {
+    drop: ["cotton", "none"], 
+    amount: [1, 2]
   }
 };
 let Inventory = [
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
+  {
+    item: "none", 
+    amount: 0
+  }, 
   {
     item: "none", 
     amount: 0
@@ -250,32 +284,169 @@ let Inventory = [
 ];
 let currentSlot = 0;
 let ItemProperties = {
+  "none": {
+    stackSize: 1, 
+    isPlaceable: false
+  }, 
   "stone": {
-    stackSize: 16
+    stackSize: 16, 
+    isPlaceable: true
   }, 
   "grass": {
-    stackSize: 16
+    stackSize: 16, 
+    isPlaceable: true
   }, 
   "sand": {
-    stackSize: 16
+    stackSize: 16, 
+    isPlaceable: true
   }, 
   "dirt": {
-    stackSize: 16
+    stackSize: 16, 
+    isPlaceable: true
   }, 
   "leaves": {
-    stackSize: 16
+    stackSize: 16, 
+    isPlaceable: true
   }, 
   "log": {
-    stackSize: 8
+    stackSize: 8, 
+    isPlaceable: true
   }, 
   "coal_ore": {
-    stackSize: 16
+    stackSize: 16, 
+    isPlaceable: false
   }, 
   "iron_ore": {
-    stackSize: 8
+    stackSize: 8, 
+    isPlaceable: false
   }, 
   "gold_ore": {
-    stackSize: 8
+    stackSize: 8, 
+    isPlaceable: false
+  }, 
+  "stick": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "long_stick": {
+    stackSize: 8, 
+    isPlaceable: false
+  }, 
+  "sharpened_stick": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "handle": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "long_handle": {
+    stackSize: 8, 
+    isPlaceable: false
+  }, 
+  "cotton": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "string": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "long_sharpened_stick": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "wood": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "wooden_blade": {
+    stackSize: 8, 
+    isPlaceable: false
+  }, 
+  "wooden_axehead": {
+    stackSize: 8, 
+    isPlaceable: false
+  }, 
+  "long_string": {
+    stackSize: 8, 
+    isPlaceable: false
+  }, 
+  "wooden_pickaxe_head": {
+    stackSize: 8, 
+    isPlaceable: false
+  }, 
+  "rock": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "pebble": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "stone_bricks": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "stone_rod": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "sharp_stone_rod": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "stone_blade": {
+    stackSize: 8, 
+    isPlaceable: false
+  }, 
+  "iron_ingot": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "iron_nugget": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "cotton_strand": {
+    stackSize: 16, 
+    isPlaceable: false
+  }, 
+  "wooden_sword": {
+    stackSize: 1, 
+    isPlaceable: false
+  }, 
+  "wooden_axe": {
+    stackSize: 1, 
+    isPlaceable: false
+  }, 
+  "wooden_pickaxe": {
+    stackSize: 1, 
+    isPlaceable: false
+  }, 
+  "bow": {
+    stackSize: 1, 
+    isPlaceable: false
+  }, 
+  "stone_pickaxe": {
+    stackSize: 1, 
+    isPlaceable: false
+  }, 
+  "stone_axe": {
+    stackSize: 1, 
+    isPlaceable: false
+  }, 
+  "stone_sword": {
+    stackSize: 1, 
+    isPlaceable: false
+  }, 
+  "stone_axehead": {
+    stackSize: 1, 
+    isPlaceable: false
+  }, 
+  "stone_pickaxe_head": {
+    stackSize: 1, 
+    isPlaceable: false
   }
 };
 let inventoryShown = false;
@@ -289,6 +460,218 @@ let inventoryMouseSlot = {
   item: "none", 
   amount: 0
 };
+let craftingRecipes = [
+  {
+    item: "long_stick", 
+    amount: 1, 
+    recipe: ["stick", "stick"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 2
+  }, 
+  {
+    item: "sharpened_stick", 
+    amount: 1, 
+    recipe: ["stick", "none"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 5
+  }, 
+  {
+    item: "handle", 
+    amount: 1, 
+    recipe: ["stick", "string"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 3
+  }, 
+  {
+    item: "long_handle", 
+    amount: 1, 
+    recipe: ["handle", "stick"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 2
+  }, 
+  {
+    item: "long_sharpened_stick", 
+    amount: 1, 
+    recipe: ["sharpened_stick", "stick"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 2
+  }, 
+  {
+    item: "wood", 
+    amount: 2, 
+    recipe: ["log", "none"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 4
+  }, 
+  {
+    item: "wooden_blade", 
+    amount: 1, 
+    recipe: ["sharpened_stick", "none"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 6
+  }, 
+  {
+    item: "wooden_axehead", 
+    amount: 1, 
+    recipe: ["stick", "wood"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 5
+  }, 
+  {
+    item: "long_string", 
+    amount: 1, 
+    recipe: ["string", "string"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 3
+  }, 
+  {
+    item: "wooden_pickaxe_head", 
+    amount: 1, 
+    recipe: ["sharpened_stick", "sharpened_stick"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 4
+  }, 
+  {
+    item: "rock", 
+    amount: 2, 
+    recipe: ["stone", "none"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 4
+  }, 
+  {
+    item: "pebble", 
+    amount: 2, 
+    recipe: ["rock", "none"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 4
+  }, 
+  {
+    item: "stone_bricks", 
+    amount: 1, 
+    recipe: ["stone", "stone"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 5
+  }, 
+  {
+    item: "stone_rod", 
+    amount: 1, 
+    recipe: ["pebble", "rock"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 3
+  }, 
+  {
+    item: "sharp_stone_rod", 
+    amount: 1, 
+    recipe: ["stone_rod", "none"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 8
+  }, 
+  {
+    item: "stone_blade", 
+    amount: 1, 
+    recipe: ["sharp_stone_rod", "none"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 10
+  }, 
+  {
+    item: "iron_nugget", 
+    amount: 4, 
+    recipe: ["iron_ingot", "none"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 4
+  }, 
+  {
+    item: "cotton_strand", 
+    amount: 1, 
+    recipe: ["cotton", "none"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 1
+  }, 
+  {
+    item: "string", 
+    amount: 1, 
+    recipe: ["cotton_strand", "cotton_strand"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 2
+  }, 
+  {
+    item: "wooden_sword", 
+    amount: 1, 
+    recipe: ["handle", "wooden_blade"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 3
+  }, 
+  {
+    item: "wooden_axe", 
+    amount: 1, 
+    recipe: ["long_handle", "wooden_axehead"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 4
+  }, 
+  {
+    item: "wooden_pickaxe", 
+    amount: 1, 
+    recipe: ["long_handle", "wooden_pickaxe_head"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 3
+  }, 
+  {
+    item: "bow", 
+    amount: 1, 
+    recipe: ["long_stick", "long_string"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 4
+  }, 
+  {
+    item: "stone_sword", 
+    amount: 1, 
+    recipe: ["handle", "stone_blade"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 4
+  }, 
+  {
+    item: "stone_pickaxe_head", 
+    amount: 1, 
+    recipe: ["sharp_stone_rod", "sharp_stone_rod"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 3
+  }, 
+  {
+    item: "stone_axehead", 
+    amount: 1, 
+    recipe: ["stick", "rock"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 3
+  }
+]
+let craftProgress = 0;
+let isQPressed = false;
 document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
 document.querySelector(".hotbar").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
 document.querySelector(".mouse-holding-item").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
@@ -380,18 +763,28 @@ function interpolate(pa, pb, px){
 function onClickItem(slotID) {
   if(inventoryShown)
   {
-    if(Inventory[slotID].item == "none")
+    if(Inventory[slotID].item == "none" && slotID != 22)
     {
-      Inventory[slotID].item = inventoryMouseSlot.item;
-      Inventory[slotID].amount = inventoryMouseSlot.amount;
-      inventoryMouseSlot.item = "none";
-      inventoryMouseSlot.amount = 0;
+      if(!isQPressed) {
+        Inventory[slotID].item = inventoryMouseSlot.item;
+        Inventory[slotID].amount = inventoryMouseSlot.amount;
+        inventoryMouseSlot.item = "none";
+        inventoryMouseSlot.amount = 0;
+      } else if(Inventory[slotID].amount < 16){
+        Inventory[slotID].item = inventoryMouseSlot.item;
+        Inventory[slotID].amount += 1;
+        inventoryMouseSlot.amount--;
+        if(inventoryMouseSlot.amount <= 0)
+        {
+          inventoryMouseSlot.item = "none";
+        }
+      }
     } else if(inventoryMouseSlot.item == "none"){
       inventoryMouseSlot.item = Inventory[slotID].item;
       inventoryMouseSlot.amount = Inventory[slotID].amount;
       Inventory[slotID].item = "none";
       Inventory[slotID].amount = 0;
-    } else if(inventoryMouseSlot.item != Inventory[slotID].item) {
+    } else if(inventoryMouseSlot.item != Inventory[slotID].item && slotID != 22) {
       let saveSlot = {
         item: inventoryMouseSlot.item, 
         amount: inventoryMouseSlot.amount
@@ -400,17 +793,105 @@ function onClickItem(slotID) {
       inventoryMouseSlot.amount = Inventory[slotID].amount;
       Inventory[slotID].item = saveSlot.item;
       Inventory[slotID].amount = saveSlot.amount;
-    } else {
-      while(Inventory[slotID].amount < ItemProperties[Inventory[slotID].item].stackSize)
+    } else if(slotID != 22){
+      if(!isQPressed)
       {
-        Inventory[slotID].amount++;
+        while(Inventory[slotID].amount < ItemProperties[Inventory[slotID].item].stackSize)
+        {
+          Inventory[slotID].amount++;
+          inventoryMouseSlot.amount--;
+          if (inventoryMouseSlot.amount <= 0)
+          {
+            inventoryMouseSlot.item = "none";
+            break;
+          }
+        }
+      } else if(Inventory[slotID].amount < 16){
+        Inventory[slotID].item = inventoryMouseSlot.item;
+        Inventory[slotID].amount += 1;
         inventoryMouseSlot.amount--;
-        if (inventoryMouseSlot.amount <= 0)
+        if(inventoryMouseSlot.amount <= 0)
         {
           inventoryMouseSlot.item = "none";
-          break;
         }
       }
+    }
+  }
+}
+
+function craftItem() {
+  if(inventoryShown)
+  {
+    let itemCrafted = "none";
+    let craftInterval = 5;
+    let craftAmount = 1;
+    for (var i = 0; i < craftingRecipes.length; i++) {
+      if((craftingRecipes[i].recipe[0] == Inventory[20].item && craftingRecipes[i].recipe[1] == Inventory[21].item) || (craftingRecipes[i].recipe[0] == Inventory[21].item && craftingRecipes[i].recipe[1] == Inventory[20].item && craftingRecipes[i].pattern == false) && craftingRecipes[i].workplace == "hand")
+      {
+        itemCrafted = craftingRecipes[i].item;
+        craftInterval = (craftingRecipes[i].duration * 1000) / 10;
+        craftAmount = craftingRecipes[i].amount;
+        break;
+      }
+    }
+    if(itemCrafted != "none")
+    {
+      setTimeout(() => {
+        craftProgress++;
+        setTimeout(() => {
+          craftProgress++;
+          setTimeout(() => {
+            craftProgress++;
+            setTimeout(() => {
+              craftProgress++;
+              setTimeout(() => {
+                craftProgress++;
+                setTimeout(() => {
+                  craftProgress++;
+                  setTimeout(() => {
+                    craftProgress++;
+                    setTimeout(() => {
+                      craftProgress++;
+                      setTimeout(() => {
+                        craftProgress++;
+                        setTimeout(() => {
+                          craftProgress++;
+                          itemCrafted = "none";
+                          for (var i = 0; i < craftingRecipes.length; i++) {
+                            if((craftingRecipes[i].recipe[0] == Inventory[20].item && craftingRecipes[i].recipe[1] == Inventory[21].item) || (craftingRecipes[i].recipe[0] == Inventory[21].item && craftingRecipes[i].recipe[1] == Inventory[20].item && craftingRecipes[i].pattern == false) && craftingRecipes[i].workplace == "hand")
+                            {
+                              itemCrafted = craftingRecipes[i].item;
+                              break;
+                            }
+                          }
+                          if(itemCrafted != "none")
+                          {
+                            Inventory[20].amount--;
+                            if(Inventory[20].amount <= 0)
+                            {
+                              Inventory[20].item = "none";
+                              Inventory[20].amount = 0;
+                            }
+                            Inventory[21].amount--;
+                            if(Inventory[21].amount <= 0)
+                            {
+                              Inventory[21].item = "none";
+                              Inventory[21].amount = 0;
+                            }
+                            Inventory[22].item = itemCrafted;
+                            Inventory[22].amount += craftAmount;
+                          }
+                          craftProgress = 0;
+                        }, craftInterval)
+                      }, craftInterval)
+                    }, craftInterval)
+                  }, craftInterval)
+                }, craftInterval)
+              }, craftInterval)
+            }, craftInterval)
+          }, craftInterval)
+        }, craftInterval)
+      }, craftInterval)
     }
   }
 }
@@ -492,22 +973,43 @@ function onClickItem(slotID) {
       const blockState = block[key];
       if(blockState.type == "grass")
       {
+        let blockAbove = false;
         Object.keys(block).forEach((tkey) => {
           const blockStateT = block[tkey];
-          if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x && Math.random() > 0.3)
+          if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x && Math.random() > 0.3 && blockStateT.sizeX > 0.0)
           {
             firebase.database().ref("block/" + blockState.id).update({
               type: "dirt"
             });//blockState.type = "dirt";
           }
+          if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x)
+          {
+            blockAbove = true;
+          }
         })
+        if(Math.random() < 0.002 && !blockAbove)
+        {
+          let growGrass = firebase.database().ref(`block/pn` + Math.round(blockState.x) + "x" + Math.round(blockState.y-1));
+          growGrass.set({
+            x: Math.round(blockState.x), 
+            y: Math.round(blockState.y-1), 
+            id: "pn" + Math.round(blockState.x) + "x" + Math.round(blockState.y-1), 
+            type: "tall_grass", 
+            sizeX: BlockProperties["tall_grass"].sizeX, 
+            sizeY: BlockProperties["tall_grass"].sizeY,
+            centerX: BlockProperties["tall_grass"].centerX, 
+            centerY: BlockProperties["tall_grass"].centerY,  
+            hp: 5, 
+            strength: BlockProperties["tall_grass"].strength
+          })
+        }
       }
       if(blockState.type == "dirt")
       {
         let found = false;
         Object.keys(block).forEach((tkey) => {
           const blockStateT = block[tkey];
-          if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x)
+          if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x && blockStateT.sizeX > 0.0)
           {
             found = true;
           }
@@ -632,8 +1134,24 @@ function onClickItem(slotID) {
         child.innerText = Inventory[19].amount;
         if(Inventory[19].amount <= 1) child.innerText = "";
       }
+      document.querySelector(".hand-crafting-item-ui-1").style.background = "url(images/" + Inventory[20].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".hand-crafting-item-ui-1").children) {
+        child.innerText = Inventory[20].amount;
+        if(Inventory[20].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".hand-crafting-item-ui-2").style.background = "url(images/" + Inventory[21].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".hand-crafting-item-ui-2").children) {
+        child.innerText = Inventory[21].amount;
+        if(Inventory[21].amount <= 1) child.innerText = "";
+      }
+      document.querySelector(".hand-crafting-item-ui-3").style.background = "url(images/" + Inventory[22].item + ".png) no-repeat no-repeat";
+      for (const child of document.querySelector(".hand-crafting-item-ui-3").children) {
+        child.innerText = Inventory[22].amount;
+        if(Inventory[22].amount <= 1) child.innerText = "";
+      }
       document.querySelector(".mouse-holding-item").style.background = "url(images/" + inventoryMouseSlot.item + ".png) no-repeat no-repeat";
       document.querySelector(".selected-slot").style.left = (45 + (currentSlot * 32)) + "px";
+      document.querySelector(".crafting-progress-bar").style.background = "url(images/crafting-progress/crafting-" + craftProgress + ".png)"
 
       handleMovement(0, yVel);
       handleMovement(xVel, 0);
@@ -693,7 +1211,7 @@ function onClickItem(slotID) {
           })
           if(blockState.hp - 1 < 0)
           {
-            addToInventory(BlockTraits[blockState.type].drop, randomFromArray(BlockTraits[blockState.type].amount));
+            addToInventory(randomFromArray(BlockTraits[blockState.type].drop), randomFromArray(BlockTraits[blockState.type].amount));
             firebase.database().ref("block/" + key).remove();
           }
           action = 1;
@@ -719,7 +1237,7 @@ function onClickItem(slotID) {
           beside = true;
         }
       })
-      if(!isBlock && action != 1 && beside && Inventory[currentSlot].amount > 0)
+      if(!isBlock && action != 1 && beside && Inventory[currentSlot].amount > 0 && ItemProperties[Inventory[currentSlot].item].isPlaceable)
       {
         blockRef = firebase.database().ref(`block/` + playerId + myBlockId);
         blockRef.set({
@@ -829,7 +1347,7 @@ function onClickItem(slotID) {
         centerX: 0.0, 
         centerY: 0.0,  
         hp: 5, 
-        strength: 50
+        strength: 500
       })
     }
   }
@@ -942,6 +1460,22 @@ function onClickItem(slotID) {
         hp: 5, 
         strength: BlockProperties[thisGroundBlock].strength
       })
+      if(Math.random() < 0.4 && biomeMap[x+worldRad] != "desert" && biomeMap[x+worldRad] != "ocean")
+      {
+        blockRef = firebase.database().ref(`block/pn` + Math.round(x) + "x" + Math.round(y-1));
+        blockRef.set({
+          x: Math.round(x), 
+          y: Math.round(y-1), 
+          id: "pn" + Math.round(x) + "x" + Math.round(y-1), 
+          type: "tall_grass", 
+          sizeX: BlockProperties["tall_grass"].sizeX, 
+          sizeY: BlockProperties["tall_grass"].sizeY,
+          centerX: BlockProperties["tall_grass"].centerX, 
+          centerY: BlockProperties["tall_grass"].centerY,  
+          hp: 5, 
+          strength: BlockProperties["tall_grass"].strength
+        })
+      }
       if(Math.random() < 0.1 && biomeMap[x+worldRad] != "desert" && biomeMap[x+worldRad] != "ocean")
       {
         treePos.push([Math.round(x), Math.round(y-1)]);
@@ -1092,9 +1626,10 @@ function onClickItem(slotID) {
       }
     }
     for(let i = -worldRad; i < worldRad; i++) {
-      if(Math.random() < 0.4)
+      let oreChance = Math.random();
+      if(oreChance < 0.2)
       {
-        let veinSize = Math.round(Math.random() * 4) + 2;
+        let veinSize = Math.round(Math.random() * 3) + 2;
         let thisY = Math.round((Math.random() * 8) + 1);
         let oreSpawnPos = {
           x: i, 
@@ -1126,35 +1661,106 @@ function onClickItem(slotID) {
             }
           }
         }
+      } else if(oreChance < 0.4)
+      {
+        let veinSize = Math.round(Math.random() * 2) + 2;
+        let thisY = Math.round((Math.random() * 6) + 3);
+        let oreSpawnPos = {
+          x: i, 
+          y: thisY
+        };
+        for (var h = 0; h < veinSize; h++) {
+          if(oreSpawnPos.y <= 9)
+          {
+            blockRef = firebase.database().ref("block/init" + oreSpawnPos.x + "x" + oreSpawnPos.y);
+            blockRef.set({
+              x: oreSpawnPos.x, 
+              y: oreSpawnPos.y, 
+              id: "init" + oreSpawnPos.x + "x" + oreSpawnPos.y, 
+              type: "iron_ore", 
+              sizeX: BlockProperties["iron_ore"].sizeX, 
+              sizeY: BlockProperties["iron_ore"].sizeY,
+              centerX: BlockProperties["iron_ore"].centerX, 
+              centerY: BlockProperties["iron_ore"].centerY,  
+              hp: 5, 
+              strength: BlockProperties["iron_ore"].strength
+            })
+            if(Math.random() < 0.5)
+            {
+              oreSpawnPos.x += (Math.round(Math.random()) * 2) - 1;
+            }
+            if(Math.random() < 0.5)
+            {
+              oreSpawnPos.y += (Math.round(Math.random()) * 2) - 1;
+            }
+          }
+        }
+      } else if(oreChance < 0.5)
+      {
+        let veinSize = Math.round(Math.random() * 3) + 1;
+        let thisY = Math.round((Math.random() * 5) + 4);
+        let oreSpawnPos = {
+          x: i, 
+          y: thisY
+        };
+        for (var h = 0; h < veinSize; h++) {
+          if(oreSpawnPos.y <= 9)
+          {
+            blockRef = firebase.database().ref("block/init" + oreSpawnPos.x + "x" + oreSpawnPos.y);
+            blockRef.set({
+              x: oreSpawnPos.x, 
+              y: oreSpawnPos.y, 
+              id: "init" + oreSpawnPos.x + "x" + oreSpawnPos.y, 
+              type: "gold_ore", 
+              sizeX: BlockProperties["gold_ore"].sizeX, 
+              sizeY: BlockProperties["gold_ore"].sizeY,
+              centerX: BlockProperties["gold_ore"].centerX, 
+              centerY: BlockProperties["gold_ore"].centerY,  
+              hp: 5, 
+              strength: BlockProperties["gold_ore"].strength
+            })
+            if(Math.random() < 0.5)
+            {
+              oreSpawnPos.x += (Math.round(Math.random()) * 2) - 1;
+            }
+            if(Math.random() < 0.5)
+            {
+              oreSpawnPos.y += (Math.round(Math.random()) * 2) - 1;
+            }
+          }
+        }
       }
     }
   }
 
   function initGame() {
     new KeyPressListener("ArrowUp", () => {
-      if(yVel == 0.002 || inWater) handleMovement(0, -0.07)
+      if((yVel == 0.002 || inWater) && !inventoryShown) handleMovement(0, -0.07)
     }, () => handleMovement(0, 0))
-    new KeyPressListener("ArrowLeft", () => {xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
-    new KeyPressListener("ArrowRight", () => {xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
+    new KeyPressListener("ArrowLeft", () => {if(!inventoryShown) xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
+    new KeyPressListener("ArrowRight", () => {if(!inventoryShown) xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("KeyW", () => {
-      if(yVel == 0.002 || inWater) handleMovement(0, -0.07)
+      if((yVel == 0.002 || inWater) && !inventoryShown) handleMovement(0, -0.07)
     }, () => handleMovement(0, 0))
-    new KeyPressListener("KeyA", () => {xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
-    new KeyPressListener("KeyD", () => {xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
+    new KeyPressListener("KeyA", () => {if(!inventoryShown) xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
+    new KeyPressListener("KeyD", () => {if(!inventoryShown) xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("Space", () => handleAttack(), () => {})
     new KeyPressListener("KeyE", () => {
-      console.log(Inventory);
-      inventoryShown = !inventoryShown;
-      document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
-      document.querySelector(".hotbar").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
-      document.querySelector(".mouse-holding-item").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
-      document.querySelector(".selected-slot").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+      if(craftProgress == 0)
+      {
+        inventoryShown = !inventoryShown;
+        document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
+        document.querySelector(".hotbar").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+        document.querySelector(".mouse-holding-item").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
+        document.querySelector(".selected-slot").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+      }
     }, () => {})
     new KeyPressListener("Digit1", () => {currentSlot = 0}, () => {})
     new KeyPressListener("Digit2", () => {currentSlot = 1}, () => {})
     new KeyPressListener("Digit3", () => {currentSlot = 2}, () => {})
     new KeyPressListener("Digit4", () => {currentSlot = 3}, () => {})
     new KeyPressListener("Digit5", () => {currentSlot = 4}, () => {})
+    new KeyPressListener("KeyQ", () => {isQPressed = true}, () => {isQPressed = false})
 
     const allPlayersRef = firebase.database().ref(`players`);
     const allBlockRef = firebase.database().ref(`block`);
