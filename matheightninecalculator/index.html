@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" type="text/css" href="styles.css">
+		<title>Math 8/9 Grade Calculator</title>
+	</head>
+	<body>
+		<script type="text/javascript" src="app.js"></script>
+		<button onclick="setTestType('normal')">Normal Test</button>
+		<button onclick="setTestType('mid-term')">Mid Term Test</button>
+		<button onclick="setTestType('final')">Final Exam</button><br>
+		Next Test Out of: <input type="text" id="nextTestDen" value="40"><br>
+		Minimum Final Score I Want: <input type="text" id="minScore" value="75"><br>
+		<h1>My Test Results So far:</h1>
+		Test 1: <input type="text" id="test1score" class="outof" value="40">/40<br>
+		Test 2: <input type="text" id="test2score" class="outof" value="27">/27<br>
+		Test 3: <input type="text" id="test3score" class="outof" value="33">/33<br>
+		Mid Term: <input type="text" id="midTermScore" class="outof" value="50">/50<br>
+		<button onclick="calculate_needed()">Calculate Score Needed</button>
+	</body>
+</html>
