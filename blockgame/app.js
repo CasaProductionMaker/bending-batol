@@ -141,7 +141,8 @@ let BlockTraits = {
   }, 
   "stone": {
     drop: ["stone"], 
-    amount: [1]
+    amount: [1], 
+    breakWith: "pickaxe"
   }, 
   "grass": {
     drop: ["grass"], 
@@ -157,11 +158,13 @@ let BlockTraits = {
   }, 
   "leaves": {
     drop: ["leaves", "stick"], 
-    amount: [1]
+    amount: [1], 
+    breakWith: "axe"
   }, 
   "log": {
     drop: ["log"], 
-    amount: [1]
+    amount: [1], 
+    breakWith: "axe"
   }, 
   "water": {
     drop: ["none"], 
@@ -169,19 +172,23 @@ let BlockTraits = {
   }, 
   "coal_ore": {
     drop: ["coal_ore"], 
-    amount: [1, 2, 3]
+    amount: [1, 2, 3], 
+    breakWith: "pickaxe"
   }, 
   "iron_ore": {
     drop: ["iron_ore"], 
-    amount: [1]
+    amount: [1], 
+    breakWith: "pickaxe"
   }, 
   "gold_ore": {
     drop: ["gold_ore"], 
-    amount: [1]
+    amount: [1], 
+    breakWith: "pickaxe"
   }, 
   "stone_bricks": {
     drop: ["stone_bricks"], 
-    amount: [1]
+    amount: [1], 
+    breakWith: "pickaxe"
   }, 
   "tall_grass": {
     drop: ["cotton", "none"], 
@@ -418,11 +425,15 @@ let ItemProperties = {
   }, 
   "wooden_axe": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    toolType: "axe", 
+    toolTier: "wooden"
   }, 
   "wooden_pickaxe": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    toolType: "pickaxe", 
+    toolTier: "wooden"
   }, 
   "bow": {
     stackSize: 1, 
@@ -430,11 +441,15 @@ let ItemProperties = {
   }, 
   "stone_pickaxe": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    toolType: "pickaxe", 
+    toolTier: "stone"
   }, 
   "stone_axe": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    toolType: "axe", 
+    toolTier: "stone"
   }, 
   "stone_sword": {
     stackSize: 1, 
@@ -686,6 +701,12 @@ let craftingRecipes = [
     duration: 4
   }
 ]
+let toolTierBreakSpeed = {
+  "wooden": 0.9, 
+  "stone": 0.8, 
+  "iron": 0.6, 
+  "gold": 0.4
+}
 let craftProgress = 0;
 let isQPressed = false;
 document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
@@ -1224,6 +1245,16 @@ function craftItem() {
           {
             hpRed = 1;
           }
+          if(ItemProperties[Inventory[currentSlot].item].toolType == BlockTraits[blockState.type].breakWith && mineIdx % Math.round(blockState.strength * toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier]) == 0)
+          {
+            hpRed = 1;
+          }
+          if(isQPressed)
+          {
+            console.log(mineIdx % Math.round(blockState.strength * toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier]))
+            console.log(Math.round(blockState.strength * toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier]))
+            console.log(mineIdx % blockState.strength)
+          }
           firebase.database().ref("block/" + key).update({
             hp: blockState.hp - hpRed
           })
@@ -1323,6 +1354,7 @@ function craftItem() {
       if(isCollision && yChange != 0)
       {
         yVel = 0;
+        players[playerId]
       }
       if(isCollision)
       {
@@ -1779,6 +1811,7 @@ function craftItem() {
     new KeyPressListener("Digit4", () => {currentSlot = 3}, () => {})
     new KeyPressListener("Digit5", () => {currentSlot = 4}, () => {})
     new KeyPressListener("KeyQ", () => {isQPressed = true}, () => {isQPressed = false})
+    new KeyPressListener("KeyH", () => {Inventory[0].item = "stone_pickaxe"}, () => {})
 
     const allPlayersRef = firebase.database().ref(`players`);
     const allBlockRef = firebase.database().ref(`block`);
