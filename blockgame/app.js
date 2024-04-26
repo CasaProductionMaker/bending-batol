@@ -1785,18 +1785,18 @@ function craftItem() {
 
   function initGame() {
     new KeyPressListener("ArrowUp", () => {
-      if((yVel == 0.002 || inWater) && !inventoryShown) handleMovement(0, -0.07)
+      if((yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') handleMovement(0, -0.07)
     }, () => handleMovement(0, 0))
-    new KeyPressListener("ArrowLeft", () => {if(!inventoryShown) xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
-    new KeyPressListener("ArrowRight", () => {if(!inventoryShown) xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
+    new KeyPressListener("ArrowLeft", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
+    new KeyPressListener("ArrowRight", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("KeyW", () => {
-      if((yVel == 0.002 || inWater) && !inventoryShown) handleMovement(0, -0.07)
+      if((yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') handleMovement(0, -0.07)
     }, () => handleMovement(0, 0))
-    new KeyPressListener("KeyA", () => {if(!inventoryShown) xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
-    new KeyPressListener("KeyD", () => {if(!inventoryShown) xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
+    new KeyPressListener("KeyA", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
+    new KeyPressListener("KeyD", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("Space", () => handleAttack(), () => {})
     new KeyPressListener("KeyE", () => {
-      if(craftProgress == 0)
+      if(craftProgress == 0 && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
       {
         inventoryShown = !inventoryShown;
         document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
@@ -1811,7 +1811,6 @@ function craftItem() {
     new KeyPressListener("Digit4", () => {currentSlot = 3}, () => {})
     new KeyPressListener("Digit5", () => {currentSlot = 4}, () => {})
     new KeyPressListener("KeyQ", () => {isQPressed = true}, () => {isQPressed = false})
-    new KeyPressListener("KeyH", () => {Inventory[0].item = "stone_pickaxe"}, () => {})
 
     const allPlayersRef = firebase.database().ref(`players`);
     const allBlockRef = firebase.database().ref(`block`);
@@ -1938,6 +1937,7 @@ function craftItem() {
       playerRef.update({
         name: newName
       });
+      localStorage.setItem("Name", newName);
     })
     playerColorButton.addEventListener("click", () => {
       const mySkinIndex = playerColors.indexOf(players[playerId].color);
@@ -2006,7 +2006,12 @@ function craftItem() {
       playerId = user.uid;
       playerRef = firebase.database().ref(`players/${playerId}`);
 
-      const name = createName();
+      let name;
+      if(localStorage.getItem("Name") == null)
+      {
+        localStorage.setItem("Name", createName());
+      }
+      name = localStorage.getItem("Name");
       playerNameInput.value = name;
 
       const {x, y} = getRandomSafeSpot();
