@@ -21,7 +21,7 @@ let myY;
 let yVel = 0.1;
 let xVel = 0;
 let mineIdx = 0;
-let myBlockId = localStorage.getItem("myOldBlockId");
+let myBlockId = (localStorage.getItem("myOldBlockId") != null ? localStorage.getItem("myOldBlockId") : 0);
 let renderDistance = 5;
 let isMapG;
 let worldRad = 25;
@@ -1249,12 +1249,6 @@ function craftItem() {
           {
             hpRed = 1;
           }
-          if(isQPressed)
-          {
-            console.log(mineIdx % Math.round(blockState.strength * toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier]))
-            console.log(Math.round(blockState.strength * toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier]))
-            console.log(mineIdx % blockState.strength)
-          }
           firebase.database().ref("block/" + key).update({
             hp: blockState.hp - hpRed
           })
@@ -1302,6 +1296,7 @@ function craftItem() {
           strength: BlockProperties[Inventory[currentSlot].item].strength
         })
         myBlockId++;
+        console.log(myBlockId)
         action = 2;
         Inventory[currentSlot].amount--;
         if(Inventory[currentSlot].amount == 0)
