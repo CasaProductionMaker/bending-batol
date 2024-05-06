@@ -1396,7 +1396,11 @@ function craftItem() {
         myX = players[playerId].x;
         myY = players[playerId].y;
       }
-      playerRef.set(players[playerId]);
+      playerRef.update({
+        x: players[playerId].x, 
+        y: players[playerId].y, 
+        direction: players[playerId].direction, 
+      });
     }
     Object.keys(block).forEach((key) => {
       const blockState = block[key];
@@ -2024,8 +2028,9 @@ function craftItem() {
         const characterState = players[key];
         if(Math.abs(mouseTile.x - characterState.x) < 0.7 && Math.abs(mouseTile.y - characterState.y) < 0.7 && !characterState.isDead && characterState.id != playerId)
         {
+          console.log(characterState.health - Math.round(2 - ((ItemProperties[Inventory[currentSlot].item].toolTier != null ? toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier] : 0.5) * 2)))
           firebase.database().ref("players/" + characterState.id).update({
-            health: characterState.health - Math.round(2 - (toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier] * 2))
+            health: characterState.health - Math.round(2 - ((ItemProperties[Inventory[currentSlot].item].toolTier != null ? toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier] : 0.5) * 2))
           })
         }
       })
