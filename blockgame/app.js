@@ -27,6 +27,9 @@ let isMapG;
 let worldRad = 25;
 let action = 0;
 let inWater = false;
+let timeInWater = 0;
+let timeSinceSpawn = 0;
+let mouseNonRelativePosition = {x: undefined, y: undefined};
 
 let biomeMap = [];
 let BiomeRules = {
@@ -977,7 +980,21 @@ function craftItem() {
   }
   function oneSecondLoop() {
     if(players[playerId] != null) {
+      if(inWater && timeSinceSpawn >= 5)
+      {
+        timeInWater++;
+      } else {
+        timeInWater = 0;
+      }
+      if(timeInWater >= 5 && !players[playerId].isDead)
+      {
+        playerRef.update({
+          health: players[playerId].health - 1
+        })
+      }
+      timeSinceSpawn++;
       if(players[playerId].isDead > 0 && !isButton) {
+        timeInWater = 0;
         const buttonElement = document.createElement("div");
         buttonElement.classList.add("respawnButton");
         buttonElement.innerHTML = (`
@@ -987,14 +1004,15 @@ function craftItem() {
         respawnButton.addEventListener("click", () => {
           isButton = false;
           respawnContainer.querySelector(".respawnButton").remove();
-          const {x, y} = getRandomSafeSpot();
           playerRef.update({
             isDead: false, 
             coins: 0, 
             health: 5, 
-            x, 
-            y, 
+            x: 1, 
+            y: -5, 
           })
+          xVel = 0;
+          yVel = 0;
         })
         respawnContainer.appendChild(buttonElement);
         isButton = true;
@@ -1005,6 +1023,21 @@ function craftItem() {
     setTimeout(() => {
       oneSecondLoop();
     }, 1000);
+  }
+  function regenLoop() {
+    if(players[playerId] != null) {
+      if(players[playerId].health < 5)
+      {
+        playerRef.update({
+          health: players[playerId].health + 1
+        })
+      }
+    }
+
+    //repeat
+    setTimeout(() => {
+      regenLoop();
+    }, 30000);
   }
   function worldLoop() {
     Object.keys(block).forEach((key) => {
@@ -1348,8 +1381,13 @@ function craftItem() {
       })
       if(isCollision && yChange != 0)
       {
+        if(yVel > 0.12 && !inWater && timeSinceSpawn >= 5)
+        {
+          playerRef.update({
+            health: players[playerId].health - Math.round((yVel - 0.12) * 60)
+          })
+        }
         yVel = 0;
-        players[playerId]
       }
       if(isCollision)
       {
@@ -1982,6 +2020,15 @@ function craftItem() {
     });
     window.onmousedown = () => {
       mouseDown = true;
+      Object.keys(players).forEach((key) => {
+        const characterState = players[key];
+        if(Math.abs(mouseTile.x - characterState.x) < 0.7 && Math.abs(mouseTile.y - characterState.y) < 0.7 && !characterState.isDead && characterState.id != playerId)
+        {
+          firebase.database().ref("players/" + characterState.id).update({
+            health: characterState.health - Math.round(2 - (toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier] * 2))
+          })
+        }
+      })
     }
     window.onmouseup = () => {
       mouseDown = false;
@@ -1989,6 +2036,7 @@ function craftItem() {
     }
 
     oneSecondLoop();
+    regenLoop();
     setTimeout(() => tickLoop(), 1000);
     setTimeout(() => renderLoop(), 1000);
     setTimeout(() => mineLoop(), 1000);
