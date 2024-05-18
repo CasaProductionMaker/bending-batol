@@ -471,7 +471,7 @@ let ItemProperties = {
     stackSize: 1, 
     isPlaceable: false, 
     toolType: "pickaxe", 
-    toolTier: "stone"
+    toolTier: "iron"
   }, 
   "iron_axe": {
     stackSize: 1, 
@@ -495,7 +495,7 @@ let ItemProperties = {
     stackSize: 1, 
     isPlaceable: false, 
     toolType: "pickaxe", 
-    toolTier: "stone"
+    toolTier: "gold"
   }, 
   "golden_axe": {
     stackSize: 1, 
@@ -927,16 +927,8 @@ let craftingRecipes = [
     duration: 10
   }, 
   {
-    item: "iron_nugget", 
-    amount: 1, 
-    recipe: ["iron_ingot", "none"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 6
-  }, 
-  {
     item: "golden_nugget", 
-    amount: 1, 
+    amount: 4, 
     recipe: ["golden_ingot", "none"], 
     workplace: "hand", 
     pattern: false, 
