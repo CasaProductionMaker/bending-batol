@@ -564,6 +564,13 @@ button:active:not(#exit-button) {
 .Block_break_sprite_overlay[data-far="true"] {
 	background: url(images/none.png) no-repeat no-repeat;
 }
+
+.Layer[data-far="true"] {
+	visibility: hidden;
+}
+.Layer[data-far="false"] {
+	visibility: visible;
+}
 .Block {
 	transition: transform 0.1s;
 }

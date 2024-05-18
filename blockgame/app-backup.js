@@ -24,13 +24,12 @@ let mineIdx = 0;
 let myBlockId = (localStorage.getItem("myOldBlockId") != null ? localStorage.getItem("myOldBlockId") : 0);
 let renderDistance = 5;
 let isMapG;
-let worldRad = 35;
+let worldRad = 25;
 let action = 0;
 let inWater = false;
 let timeInWater = 0;
 let timeSinceSpawn = 0;
 let mouseNonRelativePosition = {x: undefined, y: undefined};
-let isDebug = false;
 
 let biomeMap = [];
 let BiomeRules = {
@@ -176,7 +175,7 @@ let BlockTraits = {
   }, 
   "coal_ore": {
     drop: ["coal_ore"], 
-    amount: [1], 
+    amount: [1, 2, 3], 
     breakWith: "pickaxe"
   }, 
   "iron_ore": {
@@ -325,15 +324,15 @@ let ItemProperties = {
   }, 
   "coal_ore": {
     stackSize: 16, 
-    isPlaceable: true
+    isPlaceable: false
   }, 
   "iron_ore": {
     stackSize: 8, 
-    isPlaceable: true
+    isPlaceable: false
   }, 
   "gold_ore": {
     stackSize: 8, 
-    isPlaceable: true
+    isPlaceable: false
   }, 
   "stick": {
     stackSize: 16, 
@@ -466,93 +465,15 @@ let ItemProperties = {
   "stone_pickaxe_head": {
     stackSize: 1, 
     isPlaceable: false
-  }, 
-  "iron_pickaxe": {
-    stackSize: 1, 
-    isPlaceable: false, 
-    toolType: "pickaxe", 
-    toolTier: "stone"
-  }, 
-  "iron_axe": {
-    stackSize: 1, 
-    isPlaceable: false, 
-    toolType: "axe", 
-    toolTier: "stone"
-  }, 
-  "iron_sword": {
-    stackSize: 1, 
-    isPlaceable: false
-  }, 
-  "iron_axehead": {
-    stackSize: 1, 
-    isPlaceable: false
-  }, 
-  "iron_pickaxe_head": {
-    stackSize: 1, 
-    isPlaceable: false
-  }, 
-  "golden_pickaxe": {
-    stackSize: 1, 
-    isPlaceable: false, 
-    toolType: "pickaxe", 
-    toolTier: "stone"
-  }, 
-  "golden_axe": {
-    stackSize: 1, 
-    isPlaceable: false, 
-    toolType: "axe", 
-    toolTier: "stone"
-  }, 
-  "golden_sword": {
-    stackSize: 1, 
-    isPlaceable: false
-  }, 
-  "golden_axehead": {
-    stackSize: 1, 
-    isPlaceable: false
-  }, 
-  "golden_pickaxe_head": {
-    stackSize: 1, 
-    isPlaceable: false
-  }, 
-  "iron_rod": {
-    stackSize: 16, 
-    isPlaceable: false
-  }, 
-  "sharp_iron_rod": {
-    stackSize: 16, 
-    isPlaceable: false
-  }, 
-  "iron_blade": {
-    stackSize: 8, 
-    isPlaceable: false
-  }, 
-  "golden_rod": {
-    stackSize: 16, 
-    isPlaceable: false
-  }, 
-  "sharp_golden_rod": {
-    stackSize: 16, 
-    isPlaceable: false
-  }, 
-  "golden_blade": {
-    stackSize: 8, 
-    isPlaceable: false
-  }, 
-  "golden_ingot": {
-    stackSize: 16, 
-    isPlaceable: false
-  }, 
-  "golden_nugget": {
-    stackSize: 16, 
-    isPlaceable: false
-  }, 
-  "furnace": {
-    stackSize: 1, 
-    isPlaceable: true
   }
 };
 let inventoryShown = false;
+let inventoryPositions = [
+  {x: 2, y: 4}
+];
+let hotbarPositions = [
+  {x: 2, y: 4}
+];
 let inventoryMouseSlot = {
   item: "none", 
   amount: 0
@@ -781,174 +702,6 @@ let craftingRecipes = [
     workplace: "hand", 
     pattern: false, 
     duration: 4
-  }, 
-  {
-    item: "iron_sword", 
-    amount: 1, 
-    recipe: ["handle", "iron_blade"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 4
-  }, 
-  {
-    item: "iron_pickaxe_head", 
-    amount: 1, 
-    recipe: ["sharp_iron_rod", "sharp_iron_rod"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 3
-  }, 
-  {
-    item: "iron_axehead", 
-    amount: 1, 
-    recipe: ["stick", "iron"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 3
-  }, 
-  {
-    item: "iron_pickaxe", 
-    amount: 1, 
-    recipe: ["iron_pickaxe_head", "long_handle"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 3
-  }, 
-  {
-    item: "iron_axe", 
-    amount: 1, 
-    recipe: ["iron_axehead", "long_handle"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 4
-  }, 
-  {
-    item: "golden_sword", 
-    amount: 1, 
-    recipe: ["handle", "golden_blade"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 4
-  }, 
-  {
-    item: "golden_pickaxe_head", 
-    amount: 1, 
-    recipe: ["sharp_golden_rod", "sharp_golden_rod"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 3
-  }, 
-  {
-    item: "golden_axehead", 
-    amount: 1, 
-    recipe: ["stick", "gold"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 3
-  }, 
-  {
-    item: "golden_pickaxe", 
-    amount: 1, 
-    recipe: ["golden_pickaxe_head", "long_handle"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 3
-  }, 
-  {
-    item: "golden_axe", 
-    amount: 1, 
-    recipe: ["golden_axehead", "long_handle"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 4
-  }, 
-  {
-    item: "golden_rod", 
-    amount: 1, 
-    recipe: ["golden_nugget", "golden_ingot"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 4
-  }, 
-  {
-    item: "sharp_golden_rod", 
-    amount: 1, 
-    recipe: ["golden_rod", "none"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 11
-  }, 
-  {
-    item: "golden_blade", 
-    amount: 1, 
-    recipe: ["sharp_golden_rod", "none"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 13
-  }, 
-  {
-    item: "iron_rod", 
-    amount: 1, 
-    recipe: ["iron_nugget", "iron_ingot"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 4
-  }, 
-  {
-    item: "sharp_iron_rod", 
-    amount: 1, 
-    recipe: ["iron_rod", "none"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 10
-  }, 
-  {
-    item: "iron_blade", 
-    amount: 1, 
-    recipe: ["sharp_iron_rod", "none"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 12
-  }, 
-  {
-    item: "iron_ingot", 
-    amount: 1, 
-    recipe: ["iron_ore", "none"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 9
-  }, 
-  {
-    item: "golden_ingot", 
-    amount: 1, 
-    recipe: ["gold_ore", "none"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 10
-  }, 
-  {
-    item: "iron_nugget", 
-    amount: 1, 
-    recipe: ["iron_ingot", "none"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 6
-  }, 
-  {
-    item: "golden_nugget", 
-    amount: 1, 
-    recipe: ["golden_ingot", "none"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 7
-  }, 
-  {
-    item: "furnace", 
-    amount: 1, 
-    recipe: ["stone_bricks", "stone_bricks"], 
-    workplace: "hand", 
-    pattern: false, 
-    duration: 6
   }
 ]
 let toolTierBreakSpeed = {
@@ -1287,67 +1040,58 @@ function craftItem() {
     }, 30000);
   }
   function worldLoop() {
-    Object.keys(block).forEach((outerkey) => {
-      const layerState = block[outerkey];
-      Object.keys(layerState).forEach((key) => {
-        const blockState = layerState[key];
-        if(blockState.type == "grass")
-        {
-          let blockAbove = false;
-          Object.keys(block).forEach((outertkey) => {
-            const layerStateT = block[outertkey];
-            Object.keys(layerStateT).forEach((tkey) => {
-              const blockStateT = layerStateT[tkey];
-              if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x && Math.random() > 0.3 && blockStateT.sizeX > 0.0)
-              {
-                firebase.database().ref("block/layer" + blockState.y + "/" + blockState.id).update({
-                  type: "dirt"
-                });//blockState.type = "dirt";
-              }
-              if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x)
-              {
-                blockAbove = true;
-              }
-            })
-          })
-          if(Math.random() < 0.5 && !blockAbove)
+    Object.keys(block).forEach((key) => {
+      const blockState = block[key];
+      if(blockState.type == "grass")
+      {
+        let blockAbove = false;
+        Object.keys(block).forEach((tkey) => {
+          const blockStateT = block[tkey];
+          if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x && Math.random() > 0.3 && blockStateT.sizeX > 0.0)
           {
-            let growGrass = firebase.database().ref(`block/layer` + Math.round(blockState.y-1) + `/pn` + Math.round(blockState.x) + "x" + Math.round(blockState.y-1));
-            growGrass.set({
-              x: Math.round(blockState.x), 
-              y: Math.round(blockState.y-1), 
-              id: "pn" + Math.round(blockState.x) + "x" + Math.round(blockState.y-1), 
-              type: "tall_grass", 
-              sizeX: BlockProperties["tall_grass"].sizeX, 
-              sizeY: BlockProperties["tall_grass"].sizeY,
-              centerX: BlockProperties["tall_grass"].centerX, 
-              centerY: BlockProperties["tall_grass"].centerY,  
-              hp: 5, 
-              strength: BlockProperties["tall_grass"].strength
-            })
-          }
-        }
-        if(blockState.type == "dirt")
-        {
-          let found = false;
-          Object.keys(block).forEach((outertkey) => {
-            const layerStateT = block[outertkey];
-            Object.keys(layerStateT).forEach((tkey) => {
-              const blockStateT = layerStateT[tkey];
-              if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x && blockStateT.sizeX > 0.0)
-              {
-                found = true;
-              }
-            })
-          })
-          if(!found)
-          {
-            firebase.database().ref("block/layer" + blockState.y + "/" + blockState.id).update({
-              type: "grass"
+            firebase.database().ref("block/" + blockState.id).update({
+              type: "dirt"
             });//blockState.type = "dirt";
           }
+          if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x)
+          {
+            blockAbove = true;
+          }
+        })
+        if(Math.random() < 0.5 && !blockAbove)
+        {
+          let growGrass = firebase.database().ref(`block/pn` + Math.round(blockState.x) + "x" + Math.round(blockState.y-1));
+          growGrass.set({
+            x: Math.round(blockState.x), 
+            y: Math.round(blockState.y-1), 
+            id: "pn" + Math.round(blockState.x) + "x" + Math.round(blockState.y-1), 
+            type: "tall_grass", 
+            sizeX: BlockProperties["tall_grass"].sizeX, 
+            sizeY: BlockProperties["tall_grass"].sizeY,
+            centerX: BlockProperties["tall_grass"].centerX, 
+            centerY: BlockProperties["tall_grass"].centerY,  
+            hp: 5, 
+            strength: BlockProperties["tall_grass"].strength
+          })
         }
-      })
+      }
+      if(blockState.type == "dirt")
+      {
+        let found = false;
+        Object.keys(block).forEach((tkey) => {
+          const blockStateT = block[tkey];
+          if(blockStateT.y === blockState.y - 1 && blockStateT.x == blockState.x && blockStateT.sizeX > 0.0)
+          {
+            found = true;
+          }
+        })
+        if(!found)
+        {
+          firebase.database().ref("block/" + blockState.id).update({
+            type: "grass"
+          });//blockState.type = "dirt";
+        }
+      }
     })
     //repeat
     setTimeout(() => {
@@ -1493,29 +1237,20 @@ function craftItem() {
   }
   function renderLoop() {
     Object.keys(block).forEach((key) => {
-      const rows = block[key];
-      if(!(key.slice(5) - myY > renderDistance || key.slice(5) - myY < -renderDistance))
+      const blockState = block[key];
+      if(!(blockState.x - myX > renderDistance || blockState.x - myX < -renderDistance || blockState.y - myY > renderDistance || blockState.y - myY < -renderDistance))
       {
-        if(blockElements[key] != undefined) blockElements[key][Object.keys(blockElements[key])[0]].parentNode.setAttribute("data-far", "false");
-        Object.keys(rows).forEach((row) => {
-          const blockState = rows[row];
-          if(!(blockState.x - myX > renderDistance || blockState.x - myX < -renderDistance))
-          {
-            let el = blockElements["layer" + blockState.y][blockState.id];
-            const left = 16 * ((blockState.x - myX) + 7) + "px";
-            const top = 16 * ((blockState.y - myY) + 7) + "px";
-            el.style.transform = `translate3d(${left}, ${top}, 0)`;
-            el.querySelector(".Block_sprite").setAttribute("data-far", "false");
-            el.querySelector(".Block_break_sprite_overlay").setAttribute("data-far", "false");
-            el.querySelector(".Block_sprite").setAttribute("data-type", blockState.type);
-          } else {
-            let el = blockElements["layer" + blockState.y][blockState.id];
-            el.querySelector(".Block_sprite").setAttribute("data-far", "true");
-            el.querySelector(".Block_break_sprite_overlay").setAttribute("data-far", "true");
-          }
-        })
+        let el = blockElements[blockState.id];
+        const left = 16 * ((blockState.x - myX) + 7) + "px";
+        const top = 16 * ((blockState.y - myY) + 7) + "px";
+        el.style.transform = `translate3d(${left}, ${top}, 0)`;
+        el.querySelector(".Block_sprite").setAttribute("data-far", "false");
+        el.querySelector(".Block_break_sprite_overlay").setAttribute("data-far", "false");
+        el.querySelector(".Block_sprite").setAttribute("data-type", blockState.type);
       } else {
-        if(blockElements[key] != undefined) blockElements[key][Object.keys(blockElements[key])[0]].parentNode.setAttribute("data-far", "true");
+        let el = blockElements[blockState.id];
+        el.querySelector(".Block_sprite").setAttribute("data-far", "true");
+        el.querySelector(".Block_break_sprite_overlay").setAttribute("data-far", "true");
       }
     })
 
@@ -1531,62 +1266,56 @@ function craftItem() {
       mouseTile = {x: Math.floor((((mousePos.x + ((myX - 7) * 48)) - margin.x)) / 48), y: Math.floor(((mousePos.y + ((myY - 7) * 48)) - margin.y) / 48)};
       let isBlock = false;
       Object.keys(block).forEach((key) => {
-        const rows = block[key];
-        Object.keys(rows).forEach((row) => {
-          const blockState = rows[row];
-          if(blockState.x === mouseTile.x && blockState.y === mouseTile.y)
+        const blockState = block[key];
+        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y)
+        {
+          isBlock = true;
+        }
+        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y && action != 2)
+        {
+          let hpRed = 0;
+          if(mineIdx % blockState.strength == 0)
           {
-            isBlock = true;
+            hpRed = 1;
           }
-          if(blockState.x === mouseTile.x && blockState.y === mouseTile.y && action != 2)
+          if(ItemProperties[Inventory[currentSlot].item].toolType == BlockTraits[blockState.type].breakWith && mineIdx % Math.round(blockState.strength * toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier]) == 0)
           {
-            let hpRed = 0;
-            if(mineIdx % blockState.strength == 0)
-            {
-              hpRed = 1;
-            }
-            if(ItemProperties[Inventory[currentSlot].item].toolType == BlockTraits[blockState.type].breakWith && mineIdx % Math.round(blockState.strength * toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier]) == 0)
-            {
-              hpRed = 1;
-            }
-            firebase.database().ref("block/layer" + blockState.y + "/" + row).update({
-              hp: blockState.hp - hpRed
-            })
-            if(blockState.hp - 1 < 0)
-            {
-              addToInventory(randomFromArray(BlockTraits[blockState.type].drop), randomFromArray(BlockTraits[blockState.type].amount));
-              firebase.database().ref("block/layer" + blockState.y + "/" + row).remove();
-            }
-            action = 1;
+            hpRed = 1;
           }
-        })
+          firebase.database().ref("block/" + key).update({
+            hp: blockState.hp - hpRed
+          })
+          if(blockState.hp - 1 < 0)
+          {
+            addToInventory(randomFromArray(BlockTraits[blockState.type].drop), randomFromArray(BlockTraits[blockState.type].amount));
+            firebase.database().ref("block/" + key).remove();
+          }
+          action = 1;
+        }
       })
       let beside = false;
       Object.keys(block).forEach((key) => {
-        const rows = block[key];
-        Object.keys(rows).forEach((row) => {
-          const blockState = rows[row];
-          if(blockState.x === mouseTile.x - 1 && blockState.y === mouseTile.y)
-          {
-            beside = true;
-          }
-          if(blockState.x === mouseTile.x + 1 && blockState.y === mouseTile.y)
-          {
-            beside = true;
-          }
-          if(blockState.x === mouseTile.x && blockState.y === mouseTile.y - 1)
-          {
-            beside = true;
-          }
-          if(blockState.x === mouseTile.x && blockState.y === mouseTile.y + 1)
-          {
-            beside = true;
-          }
-        })
+        const blockState = block[key];
+        if(blockState.x === mouseTile.x - 1 && blockState.y === mouseTile.y)
+        {
+          beside = true;
+        }
+        if(blockState.x === mouseTile.x + 1 && blockState.y === mouseTile.y)
+        {
+          beside = true;
+        }
+        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y - 1)
+        {
+          beside = true;
+        }
+        if(blockState.x === mouseTile.x && blockState.y === mouseTile.y + 1)
+        {
+          beside = true;
+        }
       })
       if(!isBlock && action != 1 && beside && Inventory[currentSlot].amount > 0 && ItemProperties[Inventory[currentSlot].item].isPlaceable)
       {
-        blockRef = firebase.database().ref(`block/layer` + mouseTile.y + `/` + playerId + myBlockId);
+        blockRef = firebase.database().ref(`block/` + playerId + myBlockId);
         blockRef.set({
           x: mouseTile.x, 
           y: mouseTile.y, 
@@ -1640,18 +1369,15 @@ function craftItem() {
       let isCollision = false;
       inWater = false;
       Object.keys(block).forEach((key) => {
-        const rows = block[key];
-        Object.keys(rows).forEach((row) => {
-          const blockState = rows[row];
-          if(myX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && myX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && !(blockState.sizeX == 0) && !(blockState.type == "water"))
-          {
-            isCollision = true;
-          }
-          if(myX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && myX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && blockState.type == "water")
-          {
-            inWater = true;
-          }
-        })
+        const blockState = block[key];
+        if(myX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && myX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && !(blockState.sizeX == 0) && !(blockState.type == "water"))
+        {
+          isCollision = true;
+        }
+        if(myX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && myX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && blockState.type == "water")
+        {
+          inWater = true;
+        }
       })
       if(isCollision && yChange != 0)
       {
@@ -1677,29 +1403,17 @@ function craftItem() {
       });
     }
     Object.keys(block).forEach((key) => {
-      const rows = block[key];
-      if(!(key.slice(5) - myY > renderDistance || key.slice(5) - myY < -renderDistance))
+      const blockState = block[key];
+      if(!(blockState.x - myX > renderDistance || blockState.x - myX < -renderDistance || blockState.y - myY > renderDistance || blockState.y - myY < -renderDistance))
       {
-        blockElements[key][Object.keys(blockElements[key])[0]].parentNode.setAttribute("data-far", "false");
-        Object.keys(rows).forEach((row) => {
-          const blockState = rows[row];
-          if(!(blockState.x - myX > renderDistance || blockState.x - myX < -renderDistance))
-          {
-            let el = blockElements["layer" + blockState.y][blockState.id];
-            const left = 16 * ((blockState.x - myX) + 7) + "px";
-            const top = 16 * ((blockState.y - myY) + 7) + "px";
-            el.style.transform = `translate3d(${left}, ${top}, 0)`;
-            el.querySelector(".Block_sprite").setAttribute("data-far", "false");
-            el.querySelector(".Block_break_sprite_overlay").setAttribute("data-far", "false");
-            el.querySelector(".Block_sprite").setAttribute("data-type", blockState.type);
-          } else {
-            let el = blockElements["layer" + blockState.y][blockState.id];
-            el.querySelector(".Block_sprite").setAttribute("data-far", "true");
-            el.querySelector(".Block_break_sprite_overlay").setAttribute("data-far", "true");
-          }
-        })
+        let el = blockElements[blockState.id];
+        const left = 16 * ((blockState.x - myX) + 7) + "px";
+        const top = 16 * ((blockState.y - myY) + 7) + "px";
+        el.style.transform = `translate3d(${left}, ${top}, 0)`;
+        el.querySelector(".Block_sprite").setAttribute("data-far", "false");
       } else {
-        if(blockElements.key != undefined) blockElements[key][Object.keys(blockElements[key])[0]].parentNode.setAttribute("data-far", "true");
+        let el = blockElements[blockState.id];
+        el.querySelector(".Block_sprite").setAttribute("data-far", "true");
       }
     })
   }
@@ -1709,7 +1423,7 @@ function craftItem() {
   function generateStoneLayer(y)
   {
     for(let i = -worldRad; i < worldRad; i++) {
-      blockRef = firebase.database().ref(`block/layer` + y + `/init` + i + "x" + y);
+      blockRef = firebase.database().ref(`block/init` + i + "x" + y);
       blockRef.set({
         x: i, 
         y, 
@@ -1726,8 +1440,7 @@ function craftItem() {
   }
   function placeBlock(type, x, y, Xs, Ys, str, uniquifier)
   {
-    console.log(uniquifier)
-    let blockRef = firebase.database().ref(`block/layer` + y +`/` + uniquifier + x + "x" + y);
+    let blockRef = firebase.database().ref(`block/` + uniquifier + x + "x" + y);
     blockRef.set({
       x, 
       y, 
@@ -1745,7 +1458,7 @@ function craftItem() {
   {
     let blockRef;
     for(let i = -worldRad; i < worldRad; i++) {
-      blockRef = firebase.database().ref(`block/layer10/init` + i + "x" + "10");
+      blockRef = firebase.database().ref(`block/init` + i + "x" + "10");
       blockRef.set({
         x: i, 
         y: 10, 
@@ -1782,7 +1495,7 @@ function craftItem() {
       }
     }
     for(let i = -worldRad; i < worldRad; i++) {
-      blockRef = firebase.database().ref(`block/layer0/init` + i + "x" + "0");
+      blockRef = firebase.database().ref(`block/init` + i + "x" + "0");
       let thisGroundBlock = BiomeBlock[biomeMap[i+worldRad]];
       blockRef.set({
         x: i, 
@@ -1820,7 +1533,7 @@ function craftItem() {
       {
         y = worldSurface;
       }
-      blockRef = firebase.database().ref(`block/layer` + Math.round(y) + `/pn` + Math.round(x) + "x" + Math.round(y));
+      blockRef = firebase.database().ref(`block/pn` + Math.round(x) + "x" + Math.round(y));
       let thisGroundBlock = BiomeBlock[biomeMap[x+worldRad]];
       blockRef.set({
         x: Math.round(x), 
@@ -1836,7 +1549,7 @@ function craftItem() {
       })
       if(Math.random() < 0.4 && biomeMap[x+worldRad] != "desert" && biomeMap[x+worldRad] != "ocean")
       {
-        blockRef = firebase.database().ref(`block/layer` + Math.round(y-1) + `/pn` + Math.round(x) + "x" + Math.round(y-1));
+        blockRef = firebase.database().ref(`block/pn` + Math.round(x) + "x" + Math.round(y-1));
         blockRef.set({
           x: Math.round(x), 
           y: Math.round(y-1), 
@@ -1860,7 +1573,7 @@ function craftItem() {
       }
       for(let i = 0; i < Math.abs(Math.round(y)); i++)
       {
-        blockRef = firebase.database().ref(`block/layer` + Math.round(y+i) + `/pn` + Math.round(x) + "x" + Math.round(y+i));
+        blockRef = firebase.database().ref(`block/pn` + Math.round(x) + "x" + Math.round(y+i));
         blockRef.set({
           x: Math.round(x), 
           y: Math.round(y+i), 
@@ -1877,7 +1590,7 @@ function craftItem() {
         {
           if(biomeMap[Math.round(x-2)+25] != null && biomeMap[Math.round(x-2)+25] == "ocean" && biomeMap[Math.round(x+25)] == "ocean" && biomeMap[Math.round(x+2)+25] != null && biomeMap[Math.round(x+2)+25] == "ocean")
           {
-            firebase.database().ref("block/layer" + (Math.round(y+i)+2) + "/init" + Math.round(x) + "x" + (Math.round(y+i)+2)).update({
+            firebase.database().ref("block/init" + Math.round(x) + "x" + (Math.round(y+i)+2)).update({
               type: "water", 
               sizeX: BlockProperties["water"].sizeX, 
               sizeY: BlockProperties["water"].sizeY, 
@@ -1894,7 +1607,7 @@ function craftItem() {
       for (var Hi = 0; Hi < 5; Hi++) {
         if(Math.random() < (1 - (Hi/5)) || Hi < 2)
         {
-          blockRef = firebase.database().ref(`block/layer` + (treePos[i][1] - Hi) + `/pn` + treePos[i][0] + "x" + (treePos[i][1] - Hi));
+          blockRef = firebase.database().ref(`block/pn` + treePos[i][0] + "x" + (treePos[i][1] - Hi));
           blockRef.set({
             x: treePos[i][0], 
             y: (treePos[i][1] - Hi), 
@@ -2012,7 +1725,7 @@ function craftItem() {
         for (var h = 0; h < veinSize; h++) {
           if(oreSpawnPos.y <= 9)
           {
-            blockRef = firebase.database().ref("block/layer" + oreSpawnPos.y + "/init" + oreSpawnPos.x + "x" + oreSpawnPos.y);
+            blockRef = firebase.database().ref("block/init" + oreSpawnPos.x + "x" + oreSpawnPos.y);
             blockRef.set({
               x: oreSpawnPos.x, 
               y: oreSpawnPos.y, 
@@ -2046,7 +1759,7 @@ function craftItem() {
         for (var h = 0; h < veinSize; h++) {
           if(oreSpawnPos.y <= 9)
           {
-            blockRef = firebase.database().ref("block/layer" + oreSpawnPos.y + "/init" + oreSpawnPos.x + "x" + oreSpawnPos.y);
+            blockRef = firebase.database().ref("block/init" + oreSpawnPos.x + "x" + oreSpawnPos.y);
             blockRef.set({
               x: oreSpawnPos.x, 
               y: oreSpawnPos.y, 
@@ -2080,7 +1793,7 @@ function craftItem() {
         for (var h = 0; h < veinSize; h++) {
           if(oreSpawnPos.y <= 9)
           {
-            blockRef = firebase.database().ref("block/layer" + oreSpawnPos.y + "/init" + oreSpawnPos.x + "x" + oreSpawnPos.y);
+            blockRef = firebase.database().ref("block/init" + oreSpawnPos.x + "x" + oreSpawnPos.y);
             blockRef.set({
               x: oreSpawnPos.x, 
               y: oreSpawnPos.y, 
@@ -2135,7 +1848,6 @@ function craftItem() {
     new KeyPressListener("Digit4", () => {currentSlot = 3}, () => {})
     new KeyPressListener("Digit5", () => {currentSlot = 4}, () => {})
     new KeyPressListener("KeyQ", () => {isQPressed = true}, () => {isQPressed = false})
-    new KeyPressListener("KeyH", () => {isDebug = true}, () => {isDebug = false})
 
     const allPlayersRef = firebase.database().ref(`players`);
     const allBlockRef = firebase.database().ref(`block`);
@@ -2189,6 +1901,7 @@ function craftItem() {
       characterElement.style.transform = `translate3d(${left}, ${top}, 0)`;
       gameContainer.appendChild(characterElement);
       setTimeout(() => {
+        console.log(isMapG);
         if(isMapG === false)
         {
           generateMap();
@@ -2204,66 +1917,44 @@ function craftItem() {
       delete playerElements[removedKey];
     })
 
-    allBlockRef.on("child_added", (outershot) => {
-      const layer = outershot.val();
-      const key = outershot.key;
+    allBlockRef.on("value", (snapshot) => {
+      block = snapshot.val() || {};
+      Object.keys(block).forEach((key) => {
+        const blockState = block[key];
+        let el = blockElements[blockState.id];
+        el.querySelector(".Block_break_sprite_overlay").setAttribute("data-hp", blockState.hp);
+        const left = 16 * ((blockState.x - myX) + 7) + "px";
+        const top = 16 * ((blockState.y - myY) + 7) + "px";
+        el.style.transform = `translate3d(${left}, ${top}, 0)`;
+      })
+    });
+    allBlockRef.on("child_added", (snapshot) => {
+      const block = snapshot.val();
+      const key = block.id;
+      block[key] = true;
 
       // Create the DOM Element
-      const layerElement = document.createElement("div");
-      layerElement.classList.add(outershot.key, "Layer");
+      const blockElement = document.createElement("div");
+      blockElement.classList.add("Block", "grid-cell");
+      blockElement.innerHTML = `
+        <div class="Block_sprite grid-cell"></div>
+        <div class="Block_break_sprite_overlay grid-cell"></div>
+      `;
+      // Style the Element
+      blockElement.querySelector(".Block_sprite").setAttribute("data-type", block.type);
+      const left = 16 * ((block.x - myX) + 7) + "px";
+      const top = 16 * ((block.y - myY) + 7) + "px";
+      blockElement.style.transform = `translate3d(${left}, ${top}, 0)`;
 
       // Keep a reference for removal later and add to DOM
-      gameContainer.appendChild(layerElement);
-
-      firebase.database().ref("block/" + outershot.key).on("value", (snapshot) => {
-        block[outershot.key] = snapshot.val() || {};
-        Object.keys(block).forEach((outerkey) => {
-          const layerState = block[outerkey];
-          Object.keys(layerState).forEach((key) => {
-            const blockState = layerState[key];
-            if(blockElements["layer" + blockState.y] == undefined) blockElements["layer" + blockState.y] = {};
-            let el = blockElements["layer" + blockState.y][blockState.id];
-            if(el != undefined) el.querySelector(".Block_break_sprite_overlay").setAttribute("data-hp", blockState.hp);
-          })
-        })
-      });
-      firebase.database().ref("block/" + outershot.key).on("child_added", (snapshot) => {
-        const thisblock = snapshot.val();
-        const key = thisblock.id;
-        //affects generalized block dictionary
-        block[outershot.key][key] = snapshot.val();
-
-        // Create the DOM Element
-        const blockElement = document.createElement("div");
-        blockElement.classList.add("Block", "grid-cell");
-        blockElement.innerHTML = `
-          <div class="Block_sprite grid-cell"></div>
-          <div class="Block_break_sprite_overlay grid-cell"></div>
-        `;
-        // Style the Element
-        blockElement.querySelector(".Block_sprite").setAttribute("data-type", thisblock.type);
-        const left = 16 * ((thisblock.x - myX) + 7) + "px";
-        const top = 16 * ((thisblock.y - myY) + 7) + "px";
-        blockElement.style.transform = `translate3d(${left}, ${top}, 0)`;
-
-        // Keep a reference for removal later and add to DOM
-        if(blockElements["layer" + thisblock.y] == undefined) blockElements["layer" + thisblock.y] = {};
-        blockElements["layer" + thisblock.y][key] = blockElement;
-        //console.log(gameContainer.querySelector(".layer" + thisblock.y))
-        gameContainer.querySelector(".layer" + thisblock.y).appendChild(blockElement);
-      })
-      firebase.database().ref("block/" + outershot.key).on("child_removed", (snapshot) => {
-        const block = snapshot.val();
-        const keyToRemove = block.id;
-        gameContainer.querySelector(".layer" + block.y).removeChild(blockElements["layer" + block.y][keyToRemove]);
-        delete blockElements["layer" + block.y][keyToRemove];
-      })
+      blockElements[key] = blockElement;
+      gameContainer.appendChild(blockElement);
     })
-    allBlockRef.on("child_removed", (outershot) => {
-      const layer = outershot.val();
-      const keyToRemove = layer.id;
-      gameContainer.removeChild(document.querySelector("." + outershot.key));
-      delete blockElements[outershot.key];
+    allBlockRef.on("child_removed", (snapshot) => {
+      const {id} = snapshot.val();
+      const keyToRemove = id;
+      gameContainer.removeChild(blockElements[keyToRemove]);
+      delete blockElements[keyToRemove];
     })
 
     isMap.on("value", (snapshot) => {
