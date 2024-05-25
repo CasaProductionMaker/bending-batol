@@ -136,6 +136,13 @@ let BlockProperties = {
     centerX: 0.0, 
     centerY: 0.0,  
     strength: 10
+  }, 
+  "furnace": {
+    sizeX: 1.0, 
+    sizeY: 1.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 700
   }
 };
 let BlockTraits = {
@@ -197,6 +204,10 @@ let BlockTraits = {
   "tall_grass": {
     drop: ["cotton", "none"], 
     amount: [1, 2]
+  }, 
+  "furnace": {
+    drop: ["furnace"], 
+    amount: [1]
   }
 };
 let Inventory = [
@@ -1718,7 +1729,6 @@ function craftItem() {
   }
   function placeBlock(type, x, y, Xs, Ys, str, uniquifier)
   {
-    console.log(uniquifier)
     let blockRef = firebase.database().ref(`block/layer` + y +`/` + uniquifier + x + "x" + y);
     blockRef.set({
       x, 
@@ -1867,7 +1877,7 @@ function craftItem() {
         })
         if(Math.round(y+1+i) == 0)
         {
-          if(biomeMap[Math.round(x-2)+25] != null && biomeMap[Math.round(x-2)+25] == "ocean" && biomeMap[Math.round(x+25)] == "ocean" && biomeMap[Math.round(x+2)+25] != null && biomeMap[Math.round(x+2)+25] == "ocean")
+          if(biomeMap[Math.round(x-2)+worldRad] != null && biomeMap[Math.round(x-2)+worldRad] == "ocean" && biomeMap[Math.round(x+worldRad)] == "ocean" && biomeMap[Math.round(x+2)+worldRad] != null && biomeMap[Math.round(x+2)+worldRad] == "ocean")
           {
             firebase.database().ref("block/layer" + (Math.round(y+i)+2) + "/init" + Math.round(x) + "x" + (Math.round(y+i)+2)).update({
               type: "water", 
@@ -2094,6 +2104,42 @@ function craftItem() {
               oreSpawnPos.y += (Math.round(Math.random()) * 2) - 1;
             }
           }
+        }
+      }
+    }
+    let cavePositions = [
+      {
+        x: Math.round(Math.random() * worldRad * 2) - worldRad, 
+        y: Math.round(Math.random() * 2) - 2
+      }, 
+      {
+        x: Math.round(Math.random() * worldRad * 2) - worldRad, 
+        y: Math.round(Math.random() * 2) - 2
+      }, 
+      {
+        x: Math.round(Math.random() * worldRad * 2) - worldRad, 
+        y: Math.round(Math.random() * 2) - 2
+      }
+    ]
+    for(let i = 0; i < cavePositions.length; i++) {
+      let caveSize = Math.round(Math.random() * 15) + 5;
+      for (var k = 0; k < caveSize; k++) {
+        if(cavePositions[i].y < 9) firebase.database().ref("block/layer" + cavePositions[i].y + "/init" + cavePositions[i].x + "x" + cavePositions[i].y).remove();
+        if(cavePositions[i].y < 9) firebase.database().ref("block/layer" + (cavePositions[i].y + 1) + "/init" + cavePositions[i].x + "x" + (cavePositions[i].y + 1)).remove();
+        if(cavePositions[i].y < 9) firebase.database().ref("block/layer" + (cavePositions[i].y - 1) + "/init" + cavePositions[i].x + "x" + (cavePositions[i].y - 1)).remove();
+        if(cavePositions[i].y < 9) firebase.database().ref("block/layer" + cavePositions[i].y + "/init" + (cavePositions[i].x - 1) + "x" + (cavePositions[i].y + 1)).remove();
+        if(cavePositions[i].y < 9) firebase.database().ref("block/layer" + cavePositions[i].y + "/init" + (cavePositions[i].x + 1) + "x" + (cavePositions[i].y - 1)).remove();
+        if(cavePositions[i].y < 9) firebase.database().ref("block/layer" + (cavePositions[i].y + 1) + "/init" + (cavePositions[i].x - 1) + "x" + (cavePositions[i].y + 1)).remove();
+        if(cavePositions[i].y < 9) firebase.database().ref("block/layer" + (cavePositions[i].y - 1) + "/init" + (cavePositions[i].x + 1) + "x" + (cavePositions[i].y - 1)).remove();
+        if(cavePositions[i].y < 9) firebase.database().ref("block/layer" + (cavePositions[i].y + 1) + "/init" + (cavePositions[i].x + 1) + "x" + (cavePositions[i].y + 1)).remove();
+        if(cavePositions[i].y < 9) firebase.database().ref("block/layer" + (cavePositions[i].y - 1) + "/init" + (cavePositions[i].x - 1) + "x" + (cavePositions[i].y - 1)).remove();
+        if(Math.random() < 0.5)
+        {
+          cavePositions[i].x += (Math.round(Math.random()) * 2) - 1;
+        }
+        if(Math.random() < 0.8)
+        {
+          cavePositions[i].y += (Math.round(Math.random()) * 2) - 1;
         }
       }
     }
@@ -2329,7 +2375,7 @@ function craftItem() {
         const characterState = players[key];
         if(Math.abs(mouseTile.x - characterState.x) < 0.7 && Math.abs(mouseTile.y - characterState.y) < 0.7 && !characterState.isDead && characterState.id != playerId)
         {
-          console.log(characterState.health - Math.round(2 - ((ItemProperties[Inventory[currentSlot].item].toolTier != null ? toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier] : 0.5) * 2)))
+          //console.log(characterState.health - Math.round(2 - ((ItemProperties[Inventory[currentSlot].item].toolTier != null ? toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier] : 0.5) * 2)))
           firebase.database().ref("players/" + characterState.id).update({
             health: characterState.health - Math.round(2 - ((ItemProperties[Inventory[currentSlot].item].toolTier != null ? toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier] : 0.5) * 2))
           })
@@ -2406,3 +2452,4 @@ function craftItem() {
 	});
 })();
 //x+w>x2-w2 && x-w<x2+w2 && y+h>y2-h2 && y-h<y2+h2
+//1686
