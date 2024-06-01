@@ -1250,6 +1250,12 @@ function craftItem() {
           health: players[playerId].health - 1
         })
       }
+      if(players[playerId].y > 15 && !players[playerId].isDead)
+      {
+        playerRef.update({
+          health: players[playerId].health - 1
+        })
+      }
       timeSinceSpawn++;
       if(players[playerId].isDead > 0 && !isButton) {
         timeInWater = 0;

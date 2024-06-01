@@ -311,7 +311,7 @@ input[type="text"] {
 	padding-left: 0.5em;
 	border: 3px solid #222034;
 	width: 150px;
-	text-transform: uppercase;
+	text-transform: none;
 }
 
 input[type="text"]:focus {
@@ -483,7 +483,7 @@ button:active:not(#exit-button) {
   background: #333;
   color: white;
   font-weight: bold;
-  text-transform: uppercase;
+  text-transform: none;
   white-space: nowrap;
   align-items: center;
 }
