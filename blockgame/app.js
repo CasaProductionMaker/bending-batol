@@ -952,6 +952,14 @@ let craftingRecipes = [
     workplace: "hand", 
     pattern: false, 
     duration: 6
+  }, 
+  {
+    item: "woodchip", 
+    amount: 2, 
+    recipe: ["wood", "none"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 2
   }
 ]
 let toolTierBreakSpeed = {
@@ -1603,7 +1611,6 @@ function craftItem() {
           strength: BlockProperties[Inventory[currentSlot].item].strength
         })
         myBlockId++;
-        console.log(myBlockId)
         action = 2;
         Inventory[currentSlot].amount--;
         if(Inventory[currentSlot].amount == 0)
@@ -1649,6 +1656,10 @@ function craftItem() {
           if(myX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && myX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && !(blockState.sizeX == 0) && !(blockState.type == "water"))
           {
             isCollision = true;
+          }
+          if(oldX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && oldX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (oldY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (oldY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && !(blockState.sizeX == 0) && !(blockState.type == "water"))
+          {
+            //isCollision = false;
           }
           if(myX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && myX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && blockState.type == "water")
           {
@@ -1705,9 +1716,6 @@ function craftItem() {
         if(blockElements.key != undefined) blockElements[key][Object.keys(blockElements[key])[0]].parentNode.setAttribute("data-far", "true");
       }
     })
-  }
-  function handleAttack() {
-    //
   }
   function generateStoneLayer(y)
   {
@@ -2339,8 +2347,51 @@ function craftItem() {
         time: date.getHours() * 10000 + date.getMinutes() * 100 + date.getSeconds(), 
         day: date.getDate()
       })
+      if(inputMessage[0] == "/" && players[playerId].op)
+      {
+        if(inputMessage.includes("/tp ") && Math.round(inputMessage.split(" ")[1]) != undefined && Math.round(inputMessage.split(" ")[2]) != undefined)
+        {
+          playerRef.update({
+            x: Math.round(inputMessage.split(" ")[1]), 
+            y: Math.round(inputMessage.split(" ")[2])
+          })
+        }
+        if(inputMessage.includes("/setblock ") && Math.round(inputMessage.split(" ")[1]) != undefined && Math.round(inputMessage.split(" ")[2]) != undefined && BlockProperties[inputMessage.split(" ")[3]].sizeX != null)
+        {
+          blockRef = firebase.database().ref(`block/layer` + inputMessage.split(" ")[2] + `/` + playerId + myBlockId);
+          blockRef.set({
+            x: Math.round(inputMessage.split(" ")[1]), 
+            y: Math.round(inputMessage.split(" ")[2]), 
+            id: playerId + myBlockId, 
+            type: inputMessage.split(" ")[3], 
+            sizeX: BlockProperties[inputMessage.split(" ")[3]].sizeX, 
+            sizeY: BlockProperties[inputMessage.split(" ")[3]].sizeY,
+            centerX: BlockProperties[inputMessage.split(" ")[3]].centerX, 
+            centerY: BlockProperties[inputMessage.split(" ")[3]].centerY,  
+            hp: 5, 
+            strength: BlockProperties[inputMessage.split(" ")[3]].strength
+          })
+          myBlockId++;
+        }
+        if(inputMessage.includes("/kill "))
+        {
+          let playerIdToKill = "";
+          Object.keys(players).forEach((key) => {
+            const characterState = players[key];
+            if(characterState.name == inputMessage.split(" ")[1])
+            {
+              playerIdToKill = key;
+            }
+          })
+          if(playerIdToKill != "")
+          {
+            firebase.database().ref("players/" + playerIdToKill).update({
+              health: 0
+            })
+          }
+        }
+      }
       chatInput.value = "";
-
     })
     const chatRef = firebase.database().ref(`chat`);
 
@@ -2389,10 +2440,10 @@ function craftItem() {
 
     oneSecondLoop();
     regenLoop();
-    setTimeout(() => tickLoop(), 1000);
-    setTimeout(() => renderLoop(), 1000);
-    setTimeout(() => mineLoop(), 1000);
-    setTimeout(() => worldLoop(), 1000);
+    setTimeout(() => tickLoop(), 2000);
+    setTimeout(() => renderLoop(), 2000);
+    setTimeout(() => mineLoop(), 2000);
+    setTimeout(() => worldLoop(), 2000);
   }
 	firebase.auth().onAuthStateChanged((user) =>{
     console.log(user)
@@ -2424,6 +2475,7 @@ function craftItem() {
         health: 5, 
         isDead: false, 
         weapon: "none", 
+        op: false
       })
 
       const date = new Date();
