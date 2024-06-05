@@ -1,5 +1,9 @@
 const playerNameInput = document.querySelector("#player-name");
 
+function randomFromArray(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
 function createName() {
   const prefix = randomFromArray([
     "COOL",
