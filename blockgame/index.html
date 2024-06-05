@@ -3,70 +3,19 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<link rel="stylesheet" type="text/css" href="styles.css">
+		<link rel="stylesheet" type="text/css" href="menu-styles.css">
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<title>Block Game</title>
 	</head>
 	<body>
-		<div class="chat-box">
-			<div id="chat-display">
-    		</div>
-			<div>
-				<label for="chat-input">Chat</label>
-				<input id="chat-input" maxlength="32" type="text" style="text-transform: none;"/>
-			</div>
-			<div>
-        		<button id="send-chat">Send</button>
-    		</div>
+		<h1>Block Game</h1>
+		<div>
+			<label for="player-name">Your Name</label>
+			<input id="player-name" maxlength="16" type="text"/>
 		</div>
-		<div class="game-container">
-		</div>
-		<div class="grid-cell mouse-holding-item mouse-holding-item-special"></div>
-		<div class="inventory">
-			<div class="grid-cell inventory-item-ui-1 inventory-slot" onclick="onClickItem(5)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-2 inventory-slot" onclick="onClickItem(6)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-3 inventory-slot" onclick="onClickItem(7)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-4 inventory-slot" onclick="onClickItem(8)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-5 inventory-slot" onclick="onClickItem(9)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-6 inventory-slot" onclick="onClickItem(10)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-7 inventory-slot" onclick="onClickItem(11)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-8 inventory-slot" onclick="onClickItem(12)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-9 inventory-slot" onclick="onClickItem(13)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-10 inventory-slot" onclick="onClickItem(14)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-11 inventory-slot" onclick="onClickItem(15)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-12 inventory-slot" onclick="onClickItem(16)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-13 inventory-slot" onclick="onClickItem(17)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-14 inventory-slot" onclick="onClickItem(18)"><p class="stack-number"></p></div>
-			<div class="grid-cell inventory-item-ui-15 inventory-slot" onclick="onClickItem(19)"><p class="stack-number"></p></div>
-			<div class="grid-cell hand-crafting-item-ui-1 inventory-slot" onclick="onClickItem(20)"><p class="stack-number"></p></div>
-			<div class="grid-cell hand-crafting-item-ui-2 inventory-slot" onclick="onClickItem(21)"><p class="stack-number"></p></div>
-			<div class="grid-cell hand-crafting-item-ui-3 inventory-slot" onclick="onClickItem(22)"><p class="stack-number"></p></div>
-			<div class="crafting-progress-bar"></div>
-			<div class="crafting-button" onclick="craftItem()"></div>
-		</div>
-		<div class="hotbar">
-			<div class="grid-cell hotbar-item-ui-1 inventory-slot" onclick="onClickItem(0)"><p class="stack-number"></p></div>
-			<div class="grid-cell hotbar-item-ui-2 inventory-slot" onclick="onClickItem(1)"><p class="stack-number"></p></div>
-			<div class="grid-cell hotbar-item-ui-3 inventory-slot" onclick="onClickItem(2)"><p class="stack-number"></p></div>
-			<div class="grid-cell hotbar-item-ui-4 inventory-slot" onclick="onClickItem(3)"><p class="stack-number"></p></div>
-			<div class="grid-cell hotbar-item-ui-5 inventory-slot" onclick="onClickItem(4)"><p class="stack-number"></p></div>
-			<div class="selected-slot"></div>
-		</div>
-		<div class="player-info">
-			<div>
-				<label for="player-name">Your Name</label>
-				<input id="player-name" maxlength="16" type="text"/>
-			</div>
-			<div>
-        		<button id="player-color">Change Color</button>
-    		</div>
-		</div>
-		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    	<script src="KeyPressListener.js"></script>
-    	<div class="respawn-container">
-		<script type="text/javascript" src="app.js"></script>
-		</div>
+		<div><button><a href="game.html">Play!</a></button></div>
+		<img src="images/background-menu.png" width="100%" id="bg1">
+		<img src="images/background-menu.png" width="100%" id="bg2">
+		<script type="text/javascript" src="menu.js"></script>
 	</body>
 </html>

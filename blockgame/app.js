@@ -31,6 +31,7 @@ let timeInWater = 0;
 let timeSinceSpawn = 0;
 let mouseNonRelativePosition = {x: undefined, y: undefined};
 let isDebug = false;
+let isJump = false;
 
 let biomeMap = [];
 let BiomeRules = {
@@ -1497,6 +1498,10 @@ function craftItem() {
       document.querySelector(".selected-slot").style.left = (45 + (currentSlot * 32)) + "px";
       document.querySelector(".crafting-progress-bar").style.background = "url(images/crafting-progress/crafting-" + craftProgress + ".png)"
 
+      if(isJump && (yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
+      {
+        yVel = -0.07;
+      }
       handleMovement(0, yVel);
       handleMovement(xVel, 0);
       yVel += 0.002;
@@ -1665,7 +1670,7 @@ function craftItem() {
           }
           if(oldX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && oldX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (oldY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (oldY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && !(blockState.sizeX == 0) && !(blockState.type == "water"))
           {
-            //isCollision = false;
+            isCollision = false;
           }
           if(myX + 0.25 > (blockState.x + blockState.centerX) - (blockState.sizeX/2) && myX - 0.25 < (blockState.x + blockState.centerX) + (blockState.sizeX/2) && (myY - 0.275) + 0.5 > (blockState.y + blockState.centerY) - (blockState.sizeY/2) && (myY - 0.15) - 0.5 < (blockState.y + blockState.centerY) + (blockState.sizeY/2) && blockState.type == "water")
           {
@@ -1673,7 +1678,7 @@ function craftItem() {
           }
         })
       })
-      if(isCollision && yChange != 0)
+      if(isCollision && yChange > 0)
       {
         if(yVel > 0.12 && !inWater && timeSinceSpawn >= 5)
         {
@@ -1682,6 +1687,10 @@ function craftItem() {
           })
         }
         yVel = 0;
+      }
+      if(isCollision && yChange < 0)
+      {
+        yVel = 0.002;
       }
       if(isCollision)
       {
@@ -2161,13 +2170,15 @@ function craftItem() {
 
   function initGame() {
     new KeyPressListener("ArrowUp", () => {
-      if((yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') handleMovement(0, -0.07)
-    }, () => handleMovement(0, 0))
+      //if((yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') handleMovement(0, -0.07)
+      isJump = true
+    }, () => {isJump = false})
     new KeyPressListener("ArrowLeft", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
     new KeyPressListener("ArrowRight", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("KeyW", () => {
-      if((yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') handleMovement(0, -0.07)
-    }, () => handleMovement(0, 0))
+      //if((yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') handleMovement(0, -0.07)
+      isJump = true
+    }, () => {isJump = false})
     new KeyPressListener("KeyA", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
     new KeyPressListener("KeyD", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("Space", () => handleAttack(), () => {})
