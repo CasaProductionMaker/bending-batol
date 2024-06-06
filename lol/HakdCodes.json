@@ -1,0 +1,34 @@
+{
+  "HAkd": {
+    "Nella": {
+      "city": "Vancouver",
+      "coords": {
+        "lat": 49.295799255371094,
+        "long": -123.14099884033203
+      },
+      "country": "CA",
+      "ip": "69.172.154.110",
+      "postal_code": "V6G"
+    },
+    "Me": {
+      "city": "Richmond",
+      "coords": {
+        "lat": 49.16889953613281,
+        "long": -123.14420318603516
+      },
+      "country": "CA",
+      "ip": "66.183.193.59",
+      "postal_code": "V6Y"
+    },
+    "Reb": {
+      "city": "Vancouver",
+      "coords": {
+        "lat": 49.26240158081055,
+        "long": -123.160400390625
+      },
+      "country": "CA",
+      "ip": "172.103.173.141",
+      "postal_code": "V6K"
+    }
+  }
+}

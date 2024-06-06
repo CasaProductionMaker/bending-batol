@@ -1,6 +1,6 @@
-let testsNum = [28.75, 24, 26.25];
-let testsDen = [40, 27, 33];
-let midTermNum = 47;
+let testsNum = [28.75, 24, 26.25, 24.25, 30];
+let testsDen = [40, 27, 33, 29, 43];
+let midTermNum = 45;
 let midTermDen = 50;
 let nextTermDen = 40;
 let thisTestType = "normal"; //mid-term, final, or normal
@@ -17,6 +17,8 @@ function calculate_needed() {
 	testsNum[0] = parseFloat(document.getElementById("test1score").value);
 	testsNum[1] = parseFloat(document.getElementById("test2score").value);
 	testsNum[2] = parseFloat(document.getElementById("test3score").value);
+	testsNum[3] = parseFloat(document.getElementById("test4score").value);
+	testsNum[4] = parseFloat(document.getElementById("test5score").value);
 	minimumScore = parseFloat(document.getElementById("minScore").value);
 	let testsTotalNum = 0;
 	for (var i = 0; i < testsNum.length; i++) {
