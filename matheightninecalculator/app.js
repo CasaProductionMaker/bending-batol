@@ -44,7 +44,7 @@ function calculate_needed() {
 	{
 		if(hasDoneMidTerm)
 		{
-			alert(((((minimumScore - (midTermScore * 0.125)) / 0.875) / 100) * (testsTotalDen + nextTermDen)) - testsTotalScore);
+			alert((((((minimumScore - (midTermScore * 0.125)) / 0.875) / 100) * (testsTotalDen + nextTermDen)) - testsTotalScore) + "% (" + Math.round(((((((minimumScore - (midTermScore * 0.125)) / 0.875) / 100) * (testsTotalDen + nextTermDen)) - testsTotalScore) / 100) * nextTermDen) + "/" + nextTermDen + ")");
 		} else {
 			alert(((minimumScore / 100) * (testsTotalDen + nextTermDen)) - testsTotalNum);
 		}

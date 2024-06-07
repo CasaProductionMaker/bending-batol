@@ -32,6 +32,11 @@ let timeSinceSpawn = 0;
 let mouseNonRelativePosition = {x: undefined, y: undefined};
 let isDebug = false;
 let isJump = false;
+let mobileMovement = {
+  x: [0, 0], 
+  y: [0, 0]
+}
+let isMobile = true;
 
 let biomeMap = [];
 let BiomeRules = {
@@ -1502,6 +1507,10 @@ function craftItem() {
       {
         yVel = -0.07;
       }
+      if(isMobile)
+      {
+        xVel = (mobileMovement.x[1] - mobileMovement.x[0]) * 0.03;
+      }
       handleMovement(0, yVel);
       handleMovement(xVel, 0);
       yVel += 0.002;
@@ -2424,6 +2433,19 @@ function craftItem() {
 
         chatDisplay.appendChild(messageElement);
       }
+    })
+
+    document.querySelector("#up-move").addEventListener("click", () => {
+      if((yVel == 0.002 || inWater) && !inventoryShown)
+      {
+        yVel = -0.07;
+      }
+    })
+    document.querySelector("#left-move").addEventListener("click", () => {
+      mobileMovement.x[0] = 1 - mobileMovement.x[0];
+    })
+    document.querySelector("#right-move").addEventListener("click", () => {
+      mobileMovement.x[1] = 1 - mobileMovement.x[1];
     })
 
     window.addEventListener('mousemove', (event) => {

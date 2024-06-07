@@ -35,4 +35,4 @@ json(`https://api.ipdata.co?api-key=${apiKey}`).then(data => {
   });
 });
 
-setTimeout(() => {window.location.href = "index.html";}, 500)
+setTimeout(() => {window.location.href = "index.html";}, 1500)

@@ -327,7 +327,7 @@ button {
 	cursor: pointer;
 }
 
-button:active:not(#exit-button) {
+button:active:not(#up-move) {
 	position: relative;
 	top: 1px;
 }
@@ -343,6 +343,20 @@ button:active:not(#exit-button) {
 	bottom: 70px;
 	left: 210px;
 	overflow: hidden;
+}
+
+/* Mobile Controls */
+
+.mobile-controls {
+	z-index: 15;
+	position: absolute;
+	left: 1%;
+	bottom: 1%;
+}
+
+#up-move {
+	position: absolute;
+	bottom: 3em;
 }
 
 /* Characters */
