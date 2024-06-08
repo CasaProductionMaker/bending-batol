@@ -1,4 +1,5 @@
 const playerNameInput = document.querySelector("#player-name");
+const isMobileInput = document.querySelector("#on-mobile");
 
 function randomFromArray(array) {
   return array[Math.floor(Math.random() * array.length)];
@@ -64,6 +65,11 @@ playerNameInput.addEventListener("change", (e) => {
   playerNameInput.value = newName;
   localStorage.setItem("Name", newName);
 })
+isMobileInput.addEventListener("change", (e) => {
+  localStorage.setItem("isMobile", e.target.checked);
+});
+isMobileInput.checked = localStorage.getItem("isMobile") == "true";
+
 let position = 0;
 function loopAnimation() {
   let front = ((window.innerWidth / 100) * position) + "px"

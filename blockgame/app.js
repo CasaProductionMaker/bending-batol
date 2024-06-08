@@ -36,7 +36,8 @@ let mobileMovement = {
   x: [0, 0], 
   y: [0, 0]
 }
-let isMobile = true;
+let isMobile = (localStorage.getItem("isMobile") != null ? localStorage.getItem("isMobile") : false);
+console.log(isMobile)
 
 let biomeMap = [];
 let BiomeRules = {
@@ -1503,14 +1504,18 @@ function craftItem() {
       document.querySelector(".selected-slot").style.left = (45 + (currentSlot * 32)) + "px";
       document.querySelector(".crafting-progress-bar").style.background = "url(images/crafting-progress/crafting-" + craftProgress + ".png)"
 
+      document.querySelector("#left-move").setAttribute("data-pressed", mobileMovement.x[0]);
+      document.querySelector("#right-move").setAttribute("data-pressed", mobileMovement.x[1]);
+
       if(isJump && (yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
       {
         yVel = -0.07;
       }
-      if(isMobile)
+      if(isMobile == "true")
       {
         xVel = (mobileMovement.x[1] - mobileMovement.x[0]) * 0.03;
       }
+      if(isQPressed) console.log(xVel)
       handleMovement(0, yVel);
       handleMovement(xVel, 0);
       yVel += 0.002;
@@ -2183,7 +2188,8 @@ function craftItem() {
       isJump = true
     }, () => {isJump = false})
     new KeyPressListener("ArrowLeft", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
-    new KeyPressListener("ArrowRight", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
+    new KeyPressListener("ArrowRight", () => {
+      if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("KeyW", () => {
       //if((yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') handleMovement(0, -0.07)
       isJump = true
@@ -2446,6 +2452,16 @@ function craftItem() {
     })
     document.querySelector("#right-move").addEventListener("click", () => {
       mobileMovement.x[1] = 1 - mobileMovement.x[1];
+    })
+    document.querySelector("#down-move").addEventListener("click", () => {
+      if(craftProgress == 0)
+      {
+        inventoryShown = !inventoryShown;
+        document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
+        document.querySelector(".hotbar").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+        document.querySelector(".mouse-holding-item").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
+        document.querySelector(".selected-slot").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+      }
     })
 
     window.addEventListener('mousemove', (event) => {

@@ -354,6 +354,13 @@ button:active:not(#up-move) {
 	bottom: 1%;
 }
 
+#left-move[data-pressed="1"] {
+	background: #1e830b;
+}
+#right-move[data-pressed="1"] {
+	background: #1e830b;
+}
+
 #up-move {
 	position: absolute;
 	bottom: 3em;
