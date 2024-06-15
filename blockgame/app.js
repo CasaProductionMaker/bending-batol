@@ -1581,7 +1581,7 @@ function anvilItem() {
   function addToInventory(item, amount) {
     for (var i = 0; i < amount; i++) {
       let foundExistingItemStack = false;
-      for (var j = 0; j < Inventory.length; j++) {
+      for (var j = 0; j < 20; j++) {
         if(Inventory[j].item == item && Inventory[j].amount < ItemProperties[Inventory[j].item].stackSize)
         {
           foundExistingItemStack = true;
@@ -1590,7 +1590,7 @@ function anvilItem() {
           break;
         }
       }
-      for (var j = 0; j < Inventory.length; j++) {
+      for (var j = 0; j < 20; j++) {
         if(Inventory[j].item == "none" && !foundExistingItemStack)
         {
           Inventory[j].item = item;
