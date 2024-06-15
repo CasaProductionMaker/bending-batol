@@ -37,7 +37,6 @@ let mobileMovement = {
   y: [0, 0]
 }
 let isMobile = (localStorage.getItem("isMobile") != null ? localStorage.getItem("isMobile") : false);
-console.log(isMobile)
 
 let biomeMap = [];
 let BiomeRules = {
@@ -150,6 +149,13 @@ let BlockProperties = {
     centerX: 0.0, 
     centerY: 0.0,  
     strength: 700
+  }, 
+  "anvil": {
+    sizeX: 1.0, 
+    sizeY: 0.875,
+    centerX: 0.0, 
+    centerY: 0.063,  
+    strength: 800
   }
 };
 let BlockTraits = {
@@ -215,365 +221,470 @@ let BlockTraits = {
   "furnace": {
     drop: ["furnace"], 
     amount: [1]
+  }, 
+  "anvil": {
+    drop: ["anvil"], 
+    amount: [1]
   }
 };
 let Inventory = [
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
   }, 
   {
     item: "none", 
-    amount: 0
+    amount: 0, 
+    refinements: {}
+  }, 
+  {
+    item: "none", 
+    amount: 0, 
+    refinements: {}
+  }, 
+  {
+    item: "none", 
+    amount: 0, 
+    refinements: {}
   }
 ];
 let currentSlot = 0;
 let ItemProperties = {
   "none": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "stone": {
     stackSize: 16, 
-    isPlaceable: true
+    isPlaceable: true, 
+    damage: 0.5
   }, 
   "grass": {
     stackSize: 16, 
-    isPlaceable: true
+    isPlaceable: true, 
+    damage: 0.5
   }, 
   "sand": {
     stackSize: 16, 
-    isPlaceable: true
+    isPlaceable: true, 
+    damage: 0.5
   }, 
   "dirt": {
     stackSize: 16, 
-    isPlaceable: true
+    isPlaceable: true, 
+    damage: 0.5
   }, 
   "leaves": {
     stackSize: 16, 
-    isPlaceable: true
+    isPlaceable: true, 
+    damage: 0.5
   }, 
   "log": {
     stackSize: 8, 
-    isPlaceable: true
+    isPlaceable: true, 
+    damage: 0.5
   }, 
   "coal_ore": {
     stackSize: 16, 
-    isPlaceable: true
+    isPlaceable: true, 
+    damage: 0.5
   }, 
   "iron_ore": {
     stackSize: 8, 
-    isPlaceable: true
+    isPlaceable: true, 
+    damage: 0.5
   }, 
   "gold_ore": {
     stackSize: 8, 
-    isPlaceable: true
+    isPlaceable: true, 
+    damage: 0.5
   }, 
   "stick": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "long_stick": {
     stackSize: 8, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "sharpened_stick": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.75
   }, 
   "handle": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "long_handle": {
     stackSize: 8, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "cotton": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "string": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "long_sharpened_stick": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "wood": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "wooden_blade": {
     stackSize: 8, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "wooden_axehead": {
     stackSize: 8, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "long_string": {
     stackSize: 8, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "wooden_pickaxe_head": {
     stackSize: 8, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "rock": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "pebble": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "stone_bricks": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "stone_rod": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "sharp_stone_rod": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "stone_blade": {
     stackSize: 8, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "iron_ingot": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "iron_nugget": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "cotton_strand": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "wooden_sword": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 1
   }, 
   "wooden_axe": {
     stackSize: 1, 
     isPlaceable: false, 
+    damage: 1, 
     toolType: "axe", 
     toolTier: "wooden"
   }, 
   "wooden_pickaxe": {
     stackSize: 1, 
     isPlaceable: false, 
+    damage: 0.75, 
     toolType: "pickaxe", 
     toolTier: "wooden"
   }, 
   "bow": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "stone_pickaxe": {
     stackSize: 1, 
     isPlaceable: false, 
+    damage: 1, 
     toolType: "pickaxe", 
     toolTier: "stone"
   }, 
   "stone_axe": {
     stackSize: 1, 
     isPlaceable: false, 
+    damage: 1.5, 
     toolType: "axe", 
     toolTier: "stone"
   }, 
   "stone_sword": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 2
   }, 
   "stone_axehead": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "stone_pickaxe_head": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "iron_pickaxe": {
     stackSize: 1, 
     isPlaceable: false, 
+    damage: 2, 
     toolType: "pickaxe", 
     toolTier: "iron"
   }, 
   "iron_axe": {
     stackSize: 1, 
     isPlaceable: false, 
+    damage: 2, 
     toolType: "axe", 
     toolTier: "stone"
   }, 
   "iron_sword": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 3
   }, 
   "iron_axehead": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "iron_pickaxe_head": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "golden_pickaxe": {
     stackSize: 1, 
     isPlaceable: false, 
+    damage: 2.5, 
     toolType: "pickaxe", 
     toolTier: "gold"
   }, 
   "golden_axe": {
     stackSize: 1, 
     isPlaceable: false, 
+    damage: 3, 
     toolType: "axe", 
     toolTier: "stone"
   }, 
   "golden_sword": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 4
   }, 
   "golden_axehead": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "golden_pickaxe_head": {
     stackSize: 1, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "iron_rod": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "sharp_iron_rod": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 1
   }, 
   "iron_blade": {
     stackSize: 8, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 2
   }, 
   "golden_rod": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "sharp_golden_rod": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 2
   }, 
   "golden_blade": {
     stackSize: 8, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 2.5
   }, 
   "golden_ingot": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "golden_nugget": {
     stackSize: 16, 
-    isPlaceable: false
+    isPlaceable: false, 
+    damage: 0.5
   }, 
   "furnace": {
     stackSize: 1, 
-    isPlaceable: true
+    isPlaceable: true, 
+    damage: 0.5
+  }, 
+  "anvil": {
+    stackSize: 1, 
+    isPlaceable: true, 
+    damage: 0.5
   }
 };
 let inventoryShown = false;
+let furnaceOpen = false;
+let anvilOpen = false;
 let inventoryMouseSlot = {
   item: "none", 
-  amount: 0
+  amount: 0, 
+  refinements: {}
 };
 let craftingRecipes = [
   {
@@ -967,6 +1078,78 @@ let craftingRecipes = [
     workplace: "hand", 
     pattern: false, 
     duration: 2
+  }, 
+  {
+    item: "wooden_sword", 
+    data: {
+      refinements: [
+        {
+          name: "sharpening", 
+          level: 1
+        }
+      ]
+    }, 
+    amount: 1, 
+    recipe: ["wooden_sword", "wooden_blade"], 
+    workplace: "anvil", 
+    pattern: false, 
+    duration: 4
+  }, 
+  {
+    item: "stone_sword", 
+    data: {
+      refinements: [
+        {
+          name: "sharpening", 
+          level: 1
+        }
+      ]
+    }, 
+    amount: 1, 
+    recipe: ["stone_sword", "stone_blade"], 
+    workplace: "anvil", 
+    pattern: false, 
+    duration: 6
+  }, 
+  {
+    item: "iron_sword", 
+    data: {
+      refinements: [
+        {
+          name: "sharpening", 
+          level: 1
+        }
+      ]
+    }, 
+    amount: 1, 
+    recipe: ["iron_sword", "iron_blade"], 
+    workplace: "anvil", 
+    pattern: false, 
+    duration: 8
+  }, 
+  {
+    item: "golden_sword", 
+    data: {
+      refinements: [
+        {
+          name: "sharpening", 
+          level: 1
+        }
+      ]
+    }, 
+    amount: 1, 
+    recipe: ["golden_sword", "golden_blade"], 
+    workplace: "anvil", 
+    pattern: false, 
+    duration: 10
+  }, 
+  {
+    item: "anvil", 
+    amount: 1, 
+    recipe: ["iron_ingot", "iron_ingot"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 15
   }
 ]
 let toolTierBreakSpeed = {
@@ -975,12 +1158,78 @@ let toolTierBreakSpeed = {
   "iron": 0.6, 
   "gold": 0.4
 }
+let lang = {
+  "stone": "Stone", 
+  "grass": "Grass", 
+  "sand": "Sand", 
+  "dirt": "Dirt", 
+  "leaves": "Leaves", 
+  "log": "Log", 
+  "coal_ore": "Coal Ore", 
+  "iron_ore": "Iron Ore", 
+  "gold_ore": "Gold Ore", 
+  "stick": "Stick", 
+  "long_stick": "Long Stick", 
+  "sharpened_stick": "Sharpened Stick", 
+  "handle": "Handle", 
+  "long_handle": "Long Handle", 
+  "cotton": "Cotton", 
+  "string": "String", 
+  "long_sharpened_stick": "Long Sharpened Stick", 
+  "wood": "Wood", 
+  "wooden_blade": "Wooden Blade", 
+  "wooden_axehead": "Wooden Axehead", 
+  "long_string": "Long String", 
+  "wooden_pickaxe_head": "Wooden Pickaxe Head", 
+  "rock": "Rock", 
+  "pebble": "Pebble", 
+  "stone_bricks": "Stone Bricks", 
+  "stone_rod": "Stone Rod", 
+  "sharp_stone_rod": "Sharp Stone Rod", 
+  "stone_blade": "Stone Blade", 
+  "iron_ingot": "Iron Ingot", 
+  "iron_nugget": "Iron Nugget", 
+  "cotton_strand": "Cotton Strand", 
+  "wooden_sword": "Wooden Sword", 
+  "wooden_axe": "Wooden Axe",  
+  "wooden_pickaxe": "Wooden Pickaxe", 
+  "bow": "Bow", 
+  "stone_pickaxe": "Stone Pickaxe", 
+  "stone_axe": "Stone Axe", 
+  "stone_sword": "Stone Sword", 
+  "stone_axehead": "Stone Axehead", 
+  "stone_pickaxe_head": "Stone Pickaxe Head", 
+  "iron_pickaxe": "Iron Pickaxe", 
+  "iron_axe": "Iron Axe", 
+  "iron_sword": "Iron Sword", 
+  "iron_axehead": "Iron Axehead", 
+  "iron_pickaxe_head": "Iron Pickaxe Head", 
+  "golden_pickaxe": "Golden Pickaxe", 
+  "golden_axe": "Golden Axe", 
+  "golden_sword": "Golden Sword", 
+  "golden_axehead": "Golden Axehead", 
+  "golden_pickaxe_head": "Golden Pickaxe Head", 
+  "iron_rod": "Iron Rod", 
+  "sharp_iron_rod": "Sharp Iron Rod", 
+  "iron_blade": "Iron Blade", 
+  "golden_rod": "Golden Rod", 
+  "sharp_golden_rod": "Sharp Golden Rod", 
+  "golden_blade": "Golden Blade", 
+  "golden_ingot": "Golden Ingot", 
+  "golden_nugget": "Golden Nugget", 
+  "furnace": "Furnace", 
+  "anvil": "Anvil", 
+  "sharpening": "Sharpened"
+}
+
 let craftProgress = 0;
 let isQPressed = false;
 document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
 document.querySelector(".hotbar").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
 document.querySelector(".mouse-holding-item").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
 document.querySelector(".selected-slot").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+document.querySelector(".furnace").setAttribute("data-fur", (furnaceOpen ? "true" : "false"));
+document.querySelector(".anvil").setAttribute("data-anv", (anvilOpen ? "true" : "false"));
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 
@@ -1067,38 +1316,47 @@ function interpolate(pa, pb, px){
 }
 
 function onClickItem(slotID) {
-  if(inventoryShown)
+  if(inventoryShown || anvilOpen)
   {
     if(Inventory[slotID].item == "none" && slotID != 22)
     {
       if(!isQPressed) {
         Inventory[slotID].item = inventoryMouseSlot.item;
         Inventory[slotID].amount = inventoryMouseSlot.amount;
+        Inventory[slotID].refinements = inventoryMouseSlot.refinements;
         inventoryMouseSlot.item = "none";
         inventoryMouseSlot.amount = 0;
+        inventoryMouseSlot.refinements = {};
       } else if(Inventory[slotID].amount < 16){
         Inventory[slotID].item = inventoryMouseSlot.item;
         Inventory[slotID].amount += 1;
+        Inventory[slotID].refinements = inventoryMouseSlot.refinements;
         inventoryMouseSlot.amount--;
         if(inventoryMouseSlot.amount <= 0)
         {
           inventoryMouseSlot.item = "none";
+          inventoryMouseSlot.refinements = {};
         }
       }
     } else if(inventoryMouseSlot.item == "none"){
       inventoryMouseSlot.item = Inventory[slotID].item;
       inventoryMouseSlot.amount = Inventory[slotID].amount;
+      inventoryMouseSlot.refinements = Inventory[slotID].refinements;
       Inventory[slotID].item = "none";
       Inventory[slotID].amount = 0;
-    } else if(inventoryMouseSlot.item != Inventory[slotID].item && slotID != 22) {
+      Inventory[slotID].refinements = {};
+    } else if((inventoryMouseSlot.item != Inventory[slotID].item || (ItemProperties[inventoryMouseSlot.item].stackSize == 1 && ItemProperties[Inventory[slotID].item].stackSize == 1)) && slotID != 22) {
       let saveSlot = {
         item: inventoryMouseSlot.item, 
-        amount: inventoryMouseSlot.amount
+        amount: inventoryMouseSlot.amount, 
+        refinements: inventoryMouseSlot.refinements
       };
       inventoryMouseSlot.item = Inventory[slotID].item;
       inventoryMouseSlot.amount = Inventory[slotID].amount;
+      inventoryMouseSlot.refinements = Inventory[slotID].refinements;
       Inventory[slotID].item = saveSlot.item;
       Inventory[slotID].amount = saveSlot.amount;
+      Inventory[slotID].refinements = saveSlot.refinements;
     } else if(slotID != 22){
       if(!isQPressed)
       {
@@ -1109,16 +1367,18 @@ function onClickItem(slotID) {
           if (inventoryMouseSlot.amount <= 0)
           {
             inventoryMouseSlot.item = "none";
+            inventoryMouseSlot.refinements = {};
             break;
           }
         }
-      } else if(Inventory[slotID].amount < 16){
+      } else if(Inventory[slotID].amount < ItemProperties[inventoryMouseSlot.item].stackSize){
         Inventory[slotID].item = inventoryMouseSlot.item;
         Inventory[slotID].amount += 1;
         inventoryMouseSlot.amount--;
         if(inventoryMouseSlot.amount <= 0)
         {
           inventoryMouseSlot.item = "none";
+          inventoryMouseSlot.refinements = {};
         }
       }
     }
@@ -1177,15 +1437,112 @@ function craftItem() {
                             {
                               Inventory[20].item = "none";
                               Inventory[20].amount = 0;
+                              Inventory[20].refinements = {};
                             }
                             Inventory[21].amount--;
                             if(Inventory[21].amount <= 0)
                             {
                               Inventory[21].item = "none";
                               Inventory[21].amount = 0;
+                              Inventory[21].refinements = {};
                             }
                             Inventory[22].item = itemCrafted;
                             Inventory[22].amount += craftAmount;
+                          }
+                          craftProgress = 0;
+                        }, craftInterval)
+                      }, craftInterval)
+                    }, craftInterval)
+                  }, craftInterval)
+                }, craftInterval)
+              }, craftInterval)
+            }, craftInterval)
+          }, craftInterval)
+        }, craftInterval)
+      }, craftInterval)
+    }
+  }
+}
+
+function anvilItem() {
+  if(anvilOpen)
+  {
+    let itemCrafted = "none";
+    let craftInterval = 5;
+    let craftAmount = 1;
+    let canRefine = true;
+    for (var i = 0; i < craftingRecipes.length; i++) {
+      if((craftingRecipes[i].recipe[0] == Inventory[23].item && craftingRecipes[i].recipe[1] == Inventory[24].item) && craftingRecipes[i].workplace == "anvil")
+      {
+        for (var k = 0; k < craftingRecipes[i].data.refinements.length; k++) {
+          if(Inventory[23].refinements[craftingRecipes[i].data.refinements[k].name] != null && Inventory[23].refinements[craftingRecipes[i].data.refinements[k].name].level + craftingRecipes[i].data.refinements[k].level > 4)
+          {
+            canRefine = false;
+          }
+        }
+        if(canRefine)
+        {
+          itemCrafted = craftingRecipes[i].item;
+          craftInterval = (craftingRecipes[i].duration * 1000) / 10;
+          craftAmount = craftingRecipes[i].amount;
+        }
+        break;
+      }
+    }
+    if(itemCrafted != "none")
+    {
+      setTimeout(() => {
+        craftProgress++;
+        setTimeout(() => {
+          craftProgress++;
+          setTimeout(() => {
+            craftProgress++;
+            setTimeout(() => {
+              craftProgress++;
+              setTimeout(() => {
+                craftProgress++;
+                setTimeout(() => {
+                  craftProgress++;
+                  setTimeout(() => {
+                    craftProgress++;
+                    setTimeout(() => {
+                      craftProgress++;
+                      setTimeout(() => {
+                        craftProgress++;
+                        setTimeout(() => {
+                          craftProgress++;
+                          itemCrafted = "none";
+                          let refinementsEdit = [];
+                          for (var i = 0; i < craftingRecipes.length; i++) {
+                            if(craftingRecipes[i].workplace == "anvil" && (craftingRecipes[i].recipe[0] == Inventory[23].item && craftingRecipes[i].recipe[1] == Inventory[24].item))
+                            {
+                              itemCrafted = craftingRecipes[i].item;
+                              for (var j = 0; j < craftingRecipes[i].data.refinements.length; j++) {
+                                refinementsEdit.push(craftingRecipes[i].data.refinements[j]);
+                              }
+                              break;
+                            }
+                          }
+                          if(itemCrafted != "none")
+                          {
+                            Inventory[24].amount--;
+                            if(Inventory[24].amount <= 0)
+                            {
+                              Inventory[24].item = "none";
+                              Inventory[24].amount = 0;
+                              Inventory[24].refinements = {};
+                            }
+                            Inventory[23].item = itemCrafted;
+                            Inventory[23].amount = craftAmount;
+                            for (var i = 0; i < refinementsEdit.length; i++) {
+                              if(Inventory[23].refinements[refinementsEdit[i].name] != null)
+                              {
+                                Inventory[23].refinements[refinementsEdit[i].name].level += refinementsEdit[i].level;
+                              } else {
+                                Inventory[23].refinements[refinementsEdit[i].name] = {name: refinementsEdit[i].name, level: refinementsEdit[i].level};
+                              }
+                              console.log(Inventory[23])
+                            }
                           }
                           craftProgress = 0;
                         }, craftInterval)
@@ -1278,7 +1635,7 @@ function craftItem() {
           playerRef.update({
             isDead: false, 
             coins: 0, 
-            health: 5, 
+            health: 10, 
             x: 1, 
             y: -5, 
           })
@@ -1297,7 +1654,7 @@ function craftItem() {
   }
   function regenLoop() {
     if(players[playerId] != null) {
-      if(players[playerId].health < 5)
+      if(players[playerId].health < 10)
       {
         playerRef.update({
           health: players[playerId].health + 1
@@ -1385,124 +1742,90 @@ function craftItem() {
           isDead: true
         })
       }
-      document.querySelector(".hotbar-item-ui-1").style.background = "url(images/" + Inventory[0].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".hotbar-item-ui-1").children) {
-        child.innerText = Inventory[0].amount;
-        if(Inventory[0].amount <= 1) child.innerText = "";
+      for (var i = 0; i < 5; i++) {
+        document.querySelector(".hotbar-item-ui-" + (i+1)).style.background = "url(images/" + Inventory[i].item + ".png) no-repeat no-repeat";
+        for (const child of document.querySelector(".hotbar-item-ui-" + (i+1)).children) {
+          if(child.className == "stack-number")
+          {
+            child.innerText = Inventory[i].amount;
+            if(Inventory[i].amount <= 1) child.innerText = "";
+          }
+          if(child.className == "tooltips")
+          {
+            let RefinementText = "";
+            Object.keys(Inventory[i].refinements).forEach((key) => {
+              const thisrefinement = Inventory[i].refinements[key];
+              RefinementText += "<br>" + lang[key] + " " + thisrefinement.level + " times";
+            })
+            child.innerHTML = lang[Inventory[i].item] + RefinementText;
+            if(Inventory[i].item == "none") child.innerText = "";
+          }
+        }
       }
-      document.querySelector(".hotbar-item-ui-2").style.background = "url(images/" + Inventory[1].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".hotbar-item-ui-2").children) {
-        child.innerText = Inventory[1].amount;
-        if(Inventory[1].amount <= 1) child.innerText = "";
+      for (var i = 5; i < 20; i++) {
+        document.querySelector(".inventory-item-ui-" + (i-4)).style.background = "url(images/" + Inventory[i].item + ".png) no-repeat no-repeat";
+        for (const child of document.querySelector(".inventory-item-ui-" + (i-4)).children) {
+          if(child.className == "stack-number")
+          {
+            child.innerText = Inventory[i].amount;
+            if(Inventory[i].amount <= 1) child.innerText = "";
+          }
+          if(child.className == "tooltips")
+          {
+            let RefinementText = "";
+            Object.keys(Inventory[i].refinements).forEach((key) => {
+              const thisrefinement = Inventory[i].refinements[key];
+              RefinementText += "<br>" + lang[key] + " " + thisrefinement.level + " times";
+            })
+            child.innerHTML = lang[Inventory[i].item] + RefinementText;
+            if(Inventory[i].item == "none") child.innerText = "";
+          }
+        }
       }
-      document.querySelector(".hotbar-item-ui-3").style.background = "url(images/" + Inventory[2].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".hotbar-item-ui-3").children) {
-        child.innerText = Inventory[2].amount;
-        if(Inventory[2].amount <= 1) child.innerText = "";
+      for (var i = 20; i < 23; i++) {
+        document.querySelector(".hand-crafting-item-ui-" + (i-19)).style.background = "url(images/" + Inventory[i].item + ".png) no-repeat no-repeat";
+        for (const child of document.querySelector(".hand-crafting-item-ui-" + (i-19)).children) {
+          if(child.className == "stack-number")
+          {
+            child.innerText = Inventory[i].amount;
+            if(Inventory[i].amount <= 1) child.innerText = "";
+          }
+          if(child.className == "tooltips")
+          {
+            let RefinementText = "";
+            Object.keys(Inventory[i].refinements).forEach((key) => {
+              const thisrefinement = Inventory[i].refinements[key];
+              RefinementText += "<br>" + lang[key] + " " + thisrefinement.level + " times";
+            })
+            child.innerHTML = lang[Inventory[i].item] + RefinementText;
+            if(Inventory[i].item == "none") child.innerText = "";
+          }
+        }
       }
-      document.querySelector(".hotbar-item-ui-4").style.background = "url(images/" + Inventory[3].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".hotbar-item-ui-4").children) {
-        child.innerText = Inventory[3].amount;
-        if(Inventory[3].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".hotbar-item-ui-5").style.background = "url(images/" + Inventory[4].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".hotbar-item-ui-5").children) {
-        child.innerText = Inventory[4].amount;
-        if(Inventory[4].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-1").style.background = "url(images/" + Inventory[5].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-1").children) {
-        child.innerText = Inventory[5].amount;
-        if(Inventory[5].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-2").style.background = "url(images/" + Inventory[6].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-2").children) {
-        child.innerText = Inventory[6].amount;
-        if(Inventory[6].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-3").style.background = "url(images/" + Inventory[7].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-3").children) {
-        child.innerText = Inventory[7].amount;
-        if(Inventory[7].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-4").style.background = "url(images/" + Inventory[8].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-4").children) {
-        child.innerText = Inventory[8].amount;
-        if(Inventory[8].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-5").style.background = "url(images/" + Inventory[9].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-5").children) {
-        child.innerText = Inventory[9].amount;
-        if(Inventory[9].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-6").style.background = "url(images/" + Inventory[10].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-6").children) {
-        child.innerText = Inventory[10].amount;
-        if(Inventory[10].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-7").style.background = "url(images/" + Inventory[11].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-7").children) {
-        child.innerText = Inventory[11].amount;
-        if(Inventory[11].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-8").style.background = "url(images/" + Inventory[12].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-8").children) {
-        child.innerText = Inventory[12].amount;
-        if(Inventory[12].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-9").style.background = "url(images/" + Inventory[13].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-9").children) {
-        child.innerText = Inventory[13].amount;
-        if(Inventory[13].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-10").style.background = "url(images/" + Inventory[14].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-10").children) {
-        child.innerText = Inventory[14].amount;
-        if(Inventory[14].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-11").style.background = "url(images/" + Inventory[15].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-11").children) {
-        child.innerText = Inventory[15].amount;
-        if(Inventory[15].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-12").style.background = "url(images/" + Inventory[16].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-12").children) {
-        child.innerText = Inventory[16].amount;
-        if(Inventory[16].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-13").style.background = "url(images/" + Inventory[17].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-13").children) {
-        child.innerText = Inventory[17].amount;
-        if(Inventory[17].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-14").style.background = "url(images/" + Inventory[18].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-14").children) {
-        child.innerText = Inventory[18].amount;
-        if(Inventory[18].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".inventory-item-ui-15").style.background = "url(images/" + Inventory[19].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".inventory-item-ui-15").children) {
-        child.innerText = Inventory[19].amount;
-        if(Inventory[19].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".hand-crafting-item-ui-1").style.background = "url(images/" + Inventory[20].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".hand-crafting-item-ui-1").children) {
-        child.innerText = Inventory[20].amount;
-        if(Inventory[20].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".hand-crafting-item-ui-2").style.background = "url(images/" + Inventory[21].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".hand-crafting-item-ui-2").children) {
-        child.innerText = Inventory[21].amount;
-        if(Inventory[21].amount <= 1) child.innerText = "";
-      }
-      document.querySelector(".hand-crafting-item-ui-3").style.background = "url(images/" + Inventory[22].item + ".png) no-repeat no-repeat";
-      for (const child of document.querySelector(".hand-crafting-item-ui-3").children) {
-        child.innerText = Inventory[22].amount;
-        if(Inventory[22].amount <= 1) child.innerText = "";
+      for (var i = 23; i < 25; i++) {
+        document.querySelector(".anvil-item-ui-" + (i-22)).style.background = "url(images/" + Inventory[i].item + ".png) no-repeat no-repeat";
+        for (const child of document.querySelector(".anvil-item-ui-" + (i-22)).children) {
+          if(child.className == "stack-number")
+          {
+            child.innerText = Inventory[i].amount;
+            if(Inventory[i].amount <= 1) child.innerText = "";
+          }
+          if(child.className == "tooltips")
+          {
+            let RefinementText = "";
+            Object.keys(Inventory[i].refinements).forEach((key) => {
+              const thisrefinement = Inventory[i].refinements[key];
+              RefinementText += "<br>" + lang[key] + " " + thisrefinement.level + " times";
+            })
+            child.innerHTML = lang[Inventory[i].item] + RefinementText;
+            if(Inventory[i].item == "none") child.innerText = "";
+          }
+        }
       }
       document.querySelector(".mouse-holding-item").style.background = "url(images/" + inventoryMouseSlot.item + ".png) no-repeat no-repeat";
       document.querySelector(".selected-slot").style.left = (45 + (currentSlot * 32)) + "px";
       document.querySelector(".crafting-progress-bar").style.background = "url(images/crafting-progress/crafting-" + craftProgress + ".png)"
+      document.querySelector(".anvil-progress-bar").style.background = "url(images/crafting-progress/crafting-" + craftProgress + ".png)"
 
       document.querySelector("#left-move").setAttribute("data-pressed", mobileMovement.x[0]);
       document.querySelector("#right-move").setAttribute("data-pressed", mobileMovement.x[1]);
@@ -1561,7 +1884,7 @@ function craftItem() {
     }, 1);
   }
   function mineLoop() {
-    if(mouseDown && !inventoryShown)
+    if(mouseDown && !inventoryShown && !furnaceOpen && !anvilOpen)
     {
       let margin = {x: (screenDim.x - 720) / 2, y: (screenDim.y - 624) / 2};
       mouseTile = {x: Math.floor((((mousePos.x + ((myX - 7) * 48)) - margin.x)) / 48), y: Math.floor(((mousePos.y + ((myY - 7) * 48)) - margin.y) / 48)};
@@ -2198,13 +2521,52 @@ function craftItem() {
     new KeyPressListener("KeyD", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("Space", () => handleAttack(), () => {})
     new KeyPressListener("KeyE", () => {
-      if(craftProgress == 0 && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
+      let margin = {x: (screenDim.x - 720) / 2, y: (screenDim.y - 624) / 2};
+      mouseTile = {x: Math.floor((((mousePos.x + ((myX - 7) * 48)) - margin.x)) / 48), y: Math.floor(((mousePos.y + ((myY - 7) * 48)) - margin.y) / 48)};
+      let isFurnace = false;
+      let isAnvil = false;
+      Object.keys(block).forEach((key) => {
+        const rows = block[key];
+        Object.keys(rows).forEach((row) => {
+          const blockState = rows[row];
+          if(blockState.x === mouseTile.x && blockState.y === mouseTile.y && blockState.type == "furnace")
+          {
+            isFurnace = true;
+          }
+          if(blockState.x === mouseTile.x && blockState.y === mouseTile.y && blockState.type == "anvil")
+          {
+            isAnvil = true;
+          }
+        })
+      })
+      if((isFurnace || furnaceOpen) && !(inventoryShown || anvilOpen))
       {
-        inventoryShown = !inventoryShown;
-        document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
-        document.querySelector(".hotbar").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
-        document.querySelector(".mouse-holding-item").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
-        document.querySelector(".selected-slot").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+        if(document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
+        {
+          furnaceOpen = !furnaceOpen;
+          document.querySelector(".furnace").setAttribute("data-fur", (furnaceOpen ? "true" : "false"));
+          document.querySelector(".hotbar").setAttribute("data-inv", (!furnaceOpen ? "true" : "false"));
+          document.querySelector(".mouse-holding-item").setAttribute("data-inv", (furnaceOpen ? "true" : "false"));
+          document.querySelector(".selected-slot").setAttribute("data-inv", (!furnaceOpen ? "true" : "false"));
+        }
+      } else if((isAnvil || (anvilOpen && craftProgress == 0)) && !(inventoryShown || furnaceOpen)) {
+        if(document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
+        {
+          anvilOpen = !anvilOpen;
+          document.querySelector(".anvil").setAttribute("data-anv", (anvilOpen ? "true" : "false"));
+          document.querySelector(".hotbar").setAttribute("data-inv", (!anvilOpen ? "true" : "false"));
+          document.querySelector(".mouse-holding-item").setAttribute("data-inv", (anvilOpen ? "true" : "false"));
+          document.querySelector(".selected-slot").setAttribute("data-inv", (!anvilOpen ? "true" : "false"));
+        }
+      } else {
+        if(craftProgress == 0 && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
+        {
+          inventoryShown = !inventoryShown;
+          document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
+          document.querySelector(".hotbar").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+          document.querySelector(".mouse-holding-item").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
+          document.querySelector(".selected-slot").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
+        }
       }
     }, () => {})
     new KeyPressListener("Digit1", () => {currentSlot = 0}, () => {})
@@ -2479,11 +2841,18 @@ function craftItem() {
       mouseDown = true;
       Object.keys(players).forEach((key) => {
         const characterState = players[key];
-        if(Math.abs(mouseTile.x - characterState.x) < 0.7 && Math.abs(mouseTile.y - characterState.y) < 0.7 && !characterState.isDead && characterState.id != playerId)
+        if(Math.abs(mouseTile.x - characterState.x) < 0.7 && Math.abs(mouseTile.y - characterState.y) < 0.7 && !characterState.isDead)// && characterState.id != playerId)
         {
           //console.log(characterState.health - Math.round(2 - ((ItemProperties[Inventory[currentSlot].item].toolTier != null ? toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier] : 0.5) * 2)))
+          let baseDamage = ItemProperties[Inventory[currentSlot].item].damage;
+          if(Inventory[currentSlot].refinements["sharpening"] != null) 
+          {
+            let sharpness = Inventory[currentSlot].refinements["sharpening"].level;
+            baseDamage *= 1 + (sharpness * 0.5)
+          }
+          let finalDamage = baseDamage;
           firebase.database().ref("players/" + characterState.id).update({
-            health: characterState.health - Math.round(2 - ((ItemProperties[Inventory[currentSlot].item].toolTier != null ? toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier] : 0.5) * 2))
+            health: characterState.health - (Math.floor(finalDamage) + (Math.random() <= finalDamage - Math.floor(finalDamage) ? 1 : 0))
           })
         }
       })
@@ -2527,7 +2896,7 @@ function craftItem() {
         y: -5,
         coins: 0,
         potionDuration: 0,
-        health: 5, 
+        health: 10, 
         isDead: false, 
         weapon: "none", 
         op: false

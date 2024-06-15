@@ -49,6 +49,42 @@ h3 {
 	visibility: visible;
 }
 
+/* Furnace */
+
+.furnace {
+	position: absolute;
+	width: 240px;
+	height: 136px;
+	transform: scale(3);
+	image-rendering: pixelated;
+	bottom: 322px;
+	background: url(images/furnace_ui.png) no-repeat no-repeat;
+}
+.furnace[data-fur="false"] {
+	visibility: hidden;
+}
+.furnace[data-fur="true"] {
+	visibility: visible;
+}
+
+/* Anvil */
+
+.anvil {
+	position: absolute;
+	width: 240px;
+	height: 136px;
+	transform: scale(3);
+	image-rendering: pixelated;
+	bottom: 322px;
+	background: url(images/anvil_ui.png) no-repeat no-repeat;
+}
+.anvil[data-anv="false"] {
+	visibility: hidden;
+}
+.anvil[data-anv="true"] {
+	visibility: visible;
+}
+
 /* Hotbar */
 
 .hotbar {
@@ -182,6 +218,33 @@ h3 {
 	background: url(images/bedrock.png) no-repeat no-repeat;
 }
 
+.smelting-item-ui-1 {
+	top: 32px;
+	left: 80px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.smelting-item-ui-3 {
+	top: 64px;
+	left: 144px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.smelting-item-ui-2 {
+	top: 96px;
+	left: 80px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+
+.anvil-item-ui-1 {
+	top: 32px;
+	left: 112px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.anvil-item-ui-2 {
+	top: 96px;
+	left: 112px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+
 .mouse-holding-item {
 	image-rendering: pixelated;
 	background: url(images/bedrock.png) no-repeat no-repeat;
@@ -201,6 +264,17 @@ h3 {
 	position: absolute;
 	left: 12px;
 	top: 2px;
+}
+.inventory-slot .tooltips {
+	font-size: 6px;
+	position: absolute;
+	left: 12px;
+	top: -12px;
+	visibility: hidden;
+	width: 48px;
+}
+.inventory-slot:hover .tooltips {
+	visibility: visible;
 }
 
 .selected-slot {
@@ -232,6 +306,33 @@ h3 {
 	height: 11px;
 	image-rendering: pixelated;
 	left: 245px;
+	top: 65px;
+	background: url(images/craft-button.png) no-repeat no-repeat;
+}
+.smelting-button {
+	position: absolute;
+	width: 22px;
+	height: 11px;
+	image-rendering: pixelated;
+	left: 112px;
+	top: 65px;
+	background: url(images/craft-button.png) no-repeat no-repeat;
+}
+.anvil-progress-bar {
+	position: absolute;
+	width: 3px;
+	height: 62px;
+	image-rendering: pixelated;
+	left: 140px;
+	top: 41px;
+	background: url(images/crafting-progress/crafting-0.png) no-repeat no-repeat;
+}
+.anvil-button {
+	position: absolute;
+	width: 22px;
+	height: 11px;
+	image-rendering: pixelated;
+	left: 145px;
 	top: 65px;
 	background: url(images/craft-button.png) no-repeat no-repeat;
 }
@@ -386,6 +487,7 @@ button:active:not(#up-move) {
 	display: block;
 }
 
+
 .Character_you-arrow {
 	display: none;
 	position: absolute;
@@ -396,7 +498,16 @@ button:active:not(#up-move) {
 	background: url(images/arrow.png) no-repeat no-repeat;
 }
 
-.Character_health_bar[data-health="5"] {
+.Character_health_bar {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthzero.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="10"] {
 	display: block;
 	position: absolute;
 	top: 12px;
@@ -405,7 +516,16 @@ button:active:not(#up-move) {
 	height: 3px;
 	background: url(images/healthfive.png) no-repeat no-repeat;
 }
-.Character_health_bar[data-health="4"] {
+.Character_health_bar[data-health="9"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthfive.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="8"] {
 	display: block;
 	position: absolute;
 	top: 12px;
@@ -414,7 +534,16 @@ button:active:not(#up-move) {
 	height: 3px;
 	background: url(images/healthfour.png) no-repeat no-repeat;
 }
-.Character_health_bar[data-health="3"] {
+.Character_health_bar[data-health="7"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthfour.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="6"] {
 	display: block;
 	position: absolute;
 	top: 12px;
@@ -423,7 +552,16 @@ button:active:not(#up-move) {
 	height: 3px;
 	background: url(images/healththree.png) no-repeat no-repeat;
 }
-.Character_health_bar[data-health="2"] {
+.Character_health_bar[data-health="5"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healththree.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="4"] {
 	display: block;
 	position: absolute;
 	top: 12px;
@@ -431,6 +569,24 @@ button:active:not(#up-move) {
 	width: 12px;
 	height: 3px;
 	background: url(images/healthtwo.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="3"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthtwo.png) no-repeat no-repeat;
+}
+.Character_health_bar[data-health="2"] {
+	display: block;
+	position: absolute;
+	top: 12px;
+	left: 2px;
+	width: 12px;
+	height: 3px;
+	background: url(images/healthone.png) no-repeat no-repeat;
 }
 .Character_health_bar[data-health="1"] {
 	display: block;
@@ -442,24 +598,6 @@ button:active:not(#up-move) {
 	background: url(images/healthone.png) no-repeat no-repeat;
 }
 .Character_health_bar[data-health="0"] {
-	display: block;
-	position: absolute;
-	top: 12px;
-	left: 2px;
-	width: 12px;
-	height: 3px;
-	background: url(images/healthzero.png) no-repeat no-repeat;
-}
-.Character_health_bar[data-health="-1"] {
-	display: block;
-	position: absolute;
-	top: 12px;
-	left: 2px;
-	width: 12px;
-	height: 3px;
-	background: url(images/healthzero.png) no-repeat no-repeat;
-}
-.Character_health_bar[data-health="-2"] {
 	display: block;
 	position: absolute;
 	top: 12px;
@@ -559,6 +697,12 @@ button:active:not(#up-move) {
 }
 .Block_sprite[data-type="tall_grass"] {
 	background: url(images/tall_grass.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="furnace"] {
+	background: url(images/furnace.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="anvil"] {
+	background: url(images/anvil.png) no-repeat no-repeat;
 }
 
 .Block_sprite[data-far="true"] {
