@@ -1150,6 +1150,14 @@ let craftingRecipes = [
     workplace: "hand", 
     pattern: false, 
     duration: 15
+  }, 
+  {
+    item: "stick", 
+    amount: 1, 
+    recipe: ["wood", "woodchip"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 3
   }
 ]
 let toolTierBreakSpeed = {
@@ -1219,6 +1227,7 @@ let lang = {
   "golden_nugget": "Golden Nugget", 
   "furnace": "Furnace", 
   "anvil": "Anvil", 
+  "woodchip": "Woodchip", 
   "sharpening": "Sharpened"
 }
 
@@ -1386,7 +1395,7 @@ function onClickItem(slotID) {
 }
 
 function craftItem() {
-  if(inventoryShown)
+  if(inventoryShown && craftProgress == 0)
   {
     let itemCrafted = "none";
     let craftInterval = 5;
@@ -1465,7 +1474,7 @@ function craftItem() {
 }
 
 function anvilItem() {
-  if(anvilOpen)
+  if(anvilOpen && craftProgress == 0)
   {
     let itemCrafted = "none";
     let craftInterval = 5;
@@ -1755,10 +1764,11 @@ function anvilItem() {
             let RefinementText = "";
             Object.keys(Inventory[i].refinements).forEach((key) => {
               const thisrefinement = Inventory[i].refinements[key];
-              RefinementText += "<br>" + lang[key] + " " + thisrefinement.level + " times";
+              RefinementText += "<br>- " + lang[key] + " " + thisrefinement.level + " times";
             })
             child.innerHTML = lang[Inventory[i].item] + RefinementText;
             if(Inventory[i].item == "none") child.innerText = "";
+            child.setAttribute("data-content", Inventory[i].item);
           }
         }
       }
@@ -1775,10 +1785,11 @@ function anvilItem() {
             let RefinementText = "";
             Object.keys(Inventory[i].refinements).forEach((key) => {
               const thisrefinement = Inventory[i].refinements[key];
-              RefinementText += "<br>" + lang[key] + " " + thisrefinement.level + " times";
+              RefinementText += "<br>- " + lang[key] + " " + thisrefinement.level + " times";
             })
             child.innerHTML = lang[Inventory[i].item] + RefinementText;
             if(Inventory[i].item == "none") child.innerText = "";
+            child.setAttribute("data-content", Inventory[i].item);
           }
         }
       }
@@ -1795,10 +1806,11 @@ function anvilItem() {
             let RefinementText = "";
             Object.keys(Inventory[i].refinements).forEach((key) => {
               const thisrefinement = Inventory[i].refinements[key];
-              RefinementText += "<br>" + lang[key] + " " + thisrefinement.level + " times";
+              RefinementText += "<br>- " + lang[key] + " " + thisrefinement.level + " times";
             })
             child.innerHTML = lang[Inventory[i].item] + RefinementText;
             if(Inventory[i].item == "none") child.innerText = "";
+            child.setAttribute("data-content", Inventory[i].item);
           }
         }
       }
@@ -1815,10 +1827,11 @@ function anvilItem() {
             let RefinementText = "";
             Object.keys(Inventory[i].refinements).forEach((key) => {
               const thisrefinement = Inventory[i].refinements[key];
-              RefinementText += "<br>" + lang[key] + " " + thisrefinement.level + " times";
+              RefinementText += "<br>- " + lang[key] + " " + thisrefinement.level + " times";
             })
             child.innerHTML = lang[Inventory[i].item] + RefinementText;
             if(Inventory[i].item == "none") child.innerText = "";
+            child.setAttribute("data-content", Inventory[i].item);
           }
         }
       }
@@ -1838,7 +1851,6 @@ function anvilItem() {
       {
         xVel = (mobileMovement.x[1] - mobileMovement.x[0]) * 0.03;
       }
-      if(isQPressed) console.log(xVel)
       handleMovement(0, yVel);
       handleMovement(xVel, 0);
       yVel += 0.002;
@@ -2841,7 +2853,7 @@ function anvilItem() {
       mouseDown = true;
       Object.keys(players).forEach((key) => {
         const characterState = players[key];
-        if(Math.abs(mouseTile.x - characterState.x) < 0.7 && Math.abs(mouseTile.y - characterState.y) < 0.7 && !characterState.isDead)// && characterState.id != playerId)
+        if(Math.abs(mouseTile.x - characterState.x) < 0.7 && Math.abs(mouseTile.y - characterState.y) < 0.7 && !characterState.isDead && characterState.id != playerId)
         {
           //console.log(characterState.health - Math.round(2 - ((ItemProperties[Inventory[currentSlot].item].toolTier != null ? toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier] : 0.5) * 2)))
           let baseDamage = ItemProperties[Inventory[currentSlot].item].damage;
