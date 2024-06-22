@@ -161,83 +161,104 @@ let BlockProperties = {
 let BlockTraits = {
   "bedrock": {
     drop: ["none"], 
-    amount: [0]
+    amount: [0], 
+    dataRequired: {}
   }, 
   "stone": {
     drop: ["stone"], 
     amount: [1], 
-    breakWith: "pickaxe"
+    breakWith: "pickaxe", 
+    dataRequired: {}
   }, 
   "grass": {
     drop: ["grass"], 
-    amount: [1]
+    amount: [1], 
+    dataRequired: {}
   }, 
   "sand": {
     drop: ["sand"], 
-    amount: [1]
+    amount: [1], 
+    dataRequired: {}
   }, 
   "dirt": {
     drop: ["dirt"], 
-    amount: [1]
+    amount: [1], 
+    dataRequired: {}
   }, 
   "leaves": {
     drop: ["leaves", "stick"], 
     amount: [1], 
-    breakWith: "axe"
+    breakWith: "axe", 
+    dataRequired: {}
   }, 
   "log": {
     drop: ["log"], 
     amount: [1], 
-    breakWith: "axe"
+    breakWith: "axe", 
+    dataRequired: {}
   }, 
   "water": {
     drop: ["none"], 
-    amount: [0]
+    amount: [0], 
+    dataRequired: {}
   }, 
   "coal_ore": {
     drop: ["coal_ore"], 
     amount: [1], 
-    breakWith: "pickaxe"
+    breakWith: "pickaxe", 
+    dataRequired: {}
   }, 
   "iron_ore": {
     drop: ["iron_ore"], 
     amount: [1], 
-    breakWith: "pickaxe"
+    breakWith: "pickaxe", 
+    dataRequired: {}
   }, 
   "gold_ore": {
     drop: ["gold_ore"], 
     amount: [1], 
-    breakWith: "pickaxe"
+    breakWith: "pickaxe", 
+    dataRequired: {}
   }, 
   "stone_bricks": {
     drop: ["stone_bricks"], 
     amount: [1], 
-    breakWith: "pickaxe"
+    breakWith: "pickaxe", 
+    dataRequired: {}
   }, 
   "tall_grass": {
     drop: ["cotton", "none"], 
-    amount: [1, 2]
+    amount: [1, 2], 
+    dataRequired: {}
   }, 
   "furnace": {
     drop: ["furnace"], 
-    amount: [1]
+    amount: [1], 
+    breakWith: "pickaxe", 
+    dataRequired: {}
   }, 
   "anvil": {
     drop: ["anvil"], 
-    amount: [1]
+    amount: [1], 
+    breakWith: "pickaxe", 
+    dataRequired: {
+      blockCraftProgress: 0, 
+      blockInventory: [
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}
+        }
+      ]
+    }
   }
 };
 let Inventory = [
-  {
-    item: "none", 
-    amount: 0, 
-    refinements: {}
-  }, 
-  {
-    item: "none", 
-    amount: 0, 
-    refinements: {}
-  }, 
   {
     item: "none", 
     amount: 0, 
@@ -676,11 +697,19 @@ let ItemProperties = {
     stackSize: 1, 
     isPlaceable: true, 
     damage: 0.5
+  }, 
+  "woodchip": {
+    stackSize: 16, 
+    isPlaceable: false, 
+    damage: 0.5
   }
 };
 let inventoryShown = false;
 let furnaceOpen = false;
 let anvilOpen = false;
+let blockEntityOpened = undefined;
+let blockEntityOpenedRow = "";
+let blockEntityOpenedColumn = "";
 let inventoryMouseSlot = {
   item: "none", 
   amount: 0, 
@@ -1231,6 +1260,9 @@ let lang = {
   "sharpening": "Sharpened"
 }
 
+let block = {};
+let blockElements = {};
+
 let craftProgress = 0;
 let isQPressed = false;
 document.querySelector(".inventory").setAttribute("data-inv", (inventoryShown ? "true" : "false"));
@@ -1393,6 +1425,87 @@ function onClickItem(slotID) {
     }
   }
 }
+function onClickItemInWorkplace(slotID) {
+  if(anvilOpen)
+  {
+    if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].item == "none")
+    {
+      if(!isQPressed) {
+        firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/" + slotID).update({
+          item: inventoryMouseSlot.item, 
+          amount: inventoryMouseSlot.amount, 
+          refinements: inventoryMouseSlot.refinements
+        })
+        inventoryMouseSlot.item = "none";
+        inventoryMouseSlot.amount = 0;
+        inventoryMouseSlot.refinements = {};
+      } else if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount < 16){
+        firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/" + slotID).update({
+          item: inventoryMouseSlot.item, 
+          amount: block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount + 1, 
+          refinements: inventoryMouseSlot.refinements
+        })
+        inventoryMouseSlot.amount--;
+        if(inventoryMouseSlot.amount <= 0)
+        {
+          inventoryMouseSlot.item = "none";
+          inventoryMouseSlot.refinements = {};
+        }
+      }
+    } else if(inventoryMouseSlot.item == "none"){
+      inventoryMouseSlot.item = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].item;
+      inventoryMouseSlot.amount = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount;
+      if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].refinements != undefined) inventoryMouseSlot.refinements = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].refinements;
+      firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/" + slotID).update({
+        item: "none", 
+        amount: 0, 
+        refinements: {}
+      })
+    } else if((inventoryMouseSlot.item != block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].item || (ItemProperties[inventoryMouseSlot.item].stackSize == 1 && ItemProperties[block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].item].stackSize == 1)) && slotID != 22) {
+      let saveSlot = {
+        item: inventoryMouseSlot.item, 
+        amount: inventoryMouseSlot.amount, 
+        refinements: inventoryMouseSlot.refinements
+      };
+      inventoryMouseSlot.item = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].item;
+      inventoryMouseSlot.amount = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount;
+      if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].refinements != undefined) inventoryMouseSlot.refinements = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].refinements;
+      firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/" + slotID).update({
+        item: saveSlot.item, 
+        amount: saveSlot.amount, 
+        refinements: saveSlot.refinements
+      })
+    } else {
+      if(!isQPressed)
+      {
+        while(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount < ItemProperties[block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].item].stackSize)
+        {
+          firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/" + slotID).update({
+            amount: block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount + 1
+          })
+          inventoryMouseSlot.amount--;
+          if (inventoryMouseSlot.amount <= 0)
+          {
+            inventoryMouseSlot.item = "none";
+            inventoryMouseSlot.refinements = {};
+            break;
+          }
+        }
+      } else if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount < ItemProperties[inventoryMouseSlot.item].stackSize){
+        firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/" + slotID).update({
+          item: inventoryMouseSlot.item, 
+          amount: block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount + 1
+        })
+        inventoryMouseSlot.amount--;
+        if(inventoryMouseSlot.amount <= 0)
+        {
+          inventoryMouseSlot.item = "none";
+          inventoryMouseSlot.refinements = {};
+        }
+      }
+    }
+  }
+}
 
 function craftItem() {
   if(inventoryShown && craftProgress == 0)
@@ -1481,12 +1594,15 @@ function anvilItem() {
     let craftAmount = 1;
     let canRefine = true;
     for (var i = 0; i < craftingRecipes.length; i++) {
-      if((craftingRecipes[i].recipe[0] == Inventory[23].item && craftingRecipes[i].recipe[1] == Inventory[24].item) && craftingRecipes[i].workplace == "anvil")
+      if((craftingRecipes[i].recipe[0] == block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].item && craftingRecipes[i].recipe[1] == block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[1].item) && craftingRecipes[i].workplace == "anvil")
       {
-        for (var k = 0; k < craftingRecipes[i].data.refinements.length; k++) {
-          if(Inventory[23].refinements[craftingRecipes[i].data.refinements[k].name] != null && Inventory[23].refinements[craftingRecipes[i].data.refinements[k].name].level + craftingRecipes[i].data.refinements[k].level > 4)
-          {
-            canRefine = false;
+        if(craftingRecipes[i].data != undefined && craftingRecipes[i].data.refinements != undefined)
+        {
+          for (var k = 0; k < craftingRecipes[i].data.refinements.length; k++) {
+            if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[craftingRecipes[i].data.refinements[k].name] != null && block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[craftingRecipes[i].data.refinements[k].name].level + craftingRecipes[i].data.refinements[k].level > 4)
+            {
+              canRefine = false;
+            }
           }
         }
         if(canRefine)
@@ -1523,34 +1639,47 @@ function anvilItem() {
                           itemCrafted = "none";
                           let refinementsEdit = [];
                           for (var i = 0; i < craftingRecipes.length; i++) {
-                            if(craftingRecipes[i].workplace == "anvil" && (craftingRecipes[i].recipe[0] == Inventory[23].item && craftingRecipes[i].recipe[1] == Inventory[24].item))
+                            if(craftingRecipes[i].workplace == "anvil" && (craftingRecipes[i].recipe[0] == block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].item && craftingRecipes[i].recipe[1] == block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[1].item))
                             {
                               itemCrafted = craftingRecipes[i].item;
-                              for (var j = 0; j < craftingRecipes[i].data.refinements.length; j++) {
-                                refinementsEdit.push(craftingRecipes[i].data.refinements[j]);
+                              if(craftingRecipes[i].data != undefined && craftingRecipes[i].data.refinements != undefined)
+                              {
+                                for (var j = 0; j < craftingRecipes[i].data.refinements.length; j++) {
+                                  refinementsEdit.push(craftingRecipes[i].data.refinements[j]);
+                                }
                               }
                               break;
                             }
                           }
                           if(itemCrafted != "none")
                           {
-                            Inventory[24].amount--;
-                            if(Inventory[24].amount <= 0)
+                            firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/1").update({
+                              amount: block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[1].amount - 1
+                            })
+                            if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[1].amount <= 0)
                             {
-                              Inventory[24].item = "none";
-                              Inventory[24].amount = 0;
-                              Inventory[24].refinements = {};
+                              firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/1").update({
+                                item: "none", 
+                                amount: 0, 
+                                refinements: {}
+                              })
                             }
-                            Inventory[23].item = itemCrafted;
-                            Inventory[23].amount = craftAmount;
+                            firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/0").update({
+                              item: itemCrafted, 
+                              amount: craftAmount
+                            })
                             for (var i = 0; i < refinementsEdit.length; i++) {
-                              if(Inventory[23].refinements[refinementsEdit[i].name] != null)
+                              if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[refinementsEdit[i].name] != null)
                               {
-                                Inventory[23].refinements[refinementsEdit[i].name].level += refinementsEdit[i].level;
+                                firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/0/refinements/" + refinementsEdit[i].name).update({
+                                  level: block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[refinementsEdit[i].name].level + refinementsEdit[i].level
+                                })
                               } else {
-                                Inventory[23].refinements[refinementsEdit[i].name] = {name: refinementsEdit[i].name, level: refinementsEdit[i].level};
+                                firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/0/refinements/" + refinementsEdit[i].name).set({
+                                  name: refinementsEdit[i].name, 
+                                  level: refinementsEdit[i].level
+                                })
                               }
-                              console.log(Inventory[23])
                             }
                           }
                           craftProgress = 0;
@@ -1574,8 +1703,6 @@ function anvilItem() {
 	let playerRef;
   let players = {};
   let playerElements = {};
-  let block = {};
-  let blockElements = {};
   let isButton = false;
   let chatMsg = 0;
 
@@ -1713,7 +1840,8 @@ function anvilItem() {
               centerX: BlockProperties["tall_grass"].centerX, 
               centerY: BlockProperties["tall_grass"].centerY,  
               hp: 5, 
-              strength: BlockProperties["tall_grass"].strength
+              strength: BlockProperties["tall_grass"].strength, 
+              data: {}
             })
           }
         }
@@ -1814,24 +1942,30 @@ function anvilItem() {
           }
         }
       }
-      for (var i = 23; i < 25; i++) {
-        document.querySelector(".anvil-item-ui-" + (i-22)).style.background = "url(images/" + Inventory[i].item + ".png) no-repeat no-repeat";
-        for (const child of document.querySelector(".anvil-item-ui-" + (i-22)).children) {
-          if(child.className == "stack-number")
-          {
-            child.innerText = Inventory[i].amount;
-            if(Inventory[i].amount <= 1) child.innerText = "";
-          }
-          if(child.className == "tooltips")
-          {
-            let RefinementText = "";
-            Object.keys(Inventory[i].refinements).forEach((key) => {
-              const thisrefinement = Inventory[i].refinements[key];
-              RefinementText += "<br>- " + lang[key] + " " + thisrefinement.level + " times";
-            })
-            child.innerHTML = lang[Inventory[i].item] + RefinementText;
-            if(Inventory[i].item == "none") child.innerText = "";
-            child.setAttribute("data-content", Inventory[i].item);
+      if(blockEntityOpened != undefined)
+      {
+        for (var i = 0; i < 2; i++) {
+          document.querySelector(".anvil-item-ui-" + (i+1)).style.background = "url(images/" + block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item + ".png) no-repeat no-repeat";
+          for (const child of document.querySelector(".anvil-item-ui-" + (i+1)).children) {
+            if(child.className == "stack-number")
+            {
+              child.innerText = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].amount;
+              if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].amount <= 1) child.innerText = "";
+            }
+            if(child.className == "tooltips")
+            {
+              let RefinementText = "";
+              if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements != null)
+              {
+                Object.keys(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements).forEach((key) => {
+                  const thisrefinement = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements[key];
+                  RefinementText += "<br>- " + lang[key] + " " + thisrefinement.level + " times";
+                })
+              }
+              child.innerHTML = lang[block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item] + RefinementText;
+              if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item == "none") child.innerText = "";
+              child.setAttribute("data-content", block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item);
+            }
           }
         }
       }
@@ -1968,7 +2102,8 @@ function anvilItem() {
           centerX: BlockProperties[Inventory[currentSlot].item].centerX, 
           centerY: BlockProperties[Inventory[currentSlot].item].centerY,  
           hp: 5, 
-          strength: BlockProperties[Inventory[currentSlot].item].strength
+          strength: BlockProperties[Inventory[currentSlot].item].strength, 
+          data: BlockTraits[Inventory[currentSlot].item].dataRequired
         })
         myBlockId++;
         action = 2;
@@ -2058,7 +2193,7 @@ function anvilItem() {
       const rows = block[key];
       if(!(key.slice(5) - myY > renderDistance || key.slice(5) - myY < -renderDistance))
       {
-        blockElements[key][Object.keys(blockElements[key])[0]].parentNode.setAttribute("data-far", "false");
+        if(blockElements.key != undefined) blockElements[key][Object.keys(blockElements[key])[0]].parentNode.setAttribute("data-far", "false");
         Object.keys(rows).forEach((row) => {
           const blockState = rows[row];
           if(!(blockState.x - myX > renderDistance || blockState.x - myX < -renderDistance))
@@ -2095,7 +2230,8 @@ function anvilItem() {
         centerX: 0.0, 
         centerY: 0.0,  
         hp: 5, 
-        strength: 500
+        strength: 500, 
+        data:{}
       })
     }
   }
@@ -2112,7 +2248,8 @@ function anvilItem() {
       centerX: 0.0, 
       centerY: 0.0, 
       hp: 5, 
-      strength: str
+      strength: str, 
+      data:{}
     })
   }
   function generateMap()
@@ -2130,7 +2267,8 @@ function anvilItem() {
         centerX: 0.0, 
         centerY: 0.0,  
         hp: 5, 
-        strength: 9000000000000000000000000000000000000000000000000
+        strength: 9000000000000000000000000000000000000000000000000, 
+        data:{}
       })
     }
     generateStoneLayer(9);
@@ -2168,7 +2306,8 @@ function anvilItem() {
         centerX: BlockProperties[thisGroundBlock].centerX, 
         centerY: BlockProperties[thisGroundBlock].centerY,  
         hp: 5, 
-        strength: BlockProperties[thisGroundBlock].strength
+        strength: BlockProperties[thisGroundBlock].strength, 
+        data:{}
       })
     }
     console.log(biomeMap);
@@ -2206,7 +2345,8 @@ function anvilItem() {
         centerX: BlockProperties[thisGroundBlock].centerX, 
         centerY: BlockProperties[thisGroundBlock].centerY,  
         hp: 5, 
-        strength: BlockProperties[thisGroundBlock].strength
+        strength: BlockProperties[thisGroundBlock].strength, 
+        data:{}
       })
       if(Math.random() < 0.4 && biomeMap[x+worldRad] != "desert" && biomeMap[x+worldRad] != "ocean")
       {
@@ -2221,7 +2361,8 @@ function anvilItem() {
           centerX: BlockProperties["tall_grass"].centerX, 
           centerY: BlockProperties["tall_grass"].centerY,  
           hp: 5, 
-          strength: BlockProperties["tall_grass"].strength
+          strength: BlockProperties["tall_grass"].strength, 
+          data:{}
         })
       }
       if(Math.random() < 0.1 && biomeMap[x+worldRad] != "desert" && biomeMap[x+worldRad] != "ocean")
@@ -2245,7 +2386,8 @@ function anvilItem() {
           centerX: BlockProperties[thisGroundBlock].centerX, 
           centerY: BlockProperties[thisGroundBlock].centerY,  
           hp: 5, 
-          strength: BlockProperties[thisGroundBlock].strength
+          strength: BlockProperties[thisGroundBlock].strength, 
+          data:{}
         })
         if(Math.round(y+1+i) == 0)
         {
@@ -2279,7 +2421,8 @@ function anvilItem() {
             centerX: 0.0, 
             centerY: 0.0,  
             hp: 5, 
-            strength: 30
+            strength: 30, 
+            data:{}
           })
         } else {
           placeBlock("leaves", treePos[i][0], (treePos[i][1] - Hi), 0.0, 0.0, 15, "pn");
@@ -2397,7 +2540,8 @@ function anvilItem() {
               centerX: BlockProperties["coal_ore"].centerX, 
               centerY: BlockProperties["coal_ore"].centerY,  
               hp: 5, 
-              strength: BlockProperties["coal_ore"].strength
+              strength: BlockProperties["coal_ore"].strength, 
+              data:{}
             })
             if(Math.random() < 0.5)
             {
@@ -2431,7 +2575,8 @@ function anvilItem() {
               centerX: BlockProperties["iron_ore"].centerX, 
               centerY: BlockProperties["iron_ore"].centerY,  
               hp: 5, 
-              strength: BlockProperties["iron_ore"].strength
+              strength: BlockProperties["iron_ore"].strength, 
+              data:{}
             })
             if(Math.random() < 0.5)
             {
@@ -2465,7 +2610,8 @@ function anvilItem() {
               centerX: BlockProperties["gold_ore"].centerX, 
               centerY: BlockProperties["gold_ore"].centerY,  
               hp: 5, 
-              strength: BlockProperties["gold_ore"].strength
+              strength: BlockProperties["gold_ore"].strength, 
+              data:{}
             })
             if(Math.random() < 0.5)
             {
@@ -2544,10 +2690,15 @@ function anvilItem() {
           if(blockState.x === mouseTile.x && blockState.y === mouseTile.y && blockState.type == "furnace")
           {
             isFurnace = true;
+            blockEntityOpened = firebase.database().ref("block/" + key + "/" + row);
           }
           if(blockState.x === mouseTile.x && blockState.y === mouseTile.y && blockState.type == "anvil")
           {
             isAnvil = true;
+            blockEntityOpened = firebase.database().ref("block/" + key + "/" + row);
+            blockEntityOpenedRow = key;
+            blockEntityOpenedColumn = row;
+            console.log(firebase.database().ref("block/" + key + "/" + row))
           }
         })
       })
@@ -2775,7 +2926,8 @@ function anvilItem() {
             centerX: BlockProperties[inputMessage.split(" ")[3]].centerX, 
             centerY: BlockProperties[inputMessage.split(" ")[3]].centerY,  
             hp: 5, 
-            strength: BlockProperties[inputMessage.split(" ")[3]].strength
+            strength: BlockProperties[inputMessage.split(" ")[3]].strength, 
+            data:{}
           })
           myBlockId++;
         }
