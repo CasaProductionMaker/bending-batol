@@ -57,105 +57,120 @@ let BlockProperties = {
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 9000000000000000000000000000000000000000000000000
+    strength: 9000000000000000000000000000000000000000000000000, 
+    wasteDurability: true
   }, 
   "stone": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 500
+    strength: 500, 
+    wasteDurability: true
   }, 
   "grass": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 30
+    strength: 30, 
+    wasteDurability: true
   }, 
   "sand": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 20
+    strength: 20, 
+    wasteDurability: true
   }, 
   "dirt": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 30
+    strength: 30, 
+    wasteDurability: true
   }, 
   "leaves": {
     sizeX: 0.0, 
     sizeY: 0.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 15
+    strength: 15, 
+    wasteDurability: false
   }, 
   "log": {
     sizeX: 0.0, 
     sizeY: 0.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 50
+    strength: 50, 
+    wasteDurability: true
   }, 
   "water": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 9000000000000000000000000000000000000000000000
+    strength: 9000000000000000000000000000000000000000000000, 
+    wasteDurability: true
   }, 
   "coal_ore": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 400
+    strength: 400, 
+    wasteDurability: true
   }, 
   "iron_ore": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 600
+    strength: 600, 
+    wasteDurability: true
   }, 
   "gold_ore": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 300
+    strength: 300, 
+    wasteDurability: true
   }, 
   "stone_bricks": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 600
+    strength: 600, 
+    wasteDurability: true
   }, 
   "tall_grass": {
     sizeX: 0.0, 
     sizeY: 0.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 10
+    strength: 10, 
+    wasteDurability: false
   }, 
   "furnace": {
     sizeX: 1.0, 
     sizeY: 1.0,
     centerX: 0.0, 
     centerY: 0.0,  
-    strength: 700
+    strength: 700, 
+    wasteDurability: true
   }, 
   "anvil": {
     sizeX: 1.0, 
     sizeY: 0.875,
     centerX: 0.0, 
     centerY: 0.063,  
-    strength: 800
+    strength: 800, 
+    wasteDurability: true
   }
 };
 let BlockTraits = {
@@ -247,12 +262,14 @@ let BlockTraits = {
         {
           item: "none", 
           amount: 0, 
-          refinements: {}
+          refinements: {}, 
+          durability: 1
         }, 
         {
           item: "none", 
           amount: 0, 
-          refinements: {}
+          refinements: {}, 
+          durability: 1
         }
       ]
     }
@@ -262,117 +279,140 @@ let Inventory = [
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }, 
   {
     item: "none", 
     amount: 0, 
-    refinements: {}
+    refinements: {}, 
+    durability: 1
   }
 ];
 let currentSlot = 0;
@@ -380,328 +420,390 @@ let ItemProperties = {
   "none": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "stone": {
     stackSize: 16, 
     isPlaceable: true, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "grass": {
     stackSize: 16, 
     isPlaceable: true, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "sand": {
     stackSize: 16, 
     isPlaceable: true, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "dirt": {
     stackSize: 16, 
     isPlaceable: true, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "leaves": {
     stackSize: 16, 
     isPlaceable: true, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "log": {
     stackSize: 8, 
     isPlaceable: true, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "coal_ore": {
     stackSize: 16, 
     isPlaceable: true, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "iron_ore": {
     stackSize: 8, 
     isPlaceable: true, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "gold_ore": {
     stackSize: 8, 
     isPlaceable: true, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "stick": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "long_stick": {
     stackSize: 8, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "sharpened_stick": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.75
+    damage: 0.75, 
+    durability: Infinity
   }, 
   "handle": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "long_handle": {
     stackSize: 8, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "cotton": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "string": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "long_sharpened_stick": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "wood": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "wooden_blade": {
     stackSize: 8, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "wooden_axehead": {
     stackSize: 8, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "long_string": {
     stackSize: 8, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "wooden_pickaxe_head": {
     stackSize: 8, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "rock": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "pebble": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "stone_bricks": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "stone_rod": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "sharp_stone_rod": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "stone_blade": {
     stackSize: 8, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "iron_ingot": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "iron_nugget": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "cotton_strand": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "wooden_sword": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 1
+    damage: 1, 
+    durability: 35
   }, 
   "wooden_axe": {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 1, 
     toolType: "axe", 
-    toolTier: "wooden"
+    toolTier: "wooden", 
+    durability: 35
   }, 
   "wooden_pickaxe": {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 0.75, 
     toolType: "pickaxe", 
-    toolTier: "wooden"
+    toolTier: "wooden", 
+    durability: 35
   }, 
   "bow": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "stone_pickaxe": {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 1, 
     toolType: "pickaxe", 
-    toolTier: "stone"
+    toolTier: "stone", 
+    durability: 50
   }, 
   "stone_axe": {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 1.5, 
     toolType: "axe", 
-    toolTier: "stone"
+    toolTier: "stone", 
+    durability: 50
   }, 
   "stone_sword": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 2
+    damage: 2, 
+    durability: 50
   }, 
   "stone_axehead": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "stone_pickaxe_head": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "iron_pickaxe": {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 2, 
     toolType: "pickaxe", 
-    toolTier: "iron"
+    toolTier: "iron", 
+    durability: 75
   }, 
   "iron_axe": {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 2, 
     toolType: "axe", 
-    toolTier: "stone"
+    toolTier: "stone", 
+    durability: 75
   }, 
   "iron_sword": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 3
+    damage: 3, 
+    durability: 75
   }, 
   "iron_axehead": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "iron_pickaxe_head": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "golden_pickaxe": {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 2.5, 
     toolType: "pickaxe", 
-    toolTier: "gold"
+    toolTier: "gold", 
+    durability: 30
   }, 
   "golden_axe": {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 3, 
     toolType: "axe", 
-    toolTier: "stone"
+    toolTier: "stone", 
+    durability: 30
   }, 
   "golden_sword": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 4
+    damage: 4, 
+    durability: 30
   }, 
   "golden_axehead": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "golden_pickaxe_head": {
     stackSize: 1, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "iron_rod": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "sharp_iron_rod": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 1
+    damage: 1, 
+    durability: Infinity
   }, 
   "iron_blade": {
     stackSize: 8, 
     isPlaceable: false, 
-    damage: 2
+    damage: 2, 
+    durability: Infinity
   }, 
   "golden_rod": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "sharp_golden_rod": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 2
+    damage: 2, 
+    durability: Infinity
   }, 
   "golden_blade": {
     stackSize: 8, 
     isPlaceable: false, 
-    damage: 2.5
+    damage: 2.5, 
+    durability: Infinity
   }, 
   "golden_ingot": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "golden_nugget": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "furnace": {
     stackSize: 1, 
     isPlaceable: true, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "anvil": {
     stackSize: 1, 
     isPlaceable: true, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }, 
   "woodchip": {
     stackSize: 16, 
     isPlaceable: false, 
-    damage: 0.5
+    damage: 0.5, 
+    durability: Infinity
   }
 };
 let inventoryShown = false;
@@ -713,7 +815,8 @@ let blockEntityOpenedColumn = "";
 let inventoryMouseSlot = {
   item: "none", 
   amount: 0, 
-  refinements: {}
+  refinements: {}, 
+  durability: 1
 };
 let craftingRecipes = [
   {
@@ -1365,39 +1468,48 @@ function onClickItem(slotID) {
         Inventory[slotID].item = inventoryMouseSlot.item;
         Inventory[slotID].amount = inventoryMouseSlot.amount;
         Inventory[slotID].refinements = inventoryMouseSlot.refinements;
+        Inventory[slotID].durability = inventoryMouseSlot.durability;
         inventoryMouseSlot.item = "none";
         inventoryMouseSlot.amount = 0;
         inventoryMouseSlot.refinements = {};
+        inventoryMouseSlot.durability = 1;
       } else if(Inventory[slotID].amount < 16){
         Inventory[slotID].item = inventoryMouseSlot.item;
         Inventory[slotID].amount += 1;
         Inventory[slotID].refinements = inventoryMouseSlot.refinements;
+        Inventory[slotID].durability = inventoryMouseSlot.durability;
         inventoryMouseSlot.amount--;
         if(inventoryMouseSlot.amount <= 0)
         {
           inventoryMouseSlot.item = "none";
           inventoryMouseSlot.refinements = {};
+          inventoryMouseSlot.durability = 1;
         }
       }
     } else if(inventoryMouseSlot.item == "none"){
       inventoryMouseSlot.item = Inventory[slotID].item;
       inventoryMouseSlot.amount = Inventory[slotID].amount;
       inventoryMouseSlot.refinements = Inventory[slotID].refinements;
+      inventoryMouseSlot.durability = Inventory[slotID].durability;
       Inventory[slotID].item = "none";
       Inventory[slotID].amount = 0;
       Inventory[slotID].refinements = {};
+      Inventory[slotID].durability = 1;
     } else if((inventoryMouseSlot.item != Inventory[slotID].item || (ItemProperties[inventoryMouseSlot.item].stackSize == 1 && ItemProperties[Inventory[slotID].item].stackSize == 1)) && slotID != 22) {
       let saveSlot = {
         item: inventoryMouseSlot.item, 
         amount: inventoryMouseSlot.amount, 
-        refinements: inventoryMouseSlot.refinements
+        refinements: inventoryMouseSlot.refinements, 
+        durability: inventoryMouseSlot.durability
       };
       inventoryMouseSlot.item = Inventory[slotID].item;
       inventoryMouseSlot.amount = Inventory[slotID].amount;
       inventoryMouseSlot.refinements = Inventory[slotID].refinements;
+      inventoryMouseSlot.durability = Inventory[slotID].durability;
       Inventory[slotID].item = saveSlot.item;
       Inventory[slotID].amount = saveSlot.amount;
       Inventory[slotID].refinements = saveSlot.refinements;
+      Inventory[slotID].durability = saveSlot.durability;
     } else if(slotID != 22){
       if(!isQPressed)
       {
@@ -1409,6 +1521,7 @@ function onClickItem(slotID) {
           {
             inventoryMouseSlot.item = "none";
             inventoryMouseSlot.refinements = {};
+            inventoryMouseSlot.durability = 1;
             break;
           }
         }
@@ -1420,6 +1533,7 @@ function onClickItem(slotID) {
         {
           inventoryMouseSlot.item = "none";
           inventoryMouseSlot.refinements = {};
+          inventoryMouseSlot.durability = 1;
         }
       }
     }
@@ -1434,46 +1548,55 @@ function onClickItemInWorkplace(slotID) {
         firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/" + slotID).update({
           item: inventoryMouseSlot.item, 
           amount: inventoryMouseSlot.amount, 
-          refinements: inventoryMouseSlot.refinements
+          refinements: inventoryMouseSlot.refinements, 
+          durability: inventoryMouseSlot.durability
         })
         inventoryMouseSlot.item = "none";
         inventoryMouseSlot.amount = 0;
         inventoryMouseSlot.refinements = {};
+        inventoryMouseSlot.durability = 1;
       } else if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount < 16){
         firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/" + slotID).update({
           item: inventoryMouseSlot.item, 
           amount: block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount + 1, 
-          refinements: inventoryMouseSlot.refinements
+          refinements: inventoryMouseSlot.refinements, 
+          durability: inventoryMouseSlot.durability
         })
         inventoryMouseSlot.amount--;
         if(inventoryMouseSlot.amount <= 0)
         {
           inventoryMouseSlot.item = "none";
           inventoryMouseSlot.refinements = {};
+          inventoryMouseSlot.durability = 1;
         }
       }
     } else if(inventoryMouseSlot.item == "none"){
       inventoryMouseSlot.item = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].item;
       inventoryMouseSlot.amount = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount;
       if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].refinements != undefined) inventoryMouseSlot.refinements = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].refinements;
+      inventoryMouseSlot.durability = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].durability;
       firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/" + slotID).update({
         item: "none", 
         amount: 0, 
-        refinements: {}
+        refinements: {}, 
+        durability: 1
       })
     } else if((inventoryMouseSlot.item != block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].item || (ItemProperties[inventoryMouseSlot.item].stackSize == 1 && ItemProperties[block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].item].stackSize == 1)) && slotID != 22) {
       let saveSlot = {
         item: inventoryMouseSlot.item, 
         amount: inventoryMouseSlot.amount, 
-        refinements: inventoryMouseSlot.refinements
+        refinements: inventoryMouseSlot.refinements, 
+        durability: inventoryMouseSlot.durability
       };
       inventoryMouseSlot.item = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].item;
       inventoryMouseSlot.amount = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].amount;
       if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].refinements != undefined) inventoryMouseSlot.refinements = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].refinements;
+      inventoryMouseSlot.durability = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].durability;
       firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/" + slotID).update({
         item: saveSlot.item, 
         amount: saveSlot.amount, 
-        refinements: saveSlot.refinements
+        refinements: saveSlot.refinements, 
+        durability: saveSlot.durability
       })
     } else {
       if(!isQPressed)
@@ -1488,6 +1611,7 @@ function onClickItemInWorkplace(slotID) {
           {
             inventoryMouseSlot.item = "none";
             inventoryMouseSlot.refinements = {};
+            inventoryMouseSlot.durability = 1;
             break;
           }
         }
@@ -1501,6 +1625,7 @@ function onClickItemInWorkplace(slotID) {
         {
           inventoryMouseSlot.item = "none";
           inventoryMouseSlot.refinements = {};
+          inventoryMouseSlot.durability = 1;
         }
       }
     }
@@ -1560,6 +1685,7 @@ function craftItem() {
                               Inventory[20].item = "none";
                               Inventory[20].amount = 0;
                               Inventory[20].refinements = {};
+                              Inventory[20].durability = 1;
                             }
                             Inventory[21].amount--;
                             if(Inventory[21].amount <= 0)
@@ -1567,9 +1693,11 @@ function craftItem() {
                               Inventory[21].item = "none";
                               Inventory[21].amount = 0;
                               Inventory[21].refinements = {};
+                              Inventory[21].durability = 1;
                             }
                             Inventory[22].item = itemCrafted;
                             Inventory[22].amount += craftAmount;
+                            Inventory[22].durability = ItemProperties[itemCrafted].durability;
                           }
                           craftProgress = 0;
                         }, craftInterval)
@@ -1661,12 +1789,14 @@ function anvilItem() {
                               firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/1").update({
                                 item: "none", 
                                 amount: 0, 
-                                refinements: {}
+                                refinements: {}, 
+                                durability: 1
                               })
                             }
                             firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/0").update({
                               item: itemCrafted, 
-                              amount: craftAmount
+                              amount: craftAmount, 
+                              durability: ItemProperties[itemCrafted].durability
                             })
                             for (var i = 0; i < refinementsEdit.length; i++) {
                               if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[refinementsEdit[i].name] != null)
@@ -1723,6 +1853,7 @@ function anvilItem() {
           foundExistingItemStack = true;
           Inventory[j].item = item;
           Inventory[j].amount++;
+          Inventory[j].durability = ItemProperties[item].durability;
           break;
         }
       }
@@ -1731,6 +1862,7 @@ function anvilItem() {
         {
           Inventory[j].item = item;
           Inventory[j].amount++;
+          Inventory[j].durability = ItemProperties[item].durability;
           break;
         }
       }
@@ -2009,7 +2141,8 @@ function anvilItem() {
             let el = blockElements["layer" + blockState.y][blockState.id];
             const left = 16 * ((blockState.x - myX) + 7) + "px";
             const top = 16 * ((blockState.y - myY) + 7) + "px";
-            el.style.transform = `translate3d(${left}, ${top}, 0)`;
+            const zlayer = blockState.type == "water" ? "2px" : "0px";
+            el.style.transform = `translate3d(${left}, ${top}, ${zlayer})`;
             el.querySelector(".Block_sprite").setAttribute("data-far", "false");
             el.querySelector(".Block_break_sprite_overlay").setAttribute("data-far", "false");
             el.querySelector(".Block_sprite").setAttribute("data-type", blockState.type);
@@ -2053,6 +2186,17 @@ function anvilItem() {
             if(ItemProperties[Inventory[currentSlot].item].toolType == BlockTraits[blockState.type].breakWith && mineIdx % Math.round(blockState.strength * toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier]) == 0)
             {
               hpRed = 1;
+            }
+            if(hpRed > 0 && BlockProperties[blockState.type].wasteDurability && Math.random() > 0.5)
+            {
+              Inventory[currentSlot].durability--;
+              if(Inventory[currentSlot].durability <= 0)
+              {
+                Inventory[currentSlot].item = "none";
+                Inventory[currentSlot].amount = 0;
+                Inventory[currentSlot].refinements = {};
+                Inventory[currentSlot].durability = 1;
+              }
             }
             firebase.database().ref("block/layer" + blockState.y + "/" + row).update({
               hp: blockState.hp - hpRed
@@ -2201,7 +2345,8 @@ function anvilItem() {
             let el = blockElements["layer" + blockState.y][blockState.id];
             const left = 16 * ((blockState.x - myX) + 7) + "px";
             const top = 16 * ((blockState.y - myY) + 7) + "px";
-            el.style.transform = `translate3d(${left}, ${top}, 0)`;
+            const zlayer = blockState.type == "water" ? "2px" : "0px";
+            el.style.transform = `translate3d(${left}, ${top}, ${zlayer})`;
             el.querySelector(".Block_sprite").setAttribute("data-far", "false");
             el.querySelector(".Block_break_sprite_overlay").setAttribute("data-far", "false");
             el.querySelector(".Block_sprite").setAttribute("data-type", blockState.type);
@@ -2847,7 +2992,8 @@ function anvilItem() {
         blockElement.querySelector(".Block_sprite").setAttribute("data-type", thisblock.type);
         const left = 16 * ((thisblock.x - myX) + 7) + "px";
         const top = 16 * ((thisblock.y - myY) + 7) + "px";
-        blockElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+        const zlayer = thisblock.type == "water" ? "1px" : "0px";
+        blockElement.style.transform = `translate3d(${left}, ${top}, ${zlayer})`;
 
         // Keep a reference for removal later and add to DOM
         if(blockElements["layer" + thisblock.y] == undefined) blockElements["layer" + thisblock.y] = {};
@@ -3018,6 +3164,14 @@ function anvilItem() {
           firebase.database().ref("players/" + characterState.id).update({
             health: characterState.health - (Math.floor(finalDamage) + (Math.random() <= finalDamage - Math.floor(finalDamage) ? 1 : 0))
           })
+          Inventory[currentSlot].durability--;
+          if(Inventory[currentSlot].durability <= 0)
+          {
+            Inventory[currentSlot].item = "none";
+            Inventory[currentSlot].amount = 0;
+            Inventory[currentSlot].refinements = {};
+            Inventory[currentSlot].durability = 1;
+          }
         }
       })
     }

@@ -699,6 +699,8 @@ button:active:not(#up-move) {
 }
 .Block_sprite[data-type="water"] {
 	background: url(images/water.png) no-repeat no-repeat;
+	z-index: 5;
+	opacity: 0.6;
 }
 .Block_sprite[data-type="coal_ore"] {
 	background: url(images/coal_ore.png) no-repeat no-repeat;
