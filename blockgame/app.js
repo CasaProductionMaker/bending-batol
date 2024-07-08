@@ -2187,7 +2187,7 @@ function anvilItem() {
             {
               hpRed = 1;
             }
-            if(hpRed > 0 && BlockProperties[blockState.type].wasteDurability && Math.random() > 0.5)
+            if(hpRed > 0 && BlockProperties[blockState.type].wasteDurability && Math.random() > 0.5 && Inventory[currentSlot].durability < 1000000000)
             {
               Inventory[currentSlot].durability--;
               if(Inventory[currentSlot].durability <= 0)
