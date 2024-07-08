@@ -421,193 +421,193 @@ let ItemProperties = {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "stone": {
     stackSize: 16, 
     isPlaceable: true, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "grass": {
     stackSize: 16, 
     isPlaceable: true, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "sand": {
     stackSize: 16, 
     isPlaceable: true, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "dirt": {
     stackSize: 16, 
     isPlaceable: true, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "leaves": {
     stackSize: 16, 
     isPlaceable: true, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "log": {
     stackSize: 8, 
     isPlaceable: true, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "coal_ore": {
     stackSize: 16, 
     isPlaceable: true, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "iron_ore": {
     stackSize: 8, 
     isPlaceable: true, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "gold_ore": {
     stackSize: 8, 
     isPlaceable: true, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "stick": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "long_stick": {
     stackSize: 8, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "sharpened_stick": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.75, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "handle": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "long_handle": {
     stackSize: 8, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "cotton": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "string": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "long_sharpened_stick": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "wood": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "wooden_blade": {
     stackSize: 8, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "wooden_axehead": {
     stackSize: 8, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "long_string": {
     stackSize: 8, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "wooden_pickaxe_head": {
     stackSize: 8, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "rock": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "pebble": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "stone_bricks": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "stone_rod": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "sharp_stone_rod": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "stone_blade": {
     stackSize: 8, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "iron_ingot": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "iron_nugget": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "cotton_strand": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "wooden_sword": {
     stackSize: 1, 
@@ -635,7 +635,7 @@ let ItemProperties = {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "stone_pickaxe": {
     stackSize: 1, 
@@ -663,13 +663,13 @@ let ItemProperties = {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "stone_pickaxe_head": {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "iron_pickaxe": {
     stackSize: 1, 
@@ -697,13 +697,13 @@ let ItemProperties = {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "iron_pickaxe_head": {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "golden_pickaxe": {
     stackSize: 1, 
@@ -731,79 +731,79 @@ let ItemProperties = {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "golden_pickaxe_head": {
     stackSize: 1, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "iron_rod": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "sharp_iron_rod": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 1, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "iron_blade": {
     stackSize: 8, 
     isPlaceable: false, 
     damage: 2, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "golden_rod": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "sharp_golden_rod": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 2, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "golden_blade": {
     stackSize: 8, 
     isPlaceable: false, 
     damage: 2.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "golden_ingot": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "golden_nugget": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "furnace": {
     stackSize: 1, 
     isPlaceable: true, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "anvil": {
     stackSize: 1, 
     isPlaceable: true, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }, 
   "woodchip": {
     stackSize: 16, 
     isPlaceable: false, 
     damage: 0.5, 
-    durability: Infinity
+    durability: 1000000000
   }
 };
 let inventoryShown = false;
