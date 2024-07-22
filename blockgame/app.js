@@ -1727,7 +1727,7 @@ function anvilItem() {
         if(craftingRecipes[i].data != undefined && craftingRecipes[i].data.refinements != undefined)
         {
           for (var k = 0; k < craftingRecipes[i].data.refinements.length; k++) {
-            if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[craftingRecipes[i].data.refinements[k].name] != null && block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[craftingRecipes[i].data.refinements[k].name].level + craftingRecipes[i].data.refinements[k].level > 4)
+            if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements != null && block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[craftingRecipes[i].data.refinements[k].name] != null && block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[craftingRecipes[i].data.refinements[k].name].level + craftingRecipes[i].data.refinements[k].level > 4)
             {
               canRefine = false;
             }
@@ -1799,7 +1799,7 @@ function anvilItem() {
                               durability: ItemProperties[itemCrafted].durability
                             })
                             for (var i = 0; i < refinementsEdit.length; i++) {
-                              if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[refinementsEdit[i].name] != null)
+                              if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements != null && block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[refinementsEdit[i].name] != null)
                               {
                                 firebase.database().ref("block/" + blockEntityOpenedRow + "/" + blockEntityOpenedColumn + "/data/blockInventory/0/refinements/" + refinementsEdit[i].name).update({
                                   level: block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[0].refinements[refinementsEdit[i].name].level + refinementsEdit[i].level
