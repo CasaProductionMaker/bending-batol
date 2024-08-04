@@ -171,6 +171,14 @@ let BlockProperties = {
     centerY: 0.063,  
     strength: 800, 
     wasteDurability: true
+  }, 
+  "chest": {
+    sizeX: 1.0, 
+    sizeY: 1.0,
+    centerX: 0.0, 
+    centerY: 0.0,  
+    strength: 50, 
+    wasteDurability: true
   }
 };
 let BlockTraits = {
@@ -259,6 +267,105 @@ let BlockTraits = {
     dataRequired: {
       blockCraftProgress: 0, 
       blockInventory: [
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }
+      ]
+    }
+  }, 
+  "chest": {
+    drop: ["chest"], 
+    amount: [1], 
+    breakWith: "axe", 
+    dataRequired: {
+      blockInventory: [
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
+        {
+          item: "none", 
+          amount: 0, 
+          refinements: {}, 
+          durability: 1
+        }, 
         {
           item: "none", 
           amount: 0, 
@@ -804,11 +911,18 @@ let ItemProperties = {
     isPlaceable: false, 
     damage: 0.5, 
     durability: 1000000000
+  }, 
+  "chest": {
+    stackSize: 1, 
+    isPlaceable: true, 
+    damage: 0.5, 
+    durability: 1000000000
   }
 };
 let inventoryShown = false;
 let furnaceOpen = false;
 let anvilOpen = false;
+let chestOpen = false;
 let blockEntityOpened = undefined;
 let blockEntityOpenedRow = "";
 let blockEntityOpenedColumn = "";
@@ -1290,6 +1404,14 @@ let craftingRecipes = [
     workplace: "hand", 
     pattern: false, 
     duration: 3
+  }, 
+  {
+    item: "chest", 
+    amount: 1, 
+    recipe: ["log", "log"], 
+    workplace: "hand", 
+    pattern: false, 
+    duration: 3
   }
 ]
 let toolTierBreakSpeed = {
@@ -1362,6 +1484,27 @@ let lang = {
   "woodchip": "Woodchip", 
   "sharpening": "Sharpened"
 }
+let structures = {
+  "dungeon": {
+    name: "dungeon", 
+    blockmap: {
+      "O": "stone", 
+      "_": "none", 
+      "X": "anvil"
+    }, 
+    width: 4, 
+    height: 4, 
+    shape: [
+      ["O", "O", "O", "O"], 
+      ["O", "_", "_", "O"], 
+      ["O", "_", "X", "O"], 
+      ["O", "O", "O", "O"]
+    ], 
+    biomes: ["plains", "forest", "desert"], 
+    distFromSurface: 6, 
+    rarity: 70
+  }
+}
 
 let block = {};
 let blockElements = {};
@@ -1374,6 +1517,7 @@ document.querySelector(".mouse-holding-item").setAttribute("data-inv", (inventor
 document.querySelector(".selected-slot").setAttribute("data-inv", (!inventoryShown ? "true" : "false"));
 document.querySelector(".furnace").setAttribute("data-fur", (furnaceOpen ? "true" : "false"));
 document.querySelector(".anvil").setAttribute("data-anv", (anvilOpen ? "true" : "false"));
+document.querySelector(".chest").setAttribute("data-chest", (chestOpen ? "true" : "false"));
 
 const playerColors = ["blue", "red", "orange", "yellow", "green", "purple"];
 
@@ -1460,7 +1604,7 @@ function interpolate(pa, pb, px){
 }
 
 function onClickItem(slotID) {
-  if(inventoryShown || anvilOpen)
+  if(inventoryShown || anvilOpen || chestOpen)
   {
     if(Inventory[slotID].item == "none" && slotID != 22)
     {
@@ -1540,7 +1684,7 @@ function onClickItem(slotID) {
   }
 }
 function onClickItemInWorkplace(slotID) {
-  if(anvilOpen)
+  if(anvilOpen || chestOpen)
   {
     if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[slotID].item == "none")
     {
@@ -2076,27 +2220,57 @@ function anvilItem() {
       }
       if(blockEntityOpened != undefined)
       {
-        for (var i = 0; i < 2; i++) {
-          document.querySelector(".anvil-item-ui-" + (i+1)).style.background = "url(images/" + block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item + ".png) no-repeat no-repeat";
-          for (const child of document.querySelector(".anvil-item-ui-" + (i+1)).children) {
-            if(child.className == "stack-number")
-            {
-              child.innerText = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].amount;
-              if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].amount <= 1) child.innerText = "";
-            }
-            if(child.className == "tooltips")
-            {
-              let RefinementText = "";
-              if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements != null)
+        if(block[blockEntityOpenedRow][blockEntityOpenedColumn].type == "anvil")
+        {
+          for (var i = 0; i < 2; i++) {
+            document.querySelector(".anvil-item-ui-" + (i+1)).style.background = "url(images/" + block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item + ".png) no-repeat no-repeat";
+            for (const child of document.querySelector(".anvil-item-ui-" + (i+1)).children) {
+              if(child.className == "stack-number")
               {
-                Object.keys(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements).forEach((key) => {
-                  const thisrefinement = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements[key];
-                  RefinementText += "<br>- " + lang[key] + " " + thisrefinement.level + " times";
-                })
+                child.innerText = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].amount;
+                if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].amount <= 1) child.innerText = "";
               }
-              child.innerHTML = lang[block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item] + RefinementText;
-              if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item == "none") child.innerText = "";
-              child.setAttribute("data-content", block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item);
+              if(child.className == "tooltips")
+              {
+                let RefinementText = "";
+                if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements != null)
+                {
+                  Object.keys(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements).forEach((key) => {
+                    const thisrefinement = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements[key];
+                    RefinementText += "<br>- " + lang[key] + " " + thisrefinement.level + " times";
+                  })
+                }
+                child.innerHTML = lang[block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item] + RefinementText;
+                if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item == "none") child.innerText = "";
+                child.setAttribute("data-content", block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item);
+              }
+            }
+          }
+        }
+        if(block[blockEntityOpenedRow][blockEntityOpenedColumn].type == "chest")
+        {
+          for (var i = 0; i < 15; i++) {
+            document.querySelector(".chest-item-ui-" + (i+1)).style.background = "url(images/" + block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item + ".png) no-repeat no-repeat";
+            for (const child of document.querySelector(".chest-item-ui-" + (i+1)).children) {
+              if(child.className == "stack-number")
+              {
+                child.innerText = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].amount;
+                if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].amount <= 1) child.innerText = "";
+              }
+              if(child.className == "tooltips")
+              {
+                let RefinementText = "";
+                if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements != null)
+                {
+                  Object.keys(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements).forEach((key) => {
+                    const thisrefinement = block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].refinements[key];
+                    RefinementText += "<br>- " + lang[key] + " " + thisrefinement.level + " times";
+                  })
+                }
+                child.innerHTML = lang[block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item] + RefinementText;
+                if(block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item == "none") child.innerText = "";
+                child.setAttribute("data-content", block[blockEntityOpenedRow][blockEntityOpenedColumn].data.blockInventory[i].item);
+              }
             }
           }
         }
@@ -2828,6 +3002,7 @@ function anvilItem() {
       mouseTile = {x: Math.floor((((mousePos.x + ((myX - 7) * 48)) - margin.x)) / 48), y: Math.floor(((mousePos.y + ((myY - 7) * 48)) - margin.y) / 48)};
       let isFurnace = false;
       let isAnvil = false;
+      let isChest = false;
       Object.keys(block).forEach((key) => {
         const rows = block[key];
         Object.keys(rows).forEach((row) => {
@@ -2845,9 +3020,17 @@ function anvilItem() {
             blockEntityOpenedColumn = row;
             console.log(firebase.database().ref("block/" + key + "/" + row))
           }
+          if(blockState.x === mouseTile.x && blockState.y === mouseTile.y && blockState.type == "chest")
+          {
+            isChest = true;
+            blockEntityOpened = firebase.database().ref("block/" + key + "/" + row);
+            blockEntityOpenedRow = key;
+            blockEntityOpenedColumn = row;
+            console.log(firebase.database().ref("block/" + key + "/" + row))
+          }
         })
       })
-      if((isFurnace || furnaceOpen) && !(inventoryShown || anvilOpen))
+      if((isFurnace || furnaceOpen) && !(inventoryShown || anvilOpen || chestOpen))
       {
         if(document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
         {
@@ -2857,7 +3040,7 @@ function anvilItem() {
           document.querySelector(".mouse-holding-item").setAttribute("data-inv", (furnaceOpen ? "true" : "false"));
           document.querySelector(".selected-slot").setAttribute("data-inv", (!furnaceOpen ? "true" : "false"));
         }
-      } else if((isAnvil || (anvilOpen && craftProgress == 0)) && !(inventoryShown || furnaceOpen)) {
+      } else if((isAnvil || (anvilOpen && craftProgress == 0)) && !(inventoryShown || furnaceOpen || chestOpen)) {
         if(document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
         {
           anvilOpen = !anvilOpen;
@@ -2865,6 +3048,15 @@ function anvilItem() {
           document.querySelector(".hotbar").setAttribute("data-inv", (!anvilOpen ? "true" : "false"));
           document.querySelector(".mouse-holding-item").setAttribute("data-inv", (anvilOpen ? "true" : "false"));
           document.querySelector(".selected-slot").setAttribute("data-inv", (!anvilOpen ? "true" : "false"));
+        }
+      } else if((isChest || chestOpen) && !(inventoryShown || furnaceOpen || anvilOpen)) {
+        if(document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
+        {
+          chestOpen = !chestOpen;
+          document.querySelector(".chest").setAttribute("data-chest", (chestOpen ? "true" : "false"));
+          document.querySelector(".hotbar").setAttribute("data-inv", (!chestOpen ? "true" : "false"));
+          document.querySelector(".mouse-holding-item").setAttribute("data-inv", (chestOpen ? "true" : "false"));
+          document.querySelector(".selected-slot").setAttribute("data-inv", (!chestOpen ? "true" : "false"));
         }
       } else {
         if(craftProgress == 0 && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')

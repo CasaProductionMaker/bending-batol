@@ -49,6 +49,25 @@ h3 {
 	visibility: visible;
 }
 
+/* Chest */
+
+.chest {
+	position: absolute;
+	width: 240px;
+	height: 136px;
+	transform: scale(3);
+	image-rendering: pixelated;
+	bottom: 322px;
+	background: url(images/chest_ui.png) no-repeat no-repeat;
+	overflow: hidden;
+}
+.chest[data-chest="false"] {
+	visibility: hidden;
+}
+.chest[data-chest="true"] {
+	visibility: visible;
+}
+
 /* Furnace */
 
 .furnace {
@@ -215,6 +234,82 @@ h3 {
 .hand-crafting-item-ui-3 {
 	top: 96px;
 	left: 218px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+
+.chest-item-ui-1 {
+	top: 32px;
+	left: 48px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-2 {
+	top: 32px;
+	left: 80px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-3 {
+	top: 32px;
+	left: 112px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-4 {
+	top: 32px;
+	left: 144px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-5 {
+	top: 32px;
+	left: 176px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-6 {
+	top: 64px;
+	left: 48px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-7 {
+	top: 64px;
+	left: 80px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-8 {
+	top: 64px;
+	left: 112px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-9 {
+	top: 64px;
+	left: 144px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-10 {
+	top: 64px;
+	left: 176px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-11 {
+	top: 96px;
+	left: 48px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-12 {
+	top: 96px;
+	left: 80px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-13 {
+	top: 96px;
+	left: 112px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-14 {
+	top: 96px;
+	left: 144px;
+	background: url(images/bedrock.png) no-repeat no-repeat;
+}
+.chest-item-ui-15 {
+	top: 96px;
+	left: 176px;
 	background: url(images/bedrock.png) no-repeat no-repeat;
 }
 
@@ -722,6 +817,9 @@ button:active:not(#up-move) {
 }
 .Block_sprite[data-type="anvil"] {
 	background: url(images/anvil.png) no-repeat no-repeat;
+}
+.Block_sprite[data-type="chest"] {
+	background: url(images/chest.png) no-repeat no-repeat;
 }
 
 .Block_sprite[data-far="true"] {
