@@ -2283,7 +2283,7 @@ function anvilItem() {
       document.querySelector("#left-move").setAttribute("data-pressed", mobileMovement.x[0]);
       document.querySelector("#right-move").setAttribute("data-pressed", mobileMovement.x[1]);
 
-      if(isJump && (yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
+      if(isJump && (yVel == 0.002 || inWater) && !(inventoryShown || anvilOpen || chestOpen) && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT')
       {
         yVel = -0.07;
       }
@@ -2987,15 +2987,15 @@ function anvilItem() {
       //if((yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') handleMovement(0, -0.07)
       isJump = true
     }, () => {isJump = false})
-    new KeyPressListener("ArrowLeft", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
+    new KeyPressListener("ArrowLeft", () => {if(!(inventoryShown || anvilOpen || chestOpen) && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
     new KeyPressListener("ArrowRight", () => {
       if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("KeyW", () => {
       //if((yVel == 0.002 || inWater) && !inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') handleMovement(0, -0.07)
       isJump = true
     }, () => {isJump = false})
-    new KeyPressListener("KeyA", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
-    new KeyPressListener("KeyD", () => {if(!inventoryShown && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
+    new KeyPressListener("KeyA", () => {if(!(inventoryShown || anvilOpen || chestOpen) && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = -0.03}, () => {if(xVel == -0.03) xVel = 0})
+    new KeyPressListener("KeyD", () => {if(!(inventoryShown || anvilOpen || chestOpen) && document.activeElement.nodeName != 'TEXTAREA' && document.activeElement.nodeName != 'INPUT') xVel = 0.03}, () => {if(xVel == 0.03) xVel = 0})
     new KeyPressListener("Space", () => handleAttack(), () => {})
     new KeyPressListener("KeyE", () => {
       let margin = {x: (screenDim.x - 720) / 2, y: (screenDim.y - 624) / 2};
