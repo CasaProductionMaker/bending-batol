@@ -2218,7 +2218,7 @@ function anvilItem() {
           }
         }
       }
-      if(blockEntityOpened != undefined)
+      if(blockEntityOpened != undefined && block[blockEntityOpenedRow][blockEntityOpenedColumn] != undefined)
       {
         if(block[blockEntityOpenedRow][blockEntityOpenedColumn].type == "anvil")
         {
@@ -3343,7 +3343,7 @@ function anvilItem() {
       mouseDown = true;
       Object.keys(players).forEach((key) => {
         const characterState = players[key];
-        if(Math.abs(mouseTile.x - characterState.x) < 0.7 && Math.abs(mouseTile.y - characterState.y) < 0.7 && !characterState.isDead && characterState.id != playerId)
+        if(Math.abs(mouseTile.x - characterState.x) < 0.7 && Math.abs(mouseTile.y - characterState.y) < 0.7 && !characterState.isDead && characterState.id != playerId && !players[playerId].isDead)
         {
           //console.log(characterState.health - Math.round(2 - ((ItemProperties[Inventory[currentSlot].item].toolTier != null ? toolTierBreakSpeed[ItemProperties[Inventory[currentSlot].item].toolTier] : 0.5) * 2)))
           let baseDamage = ItemProperties[Inventory[currentSlot].item].damage;
