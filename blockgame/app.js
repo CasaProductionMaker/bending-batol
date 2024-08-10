@@ -24,7 +24,7 @@ let mineIdx = 0;
 let myBlockId = (localStorage.getItem("myOldBlockId") != null ? localStorage.getItem("myOldBlockId") : 0);
 let renderDistance = 5;
 let isMapG;
-let worldRad = 35;
+let worldRad = 60;
 let action = 0;
 let inWater = false;
 let timeInWater = 0;
@@ -1488,9 +1488,17 @@ let structures = {
   "dungeon": {
     name: "dungeon", 
     blockmap: {
-      "O": "stone", 
+      "O": "stone_bricks", 
       "_": "none", 
-      "X": "anvil"
+      "X": "chest"
+    }, 
+    lootPool: {
+      "O": {
+        "iron_ingot": [0, 1, 1, 1, 1, 2, 2, 2, 2, 3], 
+        "golden_ingot": [0, 0, 0, 0, 0, 1, 1, 1, 2, 3], 
+        "log": [1, 1, 1, 2, 2, 3], 
+        "stone_bricks": [0, 1, 2, 3, 4, 5]
+      }
     }, 
     width: 4, 
     height: 4, 
@@ -1500,11 +1508,51 @@ let structures = {
       ["O", "_", "X", "O"], 
       ["O", "O", "O", "O"]
     ], 
+    lootShape: [
+      ["", "", "", ""], 
+      ["", "", "", ""], 
+      ["", "", "O", ""], 
+      ["", "", "", ""]
+    ], 
     biomes: ["plains", "forest", "desert"], 
     distFromSurface: 6, 
-    rarity: 70
+    rarity: 40
+  }, 
+  "water_well": {
+    name: "water_well", 
+    blockmap: {
+      "O": "stone_bricks", 
+      "_": "none", 
+      "=": "log", 
+      "w": "water"
+    }, 
+    lootPool: {}, 
+    width: 3, 
+    height: 7, 
+    shape: [
+      ["=", "=", "="], 
+      ["_", "_", "_"], 
+      ["O", "w", "O"], 
+      ["O", "w", "O"], 
+      ["O", "w", "O"], 
+      ["O", "w", "O"], 
+      ["O", "w", "O"]
+    ], 
+    lootShape: [
+      ["", "", ""], 
+      ["", "", ""], 
+      ["", "", ""], 
+      ["", "", ""], 
+      ["", "", ""], 
+      ["", "", ""], 
+      ["", "", ""]
+    ], 
+    biomes: ["plains", "forest", "desert"], 
+    distFromSurface: -1, 
+    rarity: 50
   }
 }
+let surfaceYMap = [];
 
 let block = {};
 let blockElements = {};
@@ -2648,6 +2696,7 @@ function anvilItem() {
       }else{
         y = worldSurface + interpolate(a, b, (x % wl) / wl) * amp;
       }
+      surfaceYMap[x+worldRad] = Math.round(y);
       if(biomeMap[x+worldRad] == "ocean")
       {
         y = worldSurface;
@@ -2980,6 +3029,67 @@ function anvilItem() {
         }
       }
     }
+    for(let i = -worldRad; i < worldRad; i++) {
+      Object.keys(structures).forEach((structIdx) => {
+        let s = structures[structIdx];
+        let structX = i + worldRad;
+        if(Math.random() * s.rarity < 1 && s.biomes.includes(biomeMap[structX]))
+        {
+          console.log("Generating " + structIdx + " at X: " + i)
+          Object.keys(block).forEach((key) => {
+            const rows = block[key];
+            Object.keys(rows).forEach((row) => {
+              const blockState = rows[row];
+              if(blockState.x >= i && blockState.x < i + s.width && blockState.y >= surfaceYMap[structX] + s.distFromSurface && blockState.y < surfaceYMap[structX] + s.distFromSurface + s.height)
+              {
+                firebase.database().ref("block/layer" + blockState.y + "/" + row).remove();
+              }
+            })
+          })
+          for (var k = 0; k < s.height; k++) {
+            for (var t = 0; t < s.width; t++) {
+              let structSetX = i + t;
+              let structSetY = surfaceYMap[structX] + k + s.distFromSurface;
+              if(s.blockmap[s.shape[k][t]] != "none")
+              {
+                blockRef = firebase.database().ref(`block/layer` + structSetY + `/struct` + structSetX);
+                blockRef.set({
+                  x: structSetX, 
+                  y: structSetY, 
+                  id: "struct" + structSetX, 
+                  type: s.blockmap[s.shape[k][t]], 
+                  sizeX: BlockProperties[s.blockmap[s.shape[k][t]]].sizeX, 
+                  sizeY: BlockProperties[s.blockmap[s.shape[k][t]]].sizeY,
+                  centerX: BlockProperties[s.blockmap[s.shape[k][t]]].centerX, 
+                  centerY: BlockProperties[s.blockmap[s.shape[k][t]]].centerY,  
+                  hp: 5, 
+                  strength: BlockProperties[s.blockmap[s.shape[k][t]]].strength, 
+                  data: BlockTraits[s.blockmap[s.shape[k][t]]].dataRequired
+                })
+                let thisLootIDX = 0;
+                console.log(s.lootPool)
+                if(s.lootPool[s.lootShape[k][t]] != null)
+                {
+                  Object.keys(s.lootPool[s.lootShape[k][t]]).forEach((lootPoolIdx) => {
+                    let loot = s.lootPool[s.lootShape[k][t]][lootPoolIdx];
+                    let amountToLoot = randomFromArray(loot);
+                    if(amountToLoot > 0)
+                    {
+                      firebase.database().ref(`block/layer` + structSetY + `/struct` + structSetX + `/data/blockInventory/` + thisLootIDX).update({
+                        item: lootPoolIdx, 
+                        amount: amountToLoot, 
+                        durability: 1000000000
+                      })
+                    }
+                    thisLootIDX++;
+                  })
+                }
+              }
+            }
+          }
+        }
+      })
+    }
   }
 
   function initGame() {
@@ -3026,7 +3136,6 @@ function anvilItem() {
             blockEntityOpened = firebase.database().ref("block/" + key + "/" + row);
             blockEntityOpenedRow = key;
             blockEntityOpenedColumn = row;
-            console.log(firebase.database().ref("block/" + key + "/" + row))
           }
         })
       })
