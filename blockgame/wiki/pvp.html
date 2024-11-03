@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Block Game Wiki</title>
+		<link rel="stylesheet" type="text/css" href="wiki-styles.css">
+		<link rel="stylesheet" type="text/css" href="Responsive.css">
+	</head>
+	<body>
+		<div class="TopHolder">
+			<a href="index.html" class="TopBar">Home</a>
+			<div class="dropdown">
+				<button class="TopBar DropDown">Pages</button>
+				<div class="DropDownContent">
+					<a href="index.html">Home</a>
+				</div>
+			</div>
+		</div>
+		<h1>Block Game Items</h1>
+		<p>PvP in Block Game has a lot of aspects you might not expect. Obviously there are swords and axes, but it's a bit more complicated than that.</p>
+		<h2>PvP Basics</h2>
+		<div class="align-center half-size">
+			PvP in Block Game is done by clicking on another player to attack them. The damage done is based on the weapon in your hand (The one selected in your hotbar.) Using this can waste durability on the tool though, depending on if it has durability.<br>
+			Damage numbers in Block Game can have decimal numbers, but they don't work how you would probably expect. Let's say a Sharpened Stick does 0.75 damage. The damage is calculated using the complete number as damage, plus the decimal as a chance for another damage point. Back to the Sharpened Stick example, the formula <em>whole number</em> + (<em>decimal number</em>% * 1) translates to 0 + (75% * 1) meaning this attack has a 75% chance to do 1 damage, and a 25% chance to do 0. Here's another example: A Wooden Sword that is Sharpened once does 1.5 damage. This means that using the formula, 1 + (50% * 1) means this attack does 1 damage, and has a 50% chance to do another 1 damage point.
+		</div>
+	</body>
+</html>

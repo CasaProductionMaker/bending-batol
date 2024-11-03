@@ -118,6 +118,18 @@ h3 {
 	bottom: 72px;
 }
 
+/* UI Health Bar */
+
+.ui-health-bar {
+	width: 79px;
+	height: 6px;
+	transform: scale(3);
+	position: absolute;
+	image-rendering: pixelated;
+	background: url(images/health-bar/health-bar-10.png) no-repeat no-repeat;
+	bottom: 164px;
+}
+
 /* Item UI */
 
 .hotbar-item-ui-1 {

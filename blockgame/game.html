@@ -75,16 +75,17 @@
 			<div class="anvil-button" onclick="anvilItem()"></div>
 		</div>
 		<div class="hotbar">
-			<div class="grid-cell hotbar-item-ui-1 inventory-slot" onclick="onClickItem(0)"><p class="stack-number"></p></div>
-			<div class="grid-cell hotbar-item-ui-2 inventory-slot" onclick="onClickItem(1)"><p class="stack-number"></p></div>
-			<div class="grid-cell hotbar-item-ui-3 inventory-slot" onclick="onClickItem(2)"><p class="stack-number"></p></div>
-			<div class="grid-cell hotbar-item-ui-4 inventory-slot" onclick="onClickItem(3)"><p class="stack-number"></p></div>
-			<div class="grid-cell hotbar-item-ui-5 inventory-slot" onclick="onClickItem(4)"><p class="stack-number"></p></div>
+			<div class="grid-cell hotbar-item-ui-1 inventory-slot" onclick="onClickItem(0)"><p class="stack-number"></p><p class="tooltips"></p></div>
+			<div class="grid-cell hotbar-item-ui-2 inventory-slot" onclick="onClickItem(1)"><p class="stack-number"></p><p class="tooltips"></p></div>
+			<div class="grid-cell hotbar-item-ui-3 inventory-slot" onclick="onClickItem(2)"><p class="stack-number"></p><p class="tooltips"></p></div>
+			<div class="grid-cell hotbar-item-ui-4 inventory-slot" onclick="onClickItem(3)"><p class="stack-number"></p><p class="tooltips"></p></div>
+			<div class="grid-cell hotbar-item-ui-5 inventory-slot" onclick="onClickItem(4)"><p class="stack-number"></p><p class="tooltips"></p></div>
 			<div class="selected-slot"></div>
 		</div>
+		<div class="ui-health-bar"></div>
 		<div class="player-info">
 			<div>
-				<label for="player-name">Your Name</label>
+				<label for="player-name" id="logger">Your Name</label>
 				<input id="player-name" maxlength="16" type="text"/>
 			</div>
 			<div>
