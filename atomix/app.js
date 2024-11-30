@@ -333,17 +333,20 @@ function distanceBetween(x1, y1, x2, y2) {
         firebase.database().ref(`games/` + gameCode + `/mobs/` + thisMob.id).update({
           x: thisMob.x, 
           y: thisMob.y, 
-          xV: thisMob.x, 
-          yV: thisMob.y, 
+          xV: thisMob.xV, 
+          yV: thisMob.yV, 
           health: thisMob.health, 
           direction: thisMob.direction
         })
         //Render
         let left = ((thisMob.x - myX) + ((screenDim.x / 2) - 64)) + "px";
         let top = ((thisMob.y - myY) + ((screenDim.y / 2) - 64)) + "px";
-        mobElements[thisMob.id].style.transform = `translate3d(${left}, ${top}, 0)`;
-        mobElements[thisMob.id].querySelector(".Mob_sprite").style.background = "url(images/Mobs/" + thisMob.type + ".png) no-repeat no-repeat";
-        mobElements[thisMob.id].querySelector(".Mob_sprite").style.rotate = thisMob.direction + "deg";
+        if(mobElements[thisMob.id] != undefined)
+        {
+          mobElements[thisMob.id].style.transform = `translate3d(${left}, ${top}, 0)`;
+          mobElements[thisMob.id].querySelector(".Mob_sprite").style.background = "url(images/Mobs/" + thisMob.type + ".png) no-repeat no-repeat";
+          mobElements[thisMob.id].querySelector(".Mob_sprite").style.rotate = thisMob.direction + "deg";
+        }
         //Die If Dead
         if(thisMob.health <= 0)
         {
@@ -513,6 +516,8 @@ function distanceBetween(x1, y1, x2, y2) {
       direction: 0
     })
     mobSpawnID++;
+    console.log(mobSpawnID)
+    mobCount++;
   }
 
   function initGame() {
@@ -644,7 +649,6 @@ function distanceBetween(x1, y1, x2, y2) {
       let top = ((addedMob.y - myY) + ((screenDim.y / 2) - 64));
       mobElement.style.transform = "translate3d(" + left + "px, " + top + "px, 0)";
       gameContainer.appendChild(mobElement);
-      mobCount++;
     })
     allMobsRef.on("child_removed", (snapshot) => {
       const removedKey = snapshot.val().id;
