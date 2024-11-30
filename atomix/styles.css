@@ -1,0 +1,248 @@
+/* General */
+
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	background: #BBB;
+	font-family: sans-serif;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+}
+h3 {
+	margin: 0.3em;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+/* Game Container */
+
+.game-container {
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+}
+
+/* Hotbar */
+
+.hotbar {
+	overflow: hidden;
+}
+
+/* UI Health Bar */
+
+.ui-health-bar {
+	position: absolute;
+}
+
+/* Item UI */
+
+.inventory-slot .tooltips {
+	font-size: 6px;
+	position: absolute;
+	left: 12px;
+	top: -12px;
+	visibility: hidden;
+	z-index: 15;
+	background: whitesmoke;
+	border: solid 1px;
+	border-radius: 2px;
+	padding: 1.5px;
+	text-wrap: nowrap;
+}
+.inventory-slot:hover .tooltips {
+	visibility: visible;
+}
+
+/* Respawn */
+
+.respawn-container {
+	z-index: 2;
+	align-items: center;
+	justify-content: center;
+}
+
+#respawn {
+	text-align: center;
+}
+
+/* Player Customization */
+
+.player-info {
+	
+}
+
+/* Chat */
+
+.chat-box {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	padding: 1em;
+	display: flex;
+	gap: 0.5em;
+	align-items: flex-end;
+	z-index: 10;
+}
+
+.chat-message {
+	position: relative;
+	bottom: 300px;
+}
+
+/* More General */
+
+label {
+	display: block;
+	font-weight: bold;
+}
+
+input[type="text"], 
+button {
+	font-family: inherit;
+	font-weight: bold;
+	font-size: 18px;
+	height: 44px;
+	border-radius: 4px;
+	outline: 0;
+}
+
+input[type="text"] {
+	outline: 0;
+	padding-left: 0.5em;
+	border: 3px solid #222034;
+	width: 150px;
+	text-transform: none;
+}
+
+input[type="text"]:focus {
+	border-color: #f000ff;
+}
+
+button {
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	background: #59ff5a;
+	border: 0;
+	border-bottom: 2px solid #1e830b;
+	cursor: pointer;
+}
+
+button:active:not(#up-move) {
+	position: relative;
+	top: 1px;
+}
+
+/* More Chat */
+
+#chat-display {
+	text-align: right;
+	align-self: right;
+	right: 0px;
+	font-weight: bold;
+	position: relative;
+	bottom: 70px;
+	left: 210px;
+	overflow: hidden;
+}
+
+/* Characters */
+
+.Character {
+	position: absolute;
+	width: 32px;
+	height: 32px;
+	transition: transform 0.1s;
+	text-align: center;
+}
+
+.Character.you {
+	z-index: 10;
+}
+
+.Character_sprite {
+	width: 32px;
+	height: 32px;
+	background: url(images/Player.png);
+}
+
+.Character_name-container {
+  position: absolute;
+  top: -12px;
+  left: -5px;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: none;
+}
+.Character_name {
+  color: black;
+}
+
+/* Walls */
+
+#leftWall {
+	background-color: #666;
+	position: absolute;
+	height: 100vh;
+	width: 1vw;
+	border-radius: 0.5vw;
+}
+
+#rightWall {
+	background-color: #666;
+	position: absolute;
+	height: 100vh;
+	width: 1vw;
+	border-radius: 0.5vw;
+}
+
+#topWall {
+	background-color: #666;
+	position: absolute;
+	height: 1vw;
+	width: 100vw;
+	border-radius: 0.5vw;
+}
+
+#bottomWall {
+	background-color: #666;
+	position: absolute;
+	height: 1vw;
+	width: 100vw;
+	border-radius: 0.5vw;
+}
+
+/* Electrons */
+
+.Electron {
+	width: 32px;
+	height: 32px;
+	position: absolute;
+	z-index: 5;
+}
+
+.Electron_sprite {
+	width: 32px;
+	height: 32px;
+}
+
+/* Mobs */
+
+.Mob {
+	width: 128px;
+	height: 128px;
+	position: absolute;
+	z-index: 3;
+}
+
+.Mob_sprite {
+	width: 128px;
+	height: 128px;
+}

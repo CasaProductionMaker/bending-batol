@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" type="text/css" href="menu-styles.css">
+		<link rel="icon" type="image/x-icon" href="favicon.ico">
+		<title>Atomix</title>
+	</head>
+	<body>
+		<h1>Atomix</h1>
+		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+		<div>
+			<label for="player-name">Your Name</label>
+			<input id="player-name" maxlength="16" type="text"/>
+			<button><a href="game.html">Play!</a></button>
+		</div>
+		<div>
+			<label for="gamecode">Game Code: </label>
+			<input id="gamecode" maxlength="5" type="text"/>
+			<button onclick="joinGame()">Enter</button>
+			<button onclick="createGame()">Create Game</button>
+		</div>
+		<script type="text/javascript" src="menu.js"></script>
+	</body>
+</html>

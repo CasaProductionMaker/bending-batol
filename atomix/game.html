@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" type="text/css" href="styles.css">
+		<link rel="icon" type="image/x-icon" href="favicon.ico">
+		<title>Atomix</title>
+	</head>
+	<body>
+		<div class="chat-box">
+			<div id="chat-display">
+    		</div>
+			<div>
+				<label for="chat-input">Chat</label>
+				<input id="chat-input" maxlength="32" type="text" style="text-transform: none;"/>
+			</div>
+			<div>
+        		<button id="send-chat">Send</button>
+    		</div>
+		</div>
+		<div class="game-container">
+		</div>
+		<div class="hotbar">
+			<div class="hotbar-item-ui-1 inventory-slot"><p class="tooltips"></p></div>
+			<div class="hotbar-item-ui-2 inventory-slot"><p class="tooltips"></p></div>
+			<div class="hotbar-item-ui-3 inventory-slot"><p class="tooltips"></p></div>
+			<div class="hotbar-item-ui-4 inventory-slot"><p class="tooltips"></p></div>
+			<div class="hotbar-item-ui-5 inventory-slot"><p class="tooltips"></p></div>
+		</div>
+
+		<div class="ui-health-bar"></div>
+		<div class="player-info"></div>
+
+		<div id="leftWall"></div>
+		<div id="rightWall"></div>
+		<div id="topWall"></div>
+		<div id="bottomWall"></div>
+
+		<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    	<script src="KeyPressListener.js"></script>
+    	<div class="respawn-container">
+			<script type="text/javascript" src="app.js"></script>
+		</div>
+	</body>
+</html>
