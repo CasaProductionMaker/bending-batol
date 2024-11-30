@@ -627,7 +627,7 @@ function distanceBetween(x1, y1, x2, y2) {
         let el = mobElements[key];
         let left = ((thisMob.x - myX) + ((screenDim.x / 2) - 64)) + "px";
         let top = ((thisMob.y - myY) + ((screenDim.y / 2) - 64)) + "px";
-        el.style.transform = `translate3d(${left}, ${top}, 0)`;
+        if(el != undefined) el.style.transform = `translate3d(${left}, ${top}, 0)`;
       })
     })
     allMobsRef.on("child_added", (snapshot) => {
