@@ -247,7 +247,7 @@ function distanceBetween(x1, y1, x2, y2) {
         //Damage
         Object.keys(mobs).forEach((mob) => {
           const thisMob = mobs[mob];
-          if(distanceBetween(thisElectron.x, thisElectron.y, thisMob.x, thisMob.y) <= electronStats[thisElectron.type].Size + mobStats[thisMob.type].Size)
+          if(mobStats[thisMob.type] != undefined && distanceBetween(thisElectron.x, thisElectron.y, thisMob.x, thisMob.y) <= electronStats[thisElectron.type].Size + mobStats[thisMob.type].Size)
           {
             thisElectron.x += ((thisElectron.x - thisMob.x) / Math.abs(thisElectron.x - thisMob.x)) * 5;
             thisElectron.y += ((thisElectron.y - thisMob.y) / Math.abs(thisElectron.y - thisMob.y)) * 5;
@@ -383,45 +383,48 @@ function distanceBetween(x1, y1, x2, y2) {
   function mobSpawnLoop() {
     if(players[playerId] != null) {
       //Game host mob spawn
-      if(mobsSpawned < Wave * 2)
+      if(gameHost == localStorage.getItem("AtomixUser"))
       {
-        let nMX = Math.round((Math.random() * (mapSize*2)) - mapSize);
-        let nMY = Math.round((Math.random() * (mapSize*2)) - mapSize);
-        let mobToSpawn = "";
-        if(Wave < 4)
+        if(mobsSpawned < Wave * 2)
         {
-          mobToSpawn = "Gear";
-        } else if(Wave < 6) {
-          mobToSpawn = randomFromArray(["Gear", "BallBearing"]);
-        } else if(Wave < 8) {
-          mobToSpawn = randomFromArray(["Gear", "BallBearing", "Screw"]);
-        } else if(Wave < 11) {
-          mobToSpawn = randomFromArray(["Gear", "BallBearing", "Screw", "LaserScrew"]);
-        } else if(Wave < 16) {
-          mobToSpawn = randomFromArray(["Gear", "BallBearing", "Screw", "LaserScrew", "Tanker"]);
-        } else if(Wave < 21) {
-          mobToSpawn = randomFromArray(mobList);
-        } else {
-          if(Wave % 7 == 0)
+          let nMX = Math.round((Math.random() * (mapSize*2)) - mapSize);
+          let nMY = Math.round((Math.random() * (mapSize*2)) - mapSize);
+          let mobToSpawn = "";
+          if(Wave < 4)
           {
+            mobToSpawn = "Gear";
+          } else if(Wave < 6) {
+            mobToSpawn = randomFromArray(["Gear", "BallBearing"]);
+          } else if(Wave < 8) {
+            mobToSpawn = randomFromArray(["Gear", "BallBearing", "Screw"]);
+          } else if(Wave < 11) {
+            mobToSpawn = randomFromArray(["Gear", "BallBearing", "Screw", "LaserScrew"]);
+          } else if(Wave < 16) {
+            mobToSpawn = randomFromArray(["Gear", "BallBearing", "Screw", "LaserScrew", "Tanker"]);
+          } else if(Wave < 21) {
             mobToSpawn = randomFromArray(mobList);
           } else {
-            mobToSpawn = mobList[Wave % 7];
+            if(Wave % 7 == 0)
+            {
+              mobToSpawn = randomFromArray(mobList);
+            } else {
+              mobToSpawn = mobList[Wave % 7];
+            }
           }
+          while(distanceBetween(players[playerId].x, players[playerId].y, nMX, nMY) < 128)
+          {
+            nMX = Math.round((Math.random() * (mapSize*2)) - mapSize);
+            nMY = Math.round((Math.random() * (mapSize*2)) - mapSize);
+          }
+          spawnMob(firebase.database().ref("games/" + gameCode + "/mobs/mob" + mobSpawnID), mobToSpawn, nMX, nMY);
+          mobsSpawned++;
         }
-        while(distanceBetween(players[playerId].x, players[playerId].y, nMX, nMY) < 128)
+        if(mobCount < 2)
         {
-          nMX = Math.round((Math.random() * (mapSize*2)) - mapSize);
-          nMY = Math.round((Math.random() * (mapSize*2)) - mapSize);
+          Wave++;
+          mobsSpawned = 0;
+          firebase.database().ref(`games/` + gameCode + `/wave`).set(Wave);
         }
-        spawnMob(firebase.database().ref("games/" + gameCode + "/mobs/mob" + mobSpawnID), mobToSpawn, nMX, nMY);
-        mobsSpawned++;
-      }
-      if(mobCount < 2)
-      {
-        Wave++;
-        mobsSpawned = 0;
-        firebase.database().ref(`games/` + gameCode + `/wave`).set(Wave);
       }
     }
 
@@ -717,10 +720,9 @@ function distanceBetween(x1, y1, x2, y2) {
     addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron16"), "SmolElectron", 3, 2, "electron16");
     addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron17"), "SharpElectron", 4, 2, "electron17");
     addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron18"), "TankElectron", 5, 2, "electron18");
-    spawnMob(firebase.database().ref("games/" + gameCode + "/mobs/mob" + mobSpawnID), "Gear", 100, 100);
     if(gameHost == localStorage.getItem("AtomixUser"))
     {
-      //
+      spawnMob(firebase.database().ref("games/" + gameCode + "/mobs/mob" + mobSpawnID), "Gear", 100, 100);
     }
     oneSecondLoop();
     setTimeout(() => tickLoop(), 500);
