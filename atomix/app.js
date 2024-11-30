@@ -308,6 +308,12 @@ function distanceBetween(x1, y1, x2, y2) {
           thisMob.yV = Math.cos(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
           thisMob.direction += 20;
         }
+        if(thisMob.type == "LaserScrew")
+        {
+          thisMob.xV = Math.sin(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
+          thisMob.yV = Math.cos(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
+          thisMob.direction += 20;
+        }
         //Velocities
         thisMob.xV *= 0.85;
         thisMob.yV *= 0.85;
