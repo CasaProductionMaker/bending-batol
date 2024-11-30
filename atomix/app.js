@@ -463,7 +463,7 @@ function distanceBetween(x1, y1, x2, y2) {
       if(Math.abs(myX) > mapSize || Math.abs(myY) > mapSize) isCollision = true;
       Object.keys(mobs).forEach((mob) => {
         const thisMob = mobs[mob];
-        if(distanceBetween(players[playerId].x, players[playerId].y, thisMob.x, thisMob.y) <= 13.0 + mobStats[thisMob.type].Size)
+        if(mobStats[thisMob.type] != undefined && distanceBetween(players[playerId].x, players[playerId].y, thisMob.x, thisMob.y) <= 13.0 + mobStats[thisMob.type].Size)
         {
           xVel = ((players[playerId].x - thisMob.x) / (13.0 + mobStats[thisMob.type].Size)) * 6;
           yVel = ((players[playerId].y - thisMob.y) / (13.0 + mobStats[thisMob.type].Size)) * 6;
