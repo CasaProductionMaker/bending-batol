@@ -137,7 +137,7 @@ let gameHost = "";
 let mobSpawnID = 0;
 let mobCount = 0;
 let mobsSpawned = 1;
-let Wave = 1;
+let Wave = 0;
 let mobList = ["Gear", "BallBearing", "Screw", "LaserScrew", "Tanker", "Missile"];
 
 //Misc
@@ -256,6 +256,11 @@ function distanceBetween(x1, y1, x2, y2) {
             thisMob.y += ((thisMob.y - thisElectron.y) / (electronStats[thisElectron.type].Size + mobStats[thisMob.type].Size)) * 2.5;
             thisMob.health -= electronStats[thisElectron.type].Damage;
           }
+          firebase.database().ref(`games/` + gameCode + `/mobs/` + thisMob.id).update({
+            x: thisMob.x, 
+            y: thisMob.y, 
+            health: thisMob.health
+          })
         })
         if(thisElectron.health < 1 && thisElectron.health > -1000000)
         {
@@ -295,6 +300,7 @@ function distanceBetween(x1, y1, x2, y2) {
           {
             TargetX = characterState.x;
             TargetY = characterState.y;
+            shortestDist = distanceBetween(thisMob.x, thisMob.y, characterState.x, characterState.y);
           }
         })
         let targetDir = 90 - (Math.atan((TargetY - thisMob.y) / (TargetX - thisMob.x)) * 180.0 / Math.PI);
@@ -302,18 +308,32 @@ function distanceBetween(x1, y1, x2, y2) {
         {
           targetDir = (-90) - (Math.atan((TargetY - thisMob.y) / (TargetX - thisMob.x)) * 180.0 / Math.PI);
         }
-        if(thisMob.type == "Screw")
+        if(thisMob.type == "Screw" && shortestDist < mapSize)
         {
           thisMob.xV = Math.sin(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
           thisMob.yV = Math.cos(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
           thisMob.direction += 20;
         }
-        if(thisMob.type == "LaserScrew")
+        if(thisMob.type == "LaserScrew" && shortestDist < mapSize)
         {
           thisMob.xV = Math.sin(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
           thisMob.yV = Math.cos(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
           thisMob.direction += 20;
         }
+        if(thisMob.type == "Missile" && shortestDist < mapSize)
+        {
+          thisMob.xV = Math.sin(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
+          thisMob.yV = Math.cos(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
+          thisMob.direction = targetDir;
+        }
+        Object.keys(mobs).forEach((innerMob) => {
+          const mobColl = mobs[innerMob];
+          if(distanceBetween(thisMob.x, thisMob.y, mobColl.x, mobColl.y) < mobStats[thisMob.type].Size + mobStats[mobColl.type].Size)
+          {
+            thisMob.xV = ((thisMob.x - mobColl.x) / (mobStats[thisMob.type].Size + mobStats[mobColl.type].Size)) * 2;
+            thisMob.yV = ((thisMob.y - mobColl.y) / (mobStats[thisMob.type].Size + mobStats[mobColl.type].Size)) * 2;
+          }
+        })
         //Velocities
         thisMob.xV *= 0.85;
         thisMob.yV *= 0.85;
@@ -387,7 +407,7 @@ function distanceBetween(x1, y1, x2, y2) {
     //repeat
     setTimeout(() => {
       tickLoop();
-    }, 50);
+    }, 25);
   }
   function mobSpawnLoop() {
     if(players[playerId] != null) {
@@ -427,9 +447,7 @@ function distanceBetween(x1, y1, x2, y2) {
           }
           spawnMob(firebase.database().ref("games/" + gameCode + "/mobs/mob" + mobSpawnID), mobToSpawn, nMX, nMY);
           mobsSpawned++;
-        }
-        if(mobCount < 2)
-        {
+        } else if(mobCount < 2) {
           Wave++;
           mobsSpawned = 0;
           firebase.database().ref(`games/` + gameCode + `/wave`).set(Wave);
@@ -455,7 +473,7 @@ function distanceBetween(x1, y1, x2, y2) {
     //repeat
     setTimeout(() => {
       renderLoop();
-    }, 50);
+    }, 25);
   }
   function handleMovement(xChange=0, yChange=0) {
     const newX = players[playerId].x + xChange;
@@ -718,18 +736,20 @@ function distanceBetween(x1, y1, x2, y2) {
     addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron4"), "SmolElectron", 3, 0, "electron4");
     addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron5"), "SharpElectron", 4, 0, "electron5");
     addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron6"), "TankElectron", 5, 0, "electron6");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron7"), "Electron", 0, 1, "electron7");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron8"), "ChunkyElectron", 1, 1, "electron8");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron9"), "SpedElectron", 2, 1, "electron9");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron10"), "SmolElectron", 3, 1, "electron10");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron11"), "SharpElectron", 4, 1, "electron11");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron12"), "TankElectron", 5, 1, "electron12");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron13"), "Electron", 0, 2, "electron13");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron14"), "ChunkyElectron", 1, 2, "electron14");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron15"), "SpedElectron", 2, 2, "electron15");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron16"), "SmolElectron", 3, 2, "electron16");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron17"), "SharpElectron", 4, 2, "electron17");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron18"), "TankElectron", 5, 2, "electron18");
+    
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron7"), "Electron", 0, 1, "electron7");
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron8"), "ChunkyElectron", 1, 1, "electron8");
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron9"), "SpedElectron", 2, 1, "electron9");
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron10"), "SmolElectron", 3, 1, "electron10");
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron11"), "SharpElectron", 4, 1, "electron11");
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron12"), "TankElectron", 5, 1, "electron12");
+    
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron13"), "Electron", 0, 2, "electron13");
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron14"), "ChunkyElectron", 1, 2, "electron14");
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron15"), "SpedElectron", 2, 2, "electron15");
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron16"), "SmolElectron", 3, 2, "electron16");
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron17"), "SharpElectron", 4, 2, "electron17");
+    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron18"), "TankElectron", 5, 2, "electron18");
     if(gameHost == localStorage.getItem("AtomixUser"))
     {
       spawnMob(firebase.database().ref("games/" + gameCode + "/mobs/mob" + mobSpawnID), "Gear", 100, 100);
