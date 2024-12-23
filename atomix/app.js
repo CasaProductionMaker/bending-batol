@@ -38,7 +38,7 @@ let isUp;
 let isDown;
 let mapSize = 500;
 let spaceMultiplier = 1;
-let PlayerHealth = 2000;
+let PlayerHealth = 250;
 
 //Electrons
 let ElectronsPerShell = [0, 0, 0];
@@ -46,84 +46,144 @@ let ElectronsPerShell = [0, 0, 0];
 //Stats
 let electronStats = {
   "Electron": {
-    Health: 100, 
-    Damage: 30, 
+    Health: 10, 
+    Damage: 10, 
     Size: 6, 
-    Reload: 2.5
+    Reload: 2, 
+    sReload: 0, 
+    EPS: 1
   }, 
   "ChunkyElectron": {
-    Health: 2000, 
-    Damage: 20, 
+    Health: 100, 
+    Damage: 2, 
     Size: 10, 
-    Reload: 4
+    Reload: 4, 
+    sReload: 0, 
+    EPS: 1
   }, 
   "SpedElectron": {
-    Health: 100, 
-    Damage: 200, 
+    Health: 5, 
+    Damage: 20, 
     Size: 6, 
-    Reload: 1.5
+    Reload: 3, 
+    sReload: 0, 
+    EPS: 1
   }, 
   "SmolElectron": {
-    Health: 50, 
-    Damage: 10, 
+    Health: 2, 
+    Damage: 2, 
     Size: 4, 
-    Reload: 0.25
+    Reload: 0.4, 
+    sReload: 0, 
+    EPS: 3
   }, 
   "TankElectron": {
-    Health: 5000, 
-    Damage: 5, 
+    Health: 200, 
+    Damage: 2, 
     Size: 12, 
-    Reload: 4
+    Reload: 5, 
+    sReload: 0, 
+    EPS: 1
   }, 
   "SharpElectron": {
-    Health: 50, 
-    Damage: 1000, 
+    Health: 2, 
+    Damage: 50, 
     Size: 7, 
-    Reload: 5
-  }
-}
-let mobStats = {
-  "Gear": {
-    Health: 300, 
-    Damage: 50, 
-    Size: 16, 
-    Speed: 0, 
-    Score: 1
+    Reload: 5, 
+    sReload: 0, 
+    EPS: 1
   }, 
-  "BallBearing": {
-    Health: 2000, 
-    Damage: 30, 
-    Size: 27, 
-    Speed: 0, 
-    Score: 2
+  "MissileElectron": {
+    Health: 10, 
+    Damage: 15, 
+    Size: 7, 
+    Reload: 1.5, 
+    sReload: 0.5, 
+    EPS: 1
   }, 
-  "Screw": {
-    Health: 750, 
-    Damage: 75, 
-    Size: 14, 
-    Speed: 3, 
-    Score: 2
+  "Magnet": {
+    Health: 20, 
+    Damage: 3, 
+    Size: 10, 
+    Reload: 2, 
+    sReload: 0, 
+    EPS: 1
   }, 
-  "LaserScrew": {
-    Health: 1250, 
-    Damage: 150, 
-    Size: 16, 
-    Speed: 3, 
-    Score: 5
+  "Taser": {
+    Health: 10, 
+    Damage: 5, 
+    Size: 6, 
+    Reload: 3, 
+    sReload: 0, 
+    EPS: 1
   }, 
-  "Tanker": {
-    Health: 5000, 
-    Damage: 50, 
-    Size: 44, 
-    Speed: 0, 
-    Score: 3
+  "Solder": {
+    Health: 10, 
+    Damage: 10, 
+    Size: 5, 
+    Reload: 2, 
+    sReload: 1, 
+    EPS: 1, 
+    Heal: 10
   }, 
-  "Missile": {
-    Health: 1500, 
-    Damage: 100, 
-    Size: 14, 
-    Speed: 0.5, 
-    Score: 5
+  "Neutron": {
+    Health: 10, 
+    Damage: 5, 
+    Size: 7, 
+    Reload: 2, 
+    sReload: 0, 
+    EPS: 1
+  }, 
+  "HeavyElectron": {
+    Health: 100, 
+    Damage: 5, 
+    Size: 10, 
+    Reload: 3, 
+    sReload: 0.5, 
+    EPS: 1
+  }, 
+  "PiercingElectron": {
+    Health: 10, 
+    Damage: 10, 
+    Size: 7, 
+    Reload: 2, 
+    sReload: 0, 
+    EPS: 1
+  }, 
+  "Mirror": {
+    Health: 10, 
+    Damage: 5, 
+    Size: 6, 
+    Reload: 2, 
+    sReload: 0, 
+    EPS: 1, 
+    Reflection: 0.4
+  }, 
+  "QuantumParticle": {
+    Health: 200, 
+    Damage: 0, 
+    Size: 8, 
+    Reload: 3, 
+    sReload: 1, 
+    EPS: 1
+  }, 
+  "DeterioratingElectron": {
+    Health: 10, 
+    Damage: 5, 
+    Size: 5, 
+    Reload: 3, 
+    sReload: 0, 
+    EPS: 1, 
+    Deterioration: 3
+  }, 
+  "Neutralizer": {
+    Health: 5, 
+    Damage: 2, 
+    Size: 6, 
+    Reload: 2, 
+    sReload: 0, 
+    EPS: 1, 
+    HealReduction: 0.5
   }
 }
 
@@ -134,11 +194,7 @@ let currentTick = startTick;
 
 //Game
 let gameHost = "";
-let mobSpawnID = 0;
-let mobCount = 0;
-let mobsSpawned = 1;
-let Wave = 0;
-let mobList = ["Gear", "BallBearing", "Screw", "LaserScrew", "Tanker", "Missile"];
+let tickRate = 40;
 
 //Misc
 let isDebug = false;
@@ -206,10 +262,9 @@ function distanceBetween(x1, y1, x2, y2) {
 	let playerRef;
   let players = {};
   let playerElements = {};
+  let playerElectronElements = {};
   let myElectrons = {};
   let myElectronElements = {};
-  let mobs = {};
-  let mobElements = {};
   let isButton = false;
   let chatMsg = 0;
 
@@ -218,10 +273,37 @@ function distanceBetween(x1, y1, x2, y2) {
   const chatInput = document.querySelector("#chat-input");
   const chatDisplay = document.querySelector("#chat-display");
 
-  function oneSecondLoop() {
+  function healLoop() {
+    if(players[playerId] != null) {
+      if(players[playerId].taserTime > 0)
+      {
+        firebase.database().ref(`games/` + gameCode + `/players/` + playerId).update({
+          taserTime: players[playerId].taserTime - 1
+        })
+      }
+      if(players[playerId].healBlock > 0)
+      {
+        firebase.database().ref(`games/` + gameCode + `/players/` + playerId).update({
+          taserTime: players[playerId].healBlock - 0.1
+        })
+      }
+      if(players[playerId].deterioration > 0)
+      {
+        firebase.database().ref(`games/` + gameCode + `/players/` + playerId).update({
+          taserTime: players[playerId].deterioration - 1, 
+          health: players[playerId].health - 5
+        })
+      }
+      if(players[playerId].health < 0)
+      {
+        firebase.database().ref(`games/` + gameCode + `/players/` + playerId).update({
+          health: 0
+        })
+      }
+    }
     //repeat
     setTimeout(() => {
-      oneSecondLoop();
+      healLoop();
     }, 1000);
   }
   function tickLoop() {
@@ -233,34 +315,139 @@ function distanceBetween(x1, y1, x2, y2) {
       Object.keys(players[playerId].electrons).forEach((electron) => {
         const thisElectron = players[playerId].electrons[electron];
         //Reorder
-        thisElectron.angle = (360 / ElectronsPerShell[thisElectron.layer]) * thisElectron.shellPos;
+        if(!thisElectron.isDetached) thisElectron.angle = (360 / ElectronsPerShell[thisElectron.layer]) * thisElectron.shellPos;
         //Rotate
-        thisElectron.angle = (thisElectron.angle + ((currentTick * 0.15) * ((thisElectron.layer * 0.5) + 1))) % 360;
+        if(!thisElectron.isDetached) thisElectron.angle = (thisElectron.angle + ((currentTick * 0.15) * ((thisElectron.layer * 0.5) + 1))) % 360;
+        if(!thisElectron.isDetached)
+        {
+          if(thisElectron.type == "MissileElectron" || thisElectron.type == "Taser")
+          {
+            thisElectron.direction = thisElectron.angle - 90;
+          } else if(thisElectron.type == "PiercingElectron") {
+            thisElectron.direction = thisElectron.angle + 90;
+          } else {
+            thisElectron.direction++;
+          }
+        }
         if(thisElectron.health > 0)
         {
-          thisElectron.x = thisElectron.x + (((players[playerId].x + (Math.sin(thisElectron.angle * Math.PI / 180.0) * ((thisElectron.layer + 1) * 32 * spaceMultiplier))) - thisElectron.x) / 3);
-          thisElectron.y = thisElectron.y + (((players[playerId].y + (Math.cos(thisElectron.angle * Math.PI / 180.0) * ((thisElectron.layer + 1) * -32 * spaceMultiplier))) - thisElectron.y) / 3);
+          if(thisElectron.isDetached)
+          {
+            if(thisElectron.type == "MissileElectron")
+            {
+              thisElectron.x = thisElectron.x + (Math.sin(thisElectron.angle * Math.PI / 180.0) * 10);
+              thisElectron.y = thisElectron.y - (Math.cos(thisElectron.angle * Math.PI / 180.0) * 10);
+            }
+            if(thisElectron.type == "HeavyElectron")
+            {
+              let multiplier = distanceBetween(myX, myY, thisElectron.x, thisElectron.y) - 250;
+              thisElectron.x = thisElectron.x + (((myX - thisElectron.x) / 240) * multiplier);
+              thisElectron.y = thisElectron.y + (((myY - thisElectron.y) / 240) * multiplier);
+            }
+          } else {
+            thisElectron.x = thisElectron.x + (((players[playerId].x + (Math.sin(thisElectron.angle * Math.PI / 180.0) * ((thisElectron.layer + 1) * 32 * spaceMultiplier))) - thisElectron.x) / 3);
+            thisElectron.y = thisElectron.y + (((players[playerId].y + (Math.cos(thisElectron.angle * Math.PI / 180.0) * ((thisElectron.layer + 1) * -32 * spaceMultiplier))) - thisElectron.y) / 3);
+          }
         } else {
           thisElectron.x = players[playerId].x;
           thisElectron.y = players[playerId].y;
         }
-        //Damage
-        Object.keys(mobs).forEach((mob) => {
-          const thisMob = mobs[mob];
-          if(mobStats[thisMob.type] != undefined && distanceBetween(thisElectron.x, thisElectron.y, thisMob.x, thisMob.y) <= electronStats[thisElectron.type].Size + mobStats[thisMob.type].Size)
+        //Special
+        if(thisElectron.type == "Solder" && players[playerId].health < PlayerHealth)
+        {
+          if(currentTick - thisElectron.timeOfDeath > (electronStats[thisElectron.type].Reload + electronStats[thisElectron.type].sReload) * 1000)
           {
-            thisElectron.x += ((thisElectron.x - thisMob.x) / Math.abs(thisElectron.x - thisMob.x)) * 5;
-            thisElectron.y += ((thisElectron.y - thisMob.y) / Math.abs(thisElectron.y - thisMob.y)) * 5;
-            thisElectron.health -= mobStats[thisMob.type].Damage;
-            thisMob.x += ((thisMob.x - thisElectron.x) / (electronStats[thisElectron.type].Size + mobStats[thisMob.type].Size)) * 2.5;
-            thisMob.y += ((thisMob.y - thisElectron.y) / (electronStats[thisElectron.type].Size + mobStats[thisMob.type].Size)) * 2.5;
-            thisMob.health -= electronStats[thisElectron.type].Damage;
+            thisElectron.health = 0;
+            thisElectron.x = players[playerId].x;
+            thisElectron.y = players[playerId].y;
+            let heal = electronStats[thisElectron.type].Heal;
+            heal -= heal * players[playerId].healBlock;
+            firebase.database().ref(`games/` + gameCode + `/players/` + playerId).update({
+              health: players[playerId].health + heal > PlayerHealth ? PlayerHealth : players[playerId].health + heal
+            })
           }
-          firebase.database().ref(`games/` + gameCode + `/mobs/` + thisMob.id).update({
-            x: thisMob.x, 
-            y: thisMob.y, 
-            health: thisMob.health
-          })
+        }
+        if(thisElectron.type == "MissileElectron" && spaceMultiplier == 2 && currentTick - thisElectron.timeOfDeath > (electronStats[thisElectron.type].Reload + electronStats[thisElectron.type].sReload) * 1000)
+        {
+          thisElectron.isDetached = true;
+        }
+        if(thisElectron.type == "MissileElectron" && distanceBetween(thisElectron.x, thisElectron.y, myX, myY) > 500)
+        {
+          thisElectron.health = 0;
+        }
+        if(thisElectron.type == "HeavyElectron" && currentTick - thisElectron.timeOfDeath > (electronStats[thisElectron.type].Reload + electronStats[thisElectron.type].sReload) * 1000)
+        {
+          thisElectron.isDetached = (spaceMultiplier == 2);
+        }
+        //Damage
+        Object.keys(players).forEach((player) => {
+          const thisPlayer = players[player];
+
+          if(thisPlayer.id != playerId && distanceBetween(thisElectron.x, thisElectron.y, thisPlayer.x, thisPlayer.y) < 14 + electronStats[thisElectron.type].Size)
+          {
+            let damage = electronStats[thisElectron.type].Damage;
+            if(thisPlayer.health > 200 && thisElectron.type == "PiercingElectron") damage *= 10;
+            thisElectron.x += ((thisElectron.x - thisPlayer.x) / (14 + electronStats[thisElectron.type].Size)) * 2;
+            thisElectron.y += ((thisElectron.y - thisPlayer.y) / (14 + electronStats[thisElectron.type].Size)) * 2;
+            thisElectron.health -= 10;
+            thisPlayer.x += ((thisPlayer.x - thisElectron.x) / (14 + electronStats[thisElectron.type].Size)) * 2;
+            thisPlayer.y += ((thisPlayer.y - thisElectron.y) / (14 + electronStats[thisElectron.type].Size)) * 2;
+            thisPlayer.health -= damage;
+            if(thisElectron.type == "Taser")
+            {
+              thisPlayer.taserTime += 3;
+            }
+            if(thisElectron.type == "Neutralizer")
+            {
+              thisPlayer.healBlock += 0.2;
+            }
+            if(thisElectron.type == "DeterioratingElectron")
+            {
+              thisPlayer.deterioration += electronStats[thisElectron.type].Deterioration;
+            }
+            playerRef.update({
+              health: players[playerId].health - (damage * thisPlayer.reflection)
+            })
+            //Update
+            firebase.database().ref(`games/` + gameCode + `/players/` + thisPlayer.id).update({
+              x: thisPlayer.x, 
+              y: thisPlayer.y, 
+              health: thisPlayer.health, 
+              taserTime: thisPlayer.taserTime
+            })
+          }
+          if(thisPlayer.id == playerId && distanceBetween(thisElectron.x, thisElectron.y, thisPlayer.x, thisPlayer.y) < 500 && thisElectron.type == "Magnet")
+          {
+            thisPlayer.x += ((thisElectron.x - thisPlayer.x) / 24) * 2;
+            thisPlayer.y += ((thisElectron.y - thisPlayer.y) / 24) * 2;
+            //Update
+            firebase.database().ref(`games/` + gameCode + `/players/` + thisPlayer.id).update({
+              x: thisPlayer.x, 
+              y: thisPlayer.y
+            })
+          }
+          if(thisPlayer.id != playerId)
+          {
+            Object.keys(thisPlayer.electrons).forEach((iE) => {
+              const thisOtherElectron = thisPlayer.electrons[iE];
+
+              if(distanceBetween(thisElectron.x, thisElectron.y, thisOtherElectron.x, thisOtherElectron.y) < electronStats[thisOtherElectron.type].Size + electronStats[thisElectron.type].Size && thisOtherElectron.health > 0)
+              {
+                thisElectron.x += ((thisElectron.x - thisOtherElectron.x) / (electronStats[thisOtherElectron.type].Size + electronStats[thisElectron.type].Size)) * 2;
+                thisElectron.y += ((thisElectron.y - thisOtherElectron.y) / (electronStats[thisOtherElectron.type].Size + electronStats[thisElectron.type].Size)) * 2;
+                thisElectron.health -= electronStats[thisOtherElectron.type].Damage;
+                thisOtherElectron.x += ((thisOtherElectron.x - thisElectron.x) / (electronStats[thisOtherElectron.type].Size + electronStats[thisElectron.type].Size)) * 2;
+                thisOtherElectron.y += ((thisOtherElectron.y - thisElectron.y) / (electronStats[thisOtherElectron.type].Size + electronStats[thisElectron.type].Size)) * 2;
+                thisOtherElectron.health -= electronStats[thisElectron.type].Damage;
+                //Update
+                firebase.database().ref(`games/` + gameCode + `/players/` + thisPlayer.id + `/electrons/` + thisOtherElectron.id).update({
+                  x: thisOtherElectron.x, 
+                  y: thisOtherElectron.y, 
+                  health: thisOtherElectron.health
+                })
+              }
+            })
+          }
         })
         if(thisElectron.health < 1 && thisElectron.health > -1000000)
         {
@@ -268,134 +455,50 @@ function distanceBetween(x1, y1, x2, y2) {
           thisElectron.health = -1000000;
           thisElectron.x = players[playerId].x;
           thisElectron.y = players[playerId].y;
+          thisElectron.isDetached = false;
         }
+        //Respawn
         if(thisElectron.health < 1 && (currentTick - thisElectron.timeOfDeath > electronStats[thisElectron.type].Reload * 1000))
         {
           thisElectron.health = electronStats[thisElectron.type].Health;
         }
+        //Update
         firebase.database().ref(`games/` + gameCode + `/players/` + playerId + `/electrons/` + thisElectron.id).update({
           angle: thisElectron.angle, 
           x: thisElectron.x, 
           y: thisElectron.y, 
           timeOfDeath: thisElectron.timeOfDeath, 
-          health: thisElectron.health
+          health: thisElectron.health, 
+          direction: thisElectron.direction, 
+          isDetached: thisElectron.isDetached
         })
         //Render
         let left = ((thisElectron.x - myX) + ((screenDim.x / 2) - 16)) + "px";
         let top = ((thisElectron.y - myY) + ((screenDim.y / 2) - 16)) + "px";
-        myElectronElements[thisElectron.id].style.transform = `translate3d(${left}, ${top}, 0)`;
-        myElectronElements[thisElectron.id].querySelector(".Electron_sprite").style.background = "url(images/Electrons/" + thisElectron.type + ".png) no-repeat no-repeat";
-      })
-
-      //Mobs
-      Object.keys(mobs).forEach((mob) => {
-        const thisMob = mobs[mob];
-        //Move
-        let TargetX = 0;
-        let TargetY = 0;
-        let shortestDist = mapSize * 3;
-        Object.keys(players).forEach((key) => {
-          const characterState = players[key];
-          if(distanceBetween(thisMob.x, thisMob.y, characterState.x, characterState.y) < shortestDist)
-          {
-            TargetX = characterState.x;
-            TargetY = characterState.y;
-            shortestDist = distanceBetween(thisMob.x, thisMob.y, characterState.x, characterState.y);
-          }
-        })
-        let targetDir = 90 - (Math.atan((TargetY - thisMob.y) / (TargetX - thisMob.x)) * 180.0 / Math.PI);
-        if(TargetX < thisMob.x)
+        if(myElectronElements[thisElectron.id] != undefined)
         {
-          targetDir = (-90) - (Math.atan((TargetY - thisMob.y) / (TargetX - thisMob.x)) * 180.0 / Math.PI);
-        }
-        if(thisMob.type == "Screw" && shortestDist < mapSize)
-        {
-          thisMob.xV = Math.sin(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
-          thisMob.yV = Math.cos(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
-          thisMob.direction += 20;
-        }
-        if(thisMob.type == "LaserScrew" && shortestDist < mapSize)
-        {
-          thisMob.xV = Math.sin(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
-          thisMob.yV = Math.cos(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
-          thisMob.direction += 20;
-        }
-        if(thisMob.type == "Missile" && shortestDist < mapSize)
-        {
-          thisMob.xV = Math.sin(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
-          thisMob.yV = Math.cos(targetDir * Math.PI / 180.0) * mobStats[thisMob.type].Speed;
-          thisMob.direction = targetDir;
-        }
-        Object.keys(mobs).forEach((innerMob) => {
-          const mobColl = mobs[innerMob];
-          if(distanceBetween(thisMob.x, thisMob.y, mobColl.x, mobColl.y) < mobStats[thisMob.type].Size + mobStats[mobColl.type].Size)
-          {
-            thisMob.xV = ((thisMob.x - mobColl.x) / (mobStats[thisMob.type].Size + mobStats[mobColl.type].Size)) * 2;
-            thisMob.yV = ((thisMob.y - mobColl.y) / (mobStats[thisMob.type].Size + mobStats[mobColl.type].Size)) * 2;
-          }
-        })
-        //Velocities
-        thisMob.xV *= 0.85;
-        thisMob.yV *= 0.85;
-        thisMob.x += thisMob.xV;
-        thisMob.y += thisMob.yV;
-        //Out of bounds
-        if(thisMob.x > mapSize)
-        {
-          thisMob.x = mapSize;
-        }
-        if(thisMob.y > mapSize)
-        {
-          thisMob.y = mapSize;
-        }
-        if(thisMob.x < -mapSize)
-        {
-          thisMob.x = -mapSize;
-        }
-        if(thisMob.y < -mapSize)
-        {
-          thisMob.y = -mapSize;
-        }
-        firebase.database().ref(`games/` + gameCode + `/mobs/` + thisMob.id).update({
-          x: thisMob.x, 
-          y: thisMob.y, 
-          xV: thisMob.xV, 
-          yV: thisMob.yV, 
-          health: thisMob.health, 
-          direction: thisMob.direction
-        })
-        //Render
-        let left = ((thisMob.x - myX) + ((screenDim.x / 2) - 64)) + "px";
-        let top = ((thisMob.y - myY) + ((screenDim.y / 2) - 64)) + "px";
-        if(mobElements[thisMob.id] != undefined)
-        {
-          mobElements[thisMob.id].style.transform = `translate3d(${left}, ${top}, 0)`;
-          mobElements[thisMob.id].querySelector(".Mob_sprite").style.background = "url(images/Mobs/" + thisMob.type + ".png) no-repeat no-repeat";
-          mobElements[thisMob.id].querySelector(".Mob_sprite").style.rotate = thisMob.direction + "deg";
-        }
-        //Die If Dead
-        if(thisMob.health <= 0)
-        {
-          firebase.database().ref("games/" + gameCode + "/mobs/" + thisMob.id).remove();
+          myElectronElements[thisElectron.id].style.transform = `translate3d(${left}, ${top}, 0)`;
+          myElectronElements[thisElectron.id].querySelector(".Electron_sprite").style.rotate = thisElectron.direction + "deg";
+          myElectronElements[thisElectron.id].querySelector(".Electron_sprite").style.background = "url(images/Electrons/" + thisElectron.type + ".png) no-repeat no-repeat";
         }
       })
 
       //Move player
       if(isD || isRight)
       {
-        xVel += 1
+        xVel += 1 / (players[playerId].taserTime + 1);
       }
       if(isA || isLeft)
       {
-        xVel -= 1
+        xVel -= 1 / (players[playerId].taserTime + 1);
       }
       if(isW || isUp)
       {
-        yVel -= 1
+        yVel -= 1 / (players[playerId].taserTime + 1);
       }
       if(isS || isDown)
       {
-        yVel += 1
+        yVel += 1 / (players[playerId].taserTime + 1);
       }
       xVel *= 0.85;
       yVel *= 0.85;
@@ -407,58 +510,7 @@ function distanceBetween(x1, y1, x2, y2) {
     //repeat
     setTimeout(() => {
       tickLoop();
-    }, 25);
-  }
-  function mobSpawnLoop() {
-    if(players[playerId] != null) {
-      //Game host mob spawn
-      if(gameHost == localStorage.getItem("AtomixUser"))
-      {
-        if(mobsSpawned < Wave * 2)
-        {
-          let nMX = Math.round((Math.random() * (mapSize*2)) - mapSize);
-          let nMY = Math.round((Math.random() * (mapSize*2)) - mapSize);
-          let mobToSpawn = "";
-          if(Wave < 4)
-          {
-            mobToSpawn = "Gear";
-          } else if(Wave < 6) {
-            mobToSpawn = randomFromArray(["Gear", "BallBearing"]);
-          } else if(Wave < 8) {
-            mobToSpawn = randomFromArray(["Gear", "BallBearing", "Screw"]);
-          } else if(Wave < 11) {
-            mobToSpawn = randomFromArray(["Gear", "BallBearing", "Screw", "LaserScrew"]);
-          } else if(Wave < 16) {
-            mobToSpawn = randomFromArray(["Gear", "BallBearing", "Screw", "LaserScrew", "Tanker"]);
-          } else if(Wave < 21) {
-            mobToSpawn = randomFromArray(mobList);
-          } else {
-            if(Wave % 7 == 0)
-            {
-              mobToSpawn = randomFromArray(mobList);
-            } else {
-              mobToSpawn = mobList[Wave % 7];
-            }
-          }
-          while(distanceBetween(players[playerId].x, players[playerId].y, nMX, nMY) < 128)
-          {
-            nMX = Math.round((Math.random() * (mapSize*2)) - mapSize);
-            nMY = Math.round((Math.random() * (mapSize*2)) - mapSize);
-          }
-          spawnMob(firebase.database().ref("games/" + gameCode + "/mobs/mob" + mobSpawnID), mobToSpawn, nMX, nMY);
-          mobsSpawned++;
-        } else if(mobCount < 2) {
-          Wave++;
-          mobsSpawned = 0;
-          firebase.database().ref(`games/` + gameCode + `/wave`).set(Wave);
-        }
-      }
-    }
-
-    //repeat
-    setTimeout(() => {
-      mobSpawnLoop();
-    }, 1000);
+    }, tickRate);
   }
   function renderLoop() {
     document.querySelector("#rightWall").style.transform = "translate3d(" + (mapSize - myX) + "px, " + (-myY) + "px, 0)";
@@ -473,7 +525,7 @@ function distanceBetween(x1, y1, x2, y2) {
     //repeat
     setTimeout(() => {
       renderLoop();
-    }, 25);
+    }, tickRate);
   }
   function handleMovement(xChange=0, yChange=0) {
     const newX = players[playerId].x + xChange;
@@ -488,16 +540,12 @@ function distanceBetween(x1, y1, x2, y2) {
       myY = players[playerId].y;
       let isCollision = false;
       if(Math.abs(myX) > mapSize || Math.abs(myY) > mapSize) isCollision = true;
-      Object.keys(mobs).forEach((mob) => {
-        const thisMob = mobs[mob];
-        if(mobStats[thisMob.type] != undefined && distanceBetween(players[playerId].x, players[playerId].y, thisMob.x, thisMob.y) <= 13.0 + mobStats[thisMob.type].Size)
+      Object.keys(players).forEach((key) => {
+        const characterState = players[key];
+        if(characterState.id != playerId && distanceBetween(myX, myY, characterState.x, characterState.y) < 28)
         {
-          xVel = ((players[playerId].x - thisMob.x) / (13.0 + mobStats[thisMob.type].Size)) * 6;
-          yVel = ((players[playerId].y - thisMob.y) / (13.0 + mobStats[thisMob.type].Size)) * 6;
-          PlayerHealth -= mobStats[thisMob.type].Damage;
-          thisMob.xV = ((players[playerId].x - thisMob.x) / (13.0 + mobStats[thisMob.type].Size)) * -1;
-          thisMob.yV = ((players[playerId].y - thisMob.y) / (13.0 + mobStats[thisMob.type].Size)) * -1;
-          thisMob.health -= 10;
+          xVel = ((myX - characterState.x) / 28) * 2;
+          yVel = ((myY - characterState.y) / 28) * 2;
         }
       })
       if(isCollision)
@@ -516,6 +564,13 @@ function distanceBetween(x1, y1, x2, y2) {
   function addElectron(ref, electron, IDX, eLayer, identifier) {
     let date = new Date();
     ElectronsPerShell[eLayer]++;
+    if(electron == "Neutron") PlayerHealth += 100;
+    if(electron == "Mirror")
+    {
+      firebase.database().ref(`games/` + gameCode + `/players/` + playerId).update({
+        reflection: electronStats[electron].Reflection
+      });
+    }
     ref.set({
       type: electron, 
       health: 0, 
@@ -525,23 +580,10 @@ function distanceBetween(x1, y1, x2, y2) {
       y: 0, 
       x: 0, 
       shellPos: IDX, 
-      id: identifier
+      id: identifier, 
+      direction: 0, 
+      isDetached: false
     })
-  }
-  function spawnMob(ref, mob, xPos, yPos) {
-    ref.set({
-      type: mob, 
-      health: mobStats[mob].Health, 
-      x: xPos, 
-      y: yPos, 
-      xV: 0, 
-      yV: 0, 
-      id: "mob" + mobSpawnID, 
-      direction: 0
-    })
-    mobSpawnID++;
-    console.log(mobSpawnID)
-    mobCount++;
   }
 
   function initGame() {
@@ -558,10 +600,7 @@ function distanceBetween(x1, y1, x2, y2) {
 
     const allPlayersRef = firebase.database().ref(`games/` + gameCode + `/players`);
     const myElectronsRef = firebase.database().ref(`games/` + gameCode + `/players/` + playerId + `/electrons`);
-    const allMobsRef = firebase.database().ref(`games/` + gameCode + `/mobs`);
     const gameHostRef = firebase.database().ref(`games/` + gameCode + `/host`);
-    const waveRef = firebase.database().ref(`games/` + gameCode + `/wave`);
-    firebase.database().ref(`games/` + gameCode + `/wave`).set(Wave);
 
     allPlayersRef.on("value", (snapshot) => {
       //change
@@ -576,8 +615,75 @@ function distanceBetween(x1, y1, x2, y2) {
         {
           left = ((screenDim.x / 2) - 16) + "px";
           top = ((screenDim.y / 2) - 16) + "px";
+          if(characterState.health < 0) characterState.health = 0;
+          if((characterState.health / PlayerHealth) * 100 >= 50)
+          {
+            document.querySelector(".hp-cover").style.left = (((((characterState.health / PlayerHealth) * 2) - 1) * 434) - 434) + "px";
+            document.querySelector(".hp-cover").style.background = "url(images/health/HPAdd.png)";
+          }
+          if((characterState.health / PlayerHealth) * 100 < 50)
+          {
+            document.querySelector(".hp-cover").style.left = ((((characterState.health / PlayerHealth) * 2) * 434) - 434) + "px";
+            document.querySelector(".hp-cover").style.background = "url(images/health/HPCover.png)";
+          }
         }
         el.style.transform = `translate3d(${left}, ${top}, 0)`;
+        if(characterState.id != playerId)
+        {
+          if(playerElectronElements[key] != undefined && characterState.electrons != undefined)
+          {
+            Object.keys(characterState.electrons).forEach((electron) => {
+              let thisElectron = characterState.electrons[electron];
+              //Render
+              let eleft = (thisElectron.x - characterState.x) + "px";
+              let etop = ((thisElectron.y - characterState.y) - 32) + "px";
+              if(playerElectronElements[key][thisElectron.id] != undefined)
+              {
+                playerElectronElements[key][thisElectron.id].style.transform = `translate3d(${eleft}, ${etop}, 0)`;
+                playerElectronElements[key][thisElectron.id].querySelector(".Electron_sprite").style.background = "url(images/Electrons/" + thisElectron.type + ".png) no-repeat no-repeat";
+                if(thisElectron.health <= 0) playerElectronElements[key][thisElectron.id].querySelector(".Electron_sprite").style.background = "url(images/Electrons/None.png) no-repeat no-repeat";
+                playerElectronElements[key][thisElectron.id].querySelector(".Electron_sprite").style.rotate = thisElectron.direction + "deg";
+              } else {
+                let thisElectronElement = document.createElement("div");
+                thisElectronElement.classList.add("Electron");
+                thisElectronElement.innerHTML = (`
+                  <div class="Electron_sprite"></div>
+                `);
+
+                //Render
+                let eleft = (thisElectron.x - characterState.x) + "px";
+                let etop = ((thisElectron.y - characterState.y) - 32) + "px";
+                thisElectronElement.style.transform = `translate3d(${eleft}, ${etop}, 0)`;
+                thisElectronElement.querySelector(".Electron_sprite").style.background = "url(images/Electrons/" + thisElectron.type + ".png) no-repeat no-repeat";
+
+                //Add
+                playerElectronElements[characterState.id][thisElectron.id] = thisElectronElement;
+                el.appendChild(thisElectronElement);
+              }
+            })
+          } else if(characterState.electrons != undefined) {
+            playerElectronElements[characterState.id] = {};
+            Object.keys(characterState.electrons).forEach((electron) => {
+              let thisElectron = characterState.electrons[electron];
+              let thisElectronElement = document.createElement("div");
+              thisElectronElement.classList.add("Electron");
+              thisElectronElement.innerHTML = (`
+                <div class="Electron_sprite"></div>
+              `);
+
+              //Render
+              let eleft = (thisElectron.x - characterState.x) + "px";
+              let etop = ((thisElectron.y - characterState.y) - 32) + "px";
+              thisElectronElement.style.transform = `translate3d(${eleft}, ${etop}, 0)`;
+              thisElectronElement.querySelector(".Electron_sprite").style.background = "url(images/Electrons/" + thisElectron.type + ".png) no-repeat no-repeat";
+
+              //Add
+              playerElectronElements[characterState.id][thisElectron.id] = thisElectronElement;
+              el.appendChild(thisElectronElement);
+            })
+            console.log(characterState.electrons)
+          }
+        }
       })
     })
     allPlayersRef.on("child_added", (snapshot) => {
@@ -596,7 +702,6 @@ function distanceBetween(x1, y1, x2, y2) {
         </div>
       `);
 
-      playerElements[addedPlayer.id] = characterElement;
       characterElement.querySelector(".Character_name").innerText = addedPlayer.name;
       let left = ((addedPlayer.x - myX) + ((screenDim.x / 2) - 16)) + "px";
       let top = ((addedPlayer.y - myY) + ((screenDim.y / 2) - 16)) + "px";
@@ -606,12 +711,39 @@ function distanceBetween(x1, y1, x2, y2) {
         top = ((screenDim.y / 2) - 16) + "px";
       }
       characterElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+
+      //Electrons
+      if(addedPlayer.id != playerId && addedPlayer.electrons != undefined)
+      {
+        playerElectronElements[addedPlayer.id] = {};
+        Object.keys(addedPlayer.electrons).forEach((electron) => {
+          let thisElectron = addedPlayer.electrons[electron];
+          let thisElectronElement = document.createElement("div");
+          thisElectronElement.classList.add("Electron");
+          thisElectronElement.innerHTML = (`
+            <div class="Electron_sprite"></div>
+          `);
+
+          //Render
+          let eleft = ((thisElectron.x - myX) + ((screenDim.x / 2) - 16)) + "px";
+          let etop = ((thisElectron.y - myY) + ((screenDim.y / 2) - 16)) + "px";
+          thisElectronElement.style.transform = `translate3d(${eleft}, ${etop}, 0)`;
+          thisElectronElement.querySelector(".Electron_sprite").style.background = "url(images/Electrons/" + thisElectron.type + ".png) no-repeat no-repeat";
+
+          //Add
+          playerElectronElements[addedPlayer.id][thisElectron.id] = thisElectronElement;
+          characterElement.appendChild(thisElectronElement);
+        })
+      }
+      //Add
+      playerElements[addedPlayer.id] = characterElement;
       gameContainer.appendChild(characterElement);
     })
     allPlayersRef.on("child_removed", (snapshot) => {
       const removedKey = snapshot.val().id;
       gameContainer.removeChild(playerElements[removedKey]);
       delete playerElements[removedKey];
+      delete playerElectronElements[removedKey];
     })
 
     myElectronsRef.on("value", (snapshot) => {
@@ -647,45 +779,8 @@ function distanceBetween(x1, y1, x2, y2) {
       delete myElectronElements[removedKey];
     })
 
-    allMobsRef.on("value", (snapshot) => {
-      //change
-      mobs = snapshot.val() || {};
-      Object.keys(mobs).forEach((key) => {
-        const thisMob = mobs[key];
-        //console.log(myElectronElements)
-        let el = mobElements[key];
-        let left = ((thisMob.x - myX) + ((screenDim.x / 2) - 64)) + "px";
-        let top = ((thisMob.y - myY) + ((screenDim.y / 2) - 64)) + "px";
-        if(el != undefined) el.style.transform = `translate3d(${left}, ${top}, 0)`;
-      })
-    })
-    allMobsRef.on("child_added", (snapshot) => {
-      //new nodes
-      const addedMob = snapshot.val();
-      const mobElement = document.createElement("div");
-      mobElement.classList.add("Mob");
-      mobElement.innerHTML = (`
-        <div class="Mob_sprite"></div>
-      `);
-
-      mobElements[addedMob.id] = mobElement;
-      let left = ((addedMob.x - myX) + ((screenDim.x / 2) - 64));
-      let top = ((addedMob.y - myY) + ((screenDim.y / 2) - 64));
-      mobElement.style.transform = "translate3d(" + left + "px, " + top + "px, 0)";
-      gameContainer.appendChild(mobElement);
-    })
-    allMobsRef.on("child_removed", (snapshot) => {
-      const removedKey = snapshot.val().id;
-      gameContainer.removeChild(mobElements[removedKey]);
-      delete mobElements[removedKey];
-      mobCount--;
-    })
-
     gameHostRef.on("value", (snapshot) => {
       gameHost = snapshot.val();
-    })
-    waveRef.on("value", (snapshot) => {
-      Wave = snapshot.val();
     })
  
     chatSend.addEventListener("click", () => {
@@ -730,20 +825,20 @@ function distanceBetween(x1, y1, x2, y2) {
       mouseDown = false;
     }
 
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron1"), "Electron", 0, 0, "electron1");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron2"), "ChunkyElectron", 1, 0, "electron2");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron3"), "SpedElectron", 2, 0, "electron3");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron4"), "SmolElectron", 3, 0, "electron4");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron5"), "SharpElectron", 4, 0, "electron5");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron6"), "TankElectron", 5, 0, "electron6");
-    
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron7"), "Electron", 0, 1, "electron7");
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron8"), "ChunkyElectron", 1, 1, "electron8");
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron9"), "SpedElectron", 2, 1, "electron9");
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron10"), "SmolElectron", 3, 1, "electron10");
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron11"), "SharpElectron", 4, 1, "electron11");
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron12"), "TankElectron", 5, 1, "electron12");
-    
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron1"), "Solder", 0, 0, "electron1");
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron2"), "Neutron", 1, 0, "electron2");
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron3"), "MissileElectron", 2, 0, "electron3");
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron4"), "Solder", 3, 0, "electron4");
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron5"), "Neutron", 4, 0, "electron5");
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron6"), "MissileElectron", 5, 0, "electron6");
+
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron7"), "SpedElectron", 0, 1, "electron7");
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron8"), "SharpElectron", 1, 1, "electron8");
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron9"), "Taser", 2, 1, "electron9");
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron10"), "SpedElectron", 3, 1, "electron10");
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron11"), "SharpElectron", 4, 1, "electron11");
+    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron12"), "PiercingElectron", 5, 1, "electron12");
+
     //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron13"), "Electron", 0, 2, "electron13");
     //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron14"), "ChunkyElectron", 1, 2, "electron14");
     //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron15"), "SpedElectron", 2, 2, "electron15");
@@ -752,12 +847,11 @@ function distanceBetween(x1, y1, x2, y2) {
     //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron18"), "TankElectron", 5, 2, "electron18");
     if(gameHost == localStorage.getItem("AtomixUser"))
     {
-      spawnMob(firebase.database().ref("games/" + gameCode + "/mobs/mob" + mobSpawnID), "Gear", 100, 100);
+      //
     }
-    oneSecondLoop();
+    healLoop();
     setTimeout(() => tickLoop(), 500);
     setTimeout(() => renderLoop(), 500);
-    setTimeout(() => mobSpawnLoop(), 500);
   }
 	firebase.auth().onAuthStateChanged((user) =>{
     console.log(user)
@@ -773,17 +867,21 @@ function distanceBetween(x1, y1, x2, y2) {
       } else {
         name = createName();
       }
-      const x = 0;
-      const y = 0;
+      const x = Math.round(Math.random() * mapSize * 2) - mapSize;
+      const y = Math.round(Math.random() * mapSize * 2) - mapSize;
 
       playerRef.set({
         id: playerId,
         name, 
         x,
         y,
-        health: 100, 
+        health: PlayerHealth, 
         isDead: false, 
-        op: false
+        op: false, 
+        taserTime: 0, 
+        reflection: 0, 
+        deterioration: 0, 
+        healBlock: 0
       })
 
       //ADD PLAYER JOIN MSG

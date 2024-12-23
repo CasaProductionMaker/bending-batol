@@ -1,0 +1,28 @@
+h1 {
+	text-align: center;
+	font-size: 5vw;
+	font-family: sans-serif;
+	font-weight: bold;
+	color: #3D3522;
+}
+body {
+	background-color: #CAF7E2;
+}
+#Wheel {
+	text-align: center;
+}
+button {
+	font-size: 2vw;
+	background-color: #58B09C;
+	border-style: solid;
+	border-radius: 5px;
+	border-color: #386150;
+	border-width: 3px;
+	font-family: sans-serif;
+}
+h2 {
+	font-size: 3vw;
+	font-family: sans-serif;
+}
+
+/* 3D3522, 4A442D, 386150, 58B09C, CAF7E2 */

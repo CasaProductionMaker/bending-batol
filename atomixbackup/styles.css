@@ -159,6 +159,7 @@ button:active:not(#up-move) {
 	position: absolute;
 	width: 32px;
 	height: 32px;
+	transition: transform 0.1s;
 	text-align: center;
 }
 
@@ -170,8 +171,6 @@ button:active:not(#up-move) {
 	width: 32px;
 	height: 32px;
 	background: url(images/Player.png);
-	position: relative;
-	z-index: 9;
 }
 
 .Character_name-container {
@@ -186,27 +185,6 @@ button:active:not(#up-move) {
   color: black;
 }
 
-/* Health bar */
-
-.hp-bar {
-	width: 1050px;
-	height: 160px;
-	position: absolute;
-	top: -60px;
-	left: -443px;
-	background: url(images/health/HPBack.png);
-	z-index: 15;
-	scale: 0.15;
-}
-.hp-cover {
-	width: 1050px;
-	height: 160px;
-	position: absolute;
-	left: -434px;
-	background: url(images/health/HPAdd.png);
-	z-index: 16;
-}
-
 /* Walls */
 
 #leftWall {
@@ -215,6 +193,7 @@ button:active:not(#up-move) {
 	height: 100vh;
 	width: 1vw;
 	border-radius: 0.5vw;
+	transition: transform 0.001s;
 }
 
 #rightWall {
@@ -223,6 +202,7 @@ button:active:not(#up-move) {
 	height: 100vh;
 	width: 1vw;
 	border-radius: 0.5vw;
+	transition: transform 0.001s;
 }
 
 #topWall {
@@ -231,6 +211,7 @@ button:active:not(#up-move) {
 	height: 1vw;
 	width: 100vw;
 	border-radius: 0.5vw;
+	transition: transform 0.001s;
 }
 
 #bottomWall {
@@ -239,6 +220,7 @@ button:active:not(#up-move) {
 	height: 1vw;
 	width: 100vw;
 	border-radius: 0.5vw;
+	transition: transform 0.001s;
 }
 
 /* Electrons */
@@ -247,10 +229,25 @@ button:active:not(#up-move) {
 	width: 32px;
 	height: 32px;
 	position: absolute;
+	z-index: 5;
 }
 
 .Electron_sprite {
 	width: 32px;
 	height: 32px;
-	z-index: 5;
+}
+
+/* Mobs */
+
+.Mob {
+	width: 128px;
+	height: 128px;
+	position: absolute;
+	z-index: 3;
+	transition: transform 0.001s;
+}
+
+.Mob_sprite {
+	width: 128px;
+	height: 128px;
 }
