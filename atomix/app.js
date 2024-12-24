@@ -23,22 +23,23 @@ let mouseTile = {x: undefined, y: undefined};
 let mouseNonRelativePosition = {x: undefined, y: undefined};
 let mouseDown = false;
 
-//Player Movement
+//Player
 let myX = 0;
 let myY = 0;
 let yVel = 0;
 let xVel = 0;
 let isD;
 let isA;
-let isW;
+let isW;  
 let isS;
 let isRight;
 let isLeft;
 let isUp;
 let isDown;
-let mapSize = 500;
 let spaceMultiplier = 1;
 let PlayerHealth = 250;
+let currentBuild = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+let electronNames = ["Electron", "ChunkyElectron", "SpedElectron", "SmolElectron", "TankElectron", "SharpElectron", "MissileElectron", "Magnet", "Taser", "Solder", "Neutron", "HeavyElectron", "PiercingElectron", "Mirror", "QuantumParticle", "DeterioratingElectron", "Neutralizer"];
 
 //Electrons
 let ElectronsPerShell = [0, 0, 0];
@@ -195,6 +196,7 @@ let currentTick = startTick;
 //Game
 let gameHost = "";
 let tickRate = 40;
+let mapSize = 500;
 
 //Misc
 let isDebug = false;
@@ -345,8 +347,10 @@ function distanceBetween(x1, y1, x2, y2) {
               thisElectron.y = thisElectron.y + (((myY - thisElectron.y) / 240) * multiplier);
             }
           } else {
-            thisElectron.x = thisElectron.x + (((players[playerId].x + (Math.sin(thisElectron.angle * Math.PI / 180.0) * ((thisElectron.layer + 1) * 32 * spaceMultiplier))) - thisElectron.x) / 3);
-            thisElectron.y = thisElectron.y + (((players[playerId].y + (Math.cos(thisElectron.angle * Math.PI / 180.0) * ((thisElectron.layer + 1) * -32 * spaceMultiplier))) - thisElectron.y) / 3);
+            let easing = 3;
+            if(thisElectron.type == "HeavyElectron") easing = 5;
+            thisElectron.x = thisElectron.x + (((players[playerId].x + (Math.sin(thisElectron.angle * Math.PI / 180.0) * ((thisElectron.layer + 1) * 32 * spaceMultiplier))) - thisElectron.x) / easing);
+            thisElectron.y = thisElectron.y + (((players[playerId].y + (Math.cos(thisElectron.angle * Math.PI / 180.0) * ((thisElectron.layer + 1) * -32 * spaceMultiplier))) - thisElectron.y) / easing);
           }
         } else {
           thisElectron.x = players[playerId].x;
@@ -824,27 +828,19 @@ function distanceBetween(x1, y1, x2, y2) {
     window.onmouseup = () => {
       mouseDown = false;
     }
+    let promises = currentBuild.map((_, i) => {
+      return firebase.database().ref("users/" + localStorage.getItem("AtomixUser") + "/build/" + i).once("value").then((snapshot) => {
+        currentBuild[i] = electronNames.indexOf(snapshot.val());
+        addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron" + i), electronNames[currentBuild[i]], i % 6, Math.floor(i / 6), "electron" + i);
+      });
+    });
 
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron1"), "Solder", 0, 0, "electron1");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron2"), "Neutron", 1, 0, "electron2");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron3"), "MissileElectron", 2, 0, "electron3");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron4"), "Solder", 3, 0, "electron4");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron5"), "Neutron", 4, 0, "electron5");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron6"), "MissileElectron", 5, 0, "electron6");
-
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron7"), "SpedElectron", 0, 1, "electron7");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron8"), "SharpElectron", 1, 1, "electron8");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron9"), "Taser", 2, 1, "electron9");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron10"), "SpedElectron", 3, 1, "electron10");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron11"), "SharpElectron", 4, 1, "electron11");
-    addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron12"), "PiercingElectron", 5, 1, "electron12");
-
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron13"), "Electron", 0, 2, "electron13");
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron14"), "ChunkyElectron", 1, 2, "electron14");
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron15"), "SpedElectron", 2, 2, "electron15");
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron16"), "SmolElectron", 3, 2, "electron16");
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron17"), "SharpElectron", 4, 2, "electron17");
-    //addElectron(firebase.database().ref("games/" + gameCode + "/players/" + playerId + "/electrons/electron18"), "TankElectron", 5, 2, "electron18");
+    Promise.all(promises).then(() => {
+      console.log("All data retrieved, ready to proceed. currentBuild: ");
+      console.log(currentBuild)
+    }).catch((error) => {
+      console.error("Error retrieving data: ", error);
+    });
     if(gameHost == localStorage.getItem("AtomixUser"))
     {
       //

@@ -71,3 +71,19 @@ a {
 	text-decoration: none;
 	color: black;
 }
+
+.slot {
+	background: url(images/EmptySlot64.png) no-repeat no-repeat;
+	width: 64px;
+	height: 64px;
+	display: inline-block;
+	margin: 3px;
+}
+
+.slot-item {
+	background: url(images/electrons/Electron.png) no-repeat no-repeat;
+	width: 32px;
+	height: 32px;
+	scale: 1.5;
+	margin: 16px;
+}

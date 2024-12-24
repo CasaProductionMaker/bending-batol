@@ -86,6 +86,8 @@ if(localStorage.getItem("AtomixName") == null)
 }
 name = localStorage.getItem("AtomixName");
 playerNameInput.value = name;
+let currentBuild = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+let electrons = ["Electron", "ChunkyElectron", "SpedElectron", "SmolElectron", "TankElectron", "SharpElectron", "MissileElectron", "Magnet", "Taser", "Solder", "Neutron", "HeavyElectron", "PiercingElectron", "Mirror", "QuantumParticle", "DeterioratingElectron", "Neutralizer"];
 
 playerNameInput.addEventListener("change", (e) => {
   const newName = e.target.value || createName();
@@ -94,6 +96,20 @@ playerNameInput.addEventListener("change", (e) => {
   localStorage.setItem("AtomixName", newName);
   if(gameCode != null) firebase.database().ref("games/" + gameCode + "/playerlist/" + localStorage.getItem("AtomixUser")).set(name);
 })
+
+let promises = currentBuild.map((_, i) => {
+  return firebase.database().ref("users/" + localStorage.getItem("AtomixUser") + "/build/" + i).once("value").then((snapshot) => {
+    currentBuild[i] = electrons.indexOf(snapshot.val());
+    document.querySelector("#slot" + (i + 1)).style.background = "url(images/electrons/" + electrons[currentBuild[i]] + ".png) no-repeat no-repeat";
+  });
+});
+
+Promise.all(promises).then(() => {
+  console.log("All data retrieved, ready to proceed");
+  console.log(currentBuild)
+}).catch((error) => {
+  console.error("Error retrieving data: ", error);
+});
 
 function createGame() {
   gameCode = generateGameCode();
@@ -108,4 +124,11 @@ function joinGame() {
   gameCode = document.querySelector("#gamecode").value;
   localStorage.setItem("AtomixGame", gameCode);
   firebase.database().ref("games/" + gameCode + "/playerlist/" + localStorage.getItem("AtomixUser")).set(name);
+}
+
+function scrollSlot(slot) {
+  currentBuild[slot]++;
+  if(currentBuild[slot] >= electrons.length) currentBuild[slot] = 0;
+  firebase.database().ref("users/" + localStorage.getItem("AtomixUser") + "/build/" + slot).set(electrons[currentBuild[slot]])
+  document.querySelector("#slot" + (slot + 1)).style.background = "url(images/electrons/" + electrons[currentBuild[slot]] + ".png) no-repeat no-repeat"
 }
