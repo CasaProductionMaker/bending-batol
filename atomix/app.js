@@ -69,10 +69,10 @@ let electronStats = {
     Reload: 3, 
     sReload: 0, 
     EPS: 1
-  }, 
+  },      
   "SmolElectron": {
-    Health: 2, 
-    Damage: 2, 
+    Health: 10, 
+    Damage: 8, 
     Size: 4, 
     Reload: 0.4, 
     sReload: 0, 
@@ -430,7 +430,7 @@ function distanceBetween(x1, y1, x2, y2) {
               y: thisPlayer.y
             })
           }
-          if(thisPlayer.id != playerId)
+          if(thisPlayer.id != playerId && thisPlayer.electrons != null)
           {
             Object.keys(thisPlayer.electrons).forEach((iE) => {
               const thisOtherElectron = thisPlayer.electrons[iE];

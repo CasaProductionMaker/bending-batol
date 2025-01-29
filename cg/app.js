@@ -1,4 +1,4 @@
-let wheelPossibilities = ["Skip", "Attack", "Open", "Pass the Wheel", "Lucky Guess", "Give", "Blind Open", "Point", "Lucky Guess", "Switch", "Skip", "Give", "Lucky Guess", "Switch", "Point"];
+let wheelPossibilities = ["Skip", "Attack", "Open", "Pass the Wheel", "Lucky Guess", "Give", "Blind Open", "Point", "Lucky Guess", "Switch", "Skip", "Give", "Lucky Guess", "Point"];
 let wheelDescriptions = [
 	"Skip your turn, better luck next time!", 
 	"Spin the wheel again, and the next person skips their turn.", 
@@ -13,7 +13,6 @@ let wheelDescriptions = [
 	"Skip your turn, better luck next time!", 
 	"Give your present to its rightful owner. Make sure they guess before opening! If you have already given your present, you get a point!", 
 	"Guess who is giving you a present. If you get it right, open it immediately. Otherwise, skip your turn. If you have already recieved your present, you get a point!", 
-	"Switch places in line with someone else. This person cannot be beside you. Play continues from whoever was after you before the switch.", 
 	"You get a point!"
 ];
 let wheelPos = 0;

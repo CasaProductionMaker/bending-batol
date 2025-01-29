@@ -38,16 +38,19 @@ window.addEventListener('beforeunload', (event) => {
 });
 
 function sendMessage() {
-  const date = Date.now();
-  const chatRef = firebase.database().ref(`chat/` + date);
-  chatRef.set({
-    message: document.querySelector("#bottom-bar").querySelector("#chat_input").value, 
-    id: date, 
-    sender: user, 
-    replyto: replytomsg
-  })
-  document.querySelector("#bottom-bar").querySelector("#chat_input").value = "";
-  replytomsg = null;
+  if(document.querySelector("#bottom-bar").querySelector("#chat_input").value != "")
+  {
+    const date = Date.now();
+    const chatRef = firebase.database().ref(`chat/` + date);
+    chatRef.set({
+      message: document.querySelector("#bottom-bar").querySelector("#chat_input").value, 
+      id: date, 
+      sender: user, 
+      replyto: replytomsg
+    })
+    document.querySelector("#bottom-bar").querySelector("#chat_input").value = "";
+    replytomsg = null;
+  }
 }
 
 let usersD = firebase.database().ref("users");
@@ -73,6 +76,10 @@ chat.on("child_added", (snapshot) => {
   const messageElement = document.createElement("div");
   messageElement.classList.add("Message");
   if (thismessage.message.indexOf("@" + user) > -1)
+  {
+    messageElement.classList.add("Mention");
+  }
+  if (thismessage.message.indexOf("@everyone") > -1)
   {
     messageElement.classList.add("Mention");
   }

@@ -50,6 +50,7 @@ button {
 .message-name {
 	margin: 0px;
 	font-weight: bold;
+	font-size: 110%;
 }
 
 #logout-button {

@@ -1,0 +1,240 @@
+/* General */
+
+* {
+	box-sizing: border-box;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	background: #888;
+	font-family: sans-serif;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+}
+h3 {
+	margin: 0.3em;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+/* Game Container */
+
+.game-container {
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+}
+
+/* Hotbar */
+
+.hotbar {
+	overflow: hidden;
+}
+
+/* UI Health Bar */
+
+.ui-health-bar {
+	position: absolute;
+}
+
+/* Respawn */
+
+.respawn-container {
+	z-index: 2;
+	align-items: center;
+	justify-content: center;
+}
+
+#respawn {
+	text-align: center;
+}
+
+/* Player Customization */
+
+.player-info {
+	
+}
+
+/* Chat */
+
+.chat-box {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	padding: 1em;
+	display: flex;
+	gap: 0.5em;
+	align-items: flex-end;
+	z-index: 10;
+}
+
+.chat-message {
+	position: relative;
+	bottom: 300px;
+}
+
+/* More General */
+
+label {
+	display: block;
+	font-weight: bold;
+}
+
+input[type="text"], 
+button {
+	font-family: inherit;
+	font-weight: bold;
+	font-size: 18px;
+	height: 44px;
+	border-radius: 4px;
+	outline: 0;
+}
+
+input[type="text"] {
+	outline: 0;
+	padding-left: 0.5em;
+	border: 3px solid #222034;
+	width: 150px;
+	text-transform: none;
+}
+
+input[type="text"]:focus {
+	border-color: #f000ff;
+}
+
+button {
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	background: #59ff5a;
+	border: 0;
+	border-bottom: 2px solid #1e830b;
+	cursor: pointer;
+}
+
+button:active:not(#up-move) {
+	position: relative;
+	top: 1px;
+}
+
+/* More Chat */
+
+#chat-display {
+	text-align: right;
+	align-self: right;
+	right: 0px;
+	font-weight: bold;
+	position: relative;
+	bottom: 70px;
+	left: 210px;
+	overflow: hidden;
+}
+
+/* Characters */
+
+.Character {
+	position: absolute;
+	width: 64px;
+	height: 64px;
+	text-align: center;
+}
+
+.Character.you {
+	z-index: 10;
+}
+
+.Character_sprite {
+	width: 320px;
+	height: 320px;
+	background: url(images/Player.png);
+	position: relative;
+	z-index: 9;
+	scale: 0.2;
+	left: -128px;
+	top: -128px;
+}
+
+.Character_weapon_sprite {
+	width: 640px;
+	height: 640px;
+	background: url(images/Sword.png);
+	position: relative;
+	z-index: 9;
+	scale: 0.2;
+	left: -288px;
+	top: -608px;
+}
+
+.Character_name-container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  font-size: 8px;
+  font-weight: bold;
+  text-transform: none;
+  width: 64px;
+  text-align: center;
+}
+.Character_name {
+  color: black;
+}
+
+/* Health bar */
+
+.hp-bar {
+	width: 1050px;
+	height: 160px;
+	position: absolute;
+	top: -60px;
+	left: -443px;
+	background: url(images/health/HPBack.png);
+	z-index: 15;
+	scale: 0.15;
+}
+.hp-cover {
+	width: 1050px;
+	height: 160px;
+	position: absolute;
+	left: -434px;
+	background: url(images/health/HPAdd.png);
+	z-index: 16;
+}
+
+/* Floor */
+.Floor {
+	background: url(images/Ground.png);
+	width: 4840px;
+	height: 3350px;
+	position: absolute;
+	scale: 0.15;
+}
+
+.Center {
+	background: gray;
+	width: 10px;
+	height: 100%;
+	position: absolute;
+}
+
+/* Entities */
+
+.Entity {
+	position: absolute;
+	width: 64px;
+	height: 64px;
+}
+
+.Entity_sprite {
+	width: 320px;
+	height: 320px;
+	background: url(images/Laser.png);
+	position: relative;
+	z-index: 5;
+	scale: 0.2;
+	left: -128px;
+	top: -128px;
+}

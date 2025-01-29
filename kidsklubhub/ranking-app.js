@@ -165,4 +165,7 @@ function rank_gen() {
     document.body.appendChild(rankEl);
   }
 }
-setTimeout(() => {rank_gen();}, 3000);
+firebase.database().ref("users").once("value").then((snapshot) => {
+  usersD = snapshot.val() || {};
+  rank_gen();
+});
