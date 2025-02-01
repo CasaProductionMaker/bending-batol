@@ -110,6 +110,7 @@ firebase.database().ref("games").on("value", (snapshot) => {
     Object.keys(gamesRef[gameCode].playerlist).forEach((key) => {
       if(key != localStorage.getItem("TheBattleUser"))
       {
+        waitingForJoin = false;
         window.location.href = "game.html";
       }
     })

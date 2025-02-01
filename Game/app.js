@@ -86,6 +86,11 @@ let armorStats = {
     DamageReduction: 0.8, 
     ProjectileReduction: 1, 
     ExplosiveReduction: 0.3
+  }, 
+  "No": {
+    DamageReduction: 0, 
+    ProjectileReduction: 0, 
+    ExplosiveReduction: 0
   }
 }
 
@@ -95,6 +100,26 @@ let gameCode = localStorage.getItem("TheBattleGame");
 
 function randomFromArray(array) {
 	return array[Math.floor(Math.random() * array.length)];
+}
+function getPowerUpToDrop() {
+  let powerup = "Health";
+  let RNG = Math.random() * 100;
+  if(RNG < 25) {
+    powerup = "Health";
+  } else if(RNG < 45) {
+    powerup = "Taser";
+  } else if(RNG < 55) {
+    powerup = "Mace";
+  } else if(RNG < 70) {
+    powerup = "LaserGun";
+  } else if(RNG < 85) {
+    powerup = "GreenArmor";
+  } else if(RNG < 95) {
+    powerup = "AquaArmor";
+  } else if(RNG < 100) {
+    powerup = "BlueArmor";
+  }
+  return powerup;
 }
 function getKeyString(x, y) {
 	return `${x}x${y}`;
@@ -149,6 +174,8 @@ function distanceBetween(x1, y1, x2, y2) {
   let playerElements = {};
   let entities = {};
   let entityElements = {};
+  let powerups = {};
+  let powerupElements = {};
   let isButton = false;
   let chatMsg = 0;
 
@@ -255,8 +282,10 @@ function distanceBetween(x1, y1, x2, y2) {
               const thisPlayer = players[key];
               if(distanceBetween(thisPlayer.x, thisPlayer.y, thisEntity.x, thisEntity.y) < 80 * (thisEntity.type == "BlueBomb" ? 1.7 : 1))
               {
+                let damage = 30 + (thisEntity.type == "BlueBomb" ? 20 : 0);
+                damage *= (1 - armorStats[thisPlayer.armorType].ExplosiveReduction);
                 firebase.database().ref("games/" + gameCode + "/players/" + thisPlayer.id).update({
-                  health: thisPlayer.health - (30 + (thisEntity.type == "BlueBomb" ? 20 : 0)), 
+                  health: thisPlayer.health - damage, 
                   xKnock: ((thisPlayer.x - thisEntity.x) / (Math.abs(thisPlayer.x - thisEntity.x) == 0 ? 1 : Math.abs(thisPlayer.x - thisEntity.x))) * 30, 
                   yKnock: ((thisPlayer.y - thisEntity.y) / (Math.abs(thisPlayer.y - thisEntity.y) == 0 ? 1 : Math.abs(thisPlayer.y - thisEntity.y))) * 15
                 })
@@ -273,8 +302,12 @@ function distanceBetween(x1, y1, x2, y2) {
           } else if(hitPlayer != "") {
             if(thisEntity.type == "Laser")
             {
+              let damage = weaponStats[thisEntity.type].Damage;
+              damage *= (1 - armorStats[players[hitPlayer].armorType].ProjectileReduction);
               firebase.database().ref("games/" + gameCode + "/players/" + hitPlayer).update({
-                health: players[hitPlayer].health - weaponStats[thisEntity.type].Damage
+                health: players[hitPlayer].health - damage, 
+                xKnock: ((players[hitPlayer].x - thisEntity.x) / (Math.abs(players[hitPlayer].x - thisEntity.x) == 0 ? 1 : Math.abs(players[hitPlayer].x - thisEntity.x))) * 10, 
+                yKnock: -5
               })
               firebase.database().ref("games/" + gameCode + "/entities/" + thisEntity.id).remove()
             }
@@ -284,8 +317,10 @@ function distanceBetween(x1, y1, x2, y2) {
                 const thisPlayer = players[key];
                 if(distanceBetween(thisPlayer.x, thisPlayer.y, thisEntity.x, thisEntity.y) < 80 * (thisEntity.type == "BlueBomb" ? 1.7 : 1))
                 {
+                  let damage = 30 + (thisEntity.type == "BlueBomb" ? 20 : 0);
+                  damage *= (1 - armorStats[thisPlayer.armorType].ExplosiveReduction);
                   firebase.database().ref("games/" + gameCode + "/players/" + thisPlayer.id).update({
-                    health: thisPlayer.health - (30 + (thisEntity.type == "BlueBomb" ? 20 : 0)), 
+                    health: thisPlayer.health - damage, 
                     xKnock: ((thisPlayer.x - thisEntity.x) / (Math.abs(thisPlayer.x - thisEntity.x) == 0 ? 1 : Math.abs(thisPlayer.x - thisEntity.x))) * 30, 
                     yKnock: ((thisPlayer.y - thisEntity.y) / (Math.abs(thisPlayer.y - thisEntity.y) == 0 ? 1 : Math.abs(thisPlayer.y - thisEntity.y))) * 15
                   })
@@ -321,12 +356,86 @@ function distanceBetween(x1, y1, x2, y2) {
           el.querySelector(".Entity_sprite").style.scale = "0.8";
         }
       })
+      Object.keys(powerups).forEach((key) => {
+        const thisPowerup = powerups[key];
+        if(thisPowerup.owner == playerId) {
+          let gone = false;
+          Object.keys(players).forEach((key) => {
+            const thisPlayer = players[key];
+            if(distanceBetween(thisPlayer.x, thisPlayer.y, thisPowerup.x, thisPowerup.y) < 30)
+            {
+              if(thisPowerup.type == "Health")
+              {
+                firebase.database().ref(`games/` + gameCode + `/players/` + thisPlayer.id).update({
+                  health: Math.min(thisPlayer.health + 20, PlayerHealth)
+                })
+              } else if(thisPowerup.type == "Taser" || thisPowerup.type == "Mace" || thisPowerup.type == "LaserGun") {
+                firebase.database().ref(`games/` + gameCode + `/players/` + thisPlayer.id).update({
+                  weapon: thisPowerup.type
+                })
+              } else if(thisPowerup.type == "GreenArmor") {
+                firebase.database().ref(`games/` + gameCode + `/players/` + thisPlayer.id).update({
+                  armorType: "Green"
+                })
+              } else if(thisPowerup.type == "AquaArmor") {
+                firebase.database().ref(`games/` + gameCode + `/players/` + thisPlayer.id).update({
+                  armorType: "Aqua"
+                })
+              } else if(thisPowerup.type == "BlueArmor") {
+                firebase.database().ref(`games/` + gameCode + `/players/` + thisPlayer.id).update({
+                  armorType: "Blue"
+                })
+              }
+              firebase.database().ref("games/" + gameCode + "/powerups/" + thisPowerup.id).update({
+                framesAlive: 250
+              })
+              gone = true;
+            }
+          })
+          if(!gone)
+          {
+            firebase.database().ref("games/" + gameCode + "/powerups/" + thisPowerup.id).update({
+              x: thisPowerup.x, 
+              y: thisPowerup.y + thisPowerup.fallV, 
+              fallV: thisPowerup.fallV + 1, 
+              framesAlive: thisPowerup.framesAlive+1
+            })
+            if(thisPowerup.y >= 0)
+            {
+              firebase.database().ref("games/" + gameCode + "/powerups/" + thisPowerup.id).update({
+                y: 0, 
+                fallV: 0
+              })
+            }
+          }
+        }
+      })
     }
 
     //repeat
     setTimeout(() => {
       tickLoop();
     }, tickRate);
+  }
+  function dropPowerups() {
+    if(players[playerId] != null) {
+      //Spawn power up
+      firebase.database().ref("games/" + gameCode + "/powerups/" + summonID).set({
+        x: Math.round((Math.random() * 600) - 300), 
+        y: -100, 
+        fallV: 0, 
+        owner: playerId, 
+        type: getPowerUpToDrop(), 
+        id: summonID, 
+        framesAlive: 0
+      })
+      summonID++;
+    }
+
+    //repeat
+    setTimeout(() => {
+      dropPowerups();
+    }, randomFromArray([8000, 9000, 10000, 11000]));
   }
   function renderLoop() {
     Object.keys(players).forEach((key) => {
@@ -422,8 +531,10 @@ function distanceBetween(x1, y1, x2, y2) {
         {
           if(((direction == 1 && myX - thisPlayer.x > -60 && myX - thisPlayer.x < 0) || (direction == -1 && myX - thisPlayer.x < 60 && myX - thisPlayer.x > 0)) && Math.abs(myY - thisPlayer.y) < 40)
           {
+            let damage = weaponStats[players[playerId].weapon].Damage;
+            damage *= (1 - armorStats[thisPlayer.armorType].DamageReduction);
             firebase.database().ref("games/" + gameCode + "/players/" + thisPlayer.id).update({
-              health: thisPlayer.health - weaponStats[players[playerId].weapon].Damage, 
+              health: thisPlayer.health - damage, 
               xKnock: ((thisPlayer.x - players[playerId].x) / (Math.abs(thisPlayer.x - players[playerId].x) == 0 ? 1 : Math.abs(thisPlayer.x - players[playerId].x))) * 10, 
               yKnock: -5
             })
@@ -459,7 +570,7 @@ function distanceBetween(x1, y1, x2, y2) {
 
     const allPlayersRef = firebase.database().ref(`games/` + gameCode + `/players`);
     const allEntitiesRef = firebase.database().ref(`games/` + gameCode + `/entities`);
-    const gameHostRef = firebase.database().ref(`games/` + gameCode + `/host`);
+    const allPowerupsRef = firebase.database().ref(`games/` + gameCode + `/powerups`);
 
     allPlayersRef.on("value", (snapshot) => {
       //change
@@ -468,6 +579,7 @@ function distanceBetween(x1, y1, x2, y2) {
         const characterState = players[key];
         let el = playerElements[key];
         el.querySelector(".Character_name").innerText = characterState.name;
+        el.querySelector(".Character_armor_sprite").style.background = "url(images/armor/" + characterState.armorType + "Armor.png)";
         let left = ((characterState.x - myX) + ((screenDim.x / 2) - 16)) + "px";
         let top = ((characterState.y - myY) + ((screenDim.y / 2) - 16)) + "px";
         if(characterState.id === playerId)
@@ -503,6 +615,7 @@ function distanceBetween(x1, y1, x2, y2) {
       }
       characterElement.innerHTML = (`
         <div class="Character_sprite"></div>
+        <div class="Character_armor_sprite"></div>
         <div class="Character_weapon_sprite"></div>
         <div class="Character_name-container">
           <span class="Character_name"></span>
@@ -567,10 +680,58 @@ function distanceBetween(x1, y1, x2, y2) {
       delete entityElements[removedKey];
     })
 
-    gameHostRef.on("value", (snapshot) => {
-      gameHost = snapshot.val();
+    allPowerupsRef.on("value", (snapshot) => {
+      //change
+      powerups = snapshot.val() || {};
+      Object.keys(powerups).forEach((key) => {
+        const thisPowerup = powerups[key];
+        let el = powerupElements[key];
+        let left = ((thisPowerup.x - myX) + ((screenDim.x / 2) - 16)) + "px";
+        let top = ((thisPowerup.y - myY) + ((screenDim.y / 2) - 16)) + "px";
+        if(el != undefined) el.style.transform = `translate3d(${left}, ${top}, 0)`;
+        if(el != undefined && thisPowerup.type != undefined) el.querySelector(".Powerup_sprite").style.background = "url(images/powerups/" + (thisPowerup.type || "Sword") + ".png)";
+        if(thisPowerup.framesAlive >= 250)
+        {
+          firebase.database().ref("games/" + gameCode + "/powerups/" + thisPowerup.id).remove()
+        }
+        if(thisPowerup.owner == undefined)
+        {
+          firebase.database().ref("games/" + gameCode + "/powerups/" + thisPowerup.id).remove()
+        }
+      })
+    })
+    allPowerupsRef.on("child_added", (snapshot) => {
+      //new nodes
+      const addedPowerup = snapshot.val();
+      const powerupElement = document.createElement("div");
+      powerupElement.classList.add("Powerup");
+      powerupElement.innerHTML = (`
+        <div class="Powerup_sprite"></div>
+      `);
+
+      let left = ((addedPowerup.x - myX) + ((screenDim.x / 2) - 32)) + "px";
+      let top = ((addedPowerup.y - myY) + ((screenDim.y / 2) - 32)) + "px";
+      powerupElement.style.transform = `translate3d(${left}, ${top}, 0)`;
+      powerupElement.querySelector(".Powerup_sprite").style.background = "url(images/powerups/" + addedPowerup.type + ".png)";
+
+      //Add
+      powerupElements[addedPowerup.id] = powerupElement;
+      gameContainer.appendChild(powerupElement);
+    })
+    allPowerupsRef.on("child_removed", (snapshot) => {
+      const removedKey = snapshot.val().id;
+      gameContainer.removeChild(powerupElements[removedKey]);
+      delete powerupElements[removedKey];
     })
 
+    firebase.database().ref("games/" + gameCode + "/host").once("value").then((snapshot) => {
+      gameHost = snapshot.val() || "";
+      console.log(gameHost)
+      if(gameHost == localStorage.getItem("TheBattleUser"))
+      {
+        dropPowerups();
+      }
+    });
     window.addEventListener('mousemove', (event) => {
       mousePos = {x: event.clientX, y: event.clientY};
       let margin = {x: (screenDim.x - 720) / 2, y: (screenDim.y - 624) / 2};
@@ -584,11 +745,6 @@ function distanceBetween(x1, y1, x2, y2) {
     }
     window.onmouseup = () => {
       mouseDown = false;
-    }
-
-    if(gameHost == localStorage.getItem("TheBattleUser"))
-    {
-      //
     }
     healLoop();
     setTimeout(() => tickLoop(), 500);
@@ -620,9 +776,10 @@ function distanceBetween(x1, y1, x2, y2) {
         yKnock: 0, 
         health: PlayerHealth, 
         op: false, 
-        weapon: "Taser", 
+        weapon: "Sword", 
         direction, 
-        animFrame: ""
+        animFrame: "", 
+        armorType: "No"
       })
 
       //ADD PLAYER JOIN MSG

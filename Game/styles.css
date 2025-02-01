@@ -158,6 +158,17 @@ button:active:not(#up-move) {
 	top: -128px;
 }
 
+.Character_armor_sprite {
+	width: 320px;
+	height: 320px;
+	background: url(images/armor/NoArmor.png);
+	position: relative;
+	z-index: 9;
+	scale: 0.4;
+	left: -128px;
+	top: -448px;
+}
+
 .Character_weapon_sprite {
 	width: 640px;
 	height: 640px;
@@ -166,7 +177,7 @@ button:active:not(#up-move) {
 	z-index: 9;
 	scale: 0.2;
 	left: -288px;
-	top: -608px;
+	top: -928px;
 }
 
 .Character_name-container {
@@ -235,6 +246,25 @@ button:active:not(#up-move) {
 	position: relative;
 	z-index: 5;
 	scale: 0.2;
+	left: -128px;
+	top: -128px;
+}
+
+/* Powerups */
+
+.Powerup {
+	position: absolute;
+	width: 64px;
+	height: 64px;
+}
+
+.Powerup_sprite {
+	width: 320px;
+	height: 320px;
+	background: url(images/Laser.png);
+	position: relative;
+	z-index: 5;
+	scale: 0.1;
 	left: -128px;
 	top: -128px;
 }
