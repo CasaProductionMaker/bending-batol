@@ -267,7 +267,7 @@ function distanceBetween(x1, y1, x2, y2) {
               hitPlayer = thisPlayer.id;
             }
           })
-          if(thisEntity.type == "Bomb" || thisEntity.type == "BlueBomb")
+          if(thisEntity.type == "Bomb" || thisEntity.type == "BlueBomb" || thisEntity.type == "CritParticle")
           {
             firebase.database().ref("games/" + gameCode + "/entities/" + thisEntity.id).update({
               xV: thisEntity.xV * 0.95, 
@@ -299,7 +299,9 @@ function distanceBetween(x1, y1, x2, y2) {
             setTimeout(() => {
               firebase.database().ref("games/" + gameCode + "/entities/" + thisEntity.id).remove()
             }, 800)
-          } else if(hitPlayer != "") {
+          } else if(thisEntity.type == "CritParticle" && thisEntity.x > -375 && thisEntity.x < 345 && thisEntity.y > 10) {
+            firebase.database().ref("games/" + gameCode + "/entities/" + thisEntity.id).remove()
+          } else if(hitPlayer != "" && thisEntity.type != "CritParticle") {
             if(thisEntity.type == "Laser")
             {
               let damage = weaponStats[thisEntity.type].Damage;
@@ -422,7 +424,7 @@ function distanceBetween(x1, y1, x2, y2) {
       //Spawn power up
       firebase.database().ref("games/" + gameCode + "/powerups/" + summonID).set({
         x: Math.round((Math.random() * 600) - 300), 
-        y: -100, 
+        y: -300, 
         fallV: 0, 
         owner: playerId, 
         type: getPowerUpToDrop(), 
@@ -532,7 +534,28 @@ function distanceBetween(x1, y1, x2, y2) {
           if(((direction == 1 && myX - thisPlayer.x > -60 && myX - thisPlayer.x < 0) || (direction == -1 && myX - thisPlayer.x < 60 && myX - thisPlayer.x > 0)) && Math.abs(myY - thisPlayer.y) < 40)
           {
             let damage = weaponStats[players[playerId].weapon].Damage;
+            let isCrit = false;
+            if(yVel > 1)
+            {
+              damage *= 2;
+              isCrit = true;
+            }
             damage *= (1 - armorStats[thisPlayer.armorType].DamageReduction);
+            if(isCrit)
+            {
+              for (var i = 0; i < Math.ceil(damage / 5 * 3); i++) {
+                firebase.database().ref(`games/` + gameCode + `/entities/` + summonID).set({
+                  x: thisPlayer.x, 
+                  y: thisPlayer.y, 
+                  xV: (Math.random() * 20) - 10, 
+                  yV: (Math.random() * -5) - 5, 
+                  type: "CritParticle", 
+                  owner: playerId, 
+                  id: summonID
+                })
+                summonID++;
+              }
+            }
             firebase.database().ref("games/" + gameCode + "/players/" + thisPlayer.id).update({
               health: thisPlayer.health - damage, 
               xKnock: ((thisPlayer.x - players[playerId].x) / (Math.abs(thisPlayer.x - players[playerId].x) == 0 ? 1 : Math.abs(thisPlayer.x - players[playerId].x))) * 10, 
@@ -654,6 +677,7 @@ function distanceBetween(x1, y1, x2, y2) {
         let top = ((thisEntity.y - myY) + ((screenDim.y / 2) - 16)) + "px";
         if(el != undefined) el.style.transform = `translate3d(${left}, ${top}, 0)`;
         el.querySelector(".Entity_sprite").style.background = "url(images/" + thisEntity.type + ".png)";
+        if(thisEntity.type == "CritParticle") el.querySelector(".Entity_sprite").style.scale = "0.1";
       })
     })
     allEntitiesRef.on("child_added", (snapshot) => {
