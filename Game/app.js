@@ -227,21 +227,21 @@ function distanceBetween(x1, y1, x2, y2) {
       //Move player
       if(isD || isRight)
       {
-        xVel += 1.5
+        xVel += 2
         direction = 1;
       }
       if(isA || isLeft)
       {
-        xVel -= 1.5
+        xVel -= 2
         direction = -1;
       }
       if((isW || isUp) && myY == 0 && yVel == 0)
       {
-        yVel = -10
+        yVel = -15
       }
       xVel *= 0.8;
       if(Math.abs(xVel) < 0.01) xVel = 0;
-      yVel += 1;
+      yVel += 1.25;
       handleMovement(xVel, 0);
       handleMovement(0, yVel);
       myX = players[playerId].x;
