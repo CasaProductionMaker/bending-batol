@@ -1,0 +1,23 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": false, 
+    "players": {
+      "$uid": {
+        ".write": "auth != null"
+      }
+    }, 
+    "coins": {
+      ".write": "auth != null"
+    },
+    "potions": {
+      ".write": "auth != null"
+    }, 
+    "chat": {
+      ".write": "auth != null"
+    }, 
+    "items": {
+      ".write": "auth != null"
+    }
+  }
+}

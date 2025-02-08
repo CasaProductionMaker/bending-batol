@@ -5,13 +5,13 @@ if(localStorage.getItem("TheBattleGame") == null)
 
 //import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 const firebaseConfig = {
-  apiKey: "AIzaSyDmjog1nfuAAcL9qP7M7vwdnzTWbb5qSpY",
-  authDomain: "hakattak-74dea.firebaseapp.com",
-  databaseURL: "https://hakattak-74dea-default-rtdb.firebaseio.com",
-  projectId: "hakattak-74dea",
-  storageBucket: "hakattak-74dea.firebasestorage.app",
-  messagingSenderId: "184893472817",
-  appId: "1:184893472817:web:801e4e8303d9838f22d510"
+  apiKey: "AIzaSyDBKwQRTu3xsHZjuzW3TFZFdHlGwbhttqY",
+  authDomain: "test-game-eba29.firebaseapp.com",
+  databaseURL: "https://test-game-eba29-default-rtdb.firebaseio.com",
+  projectId: "test-game-eba29",
+  storageBucket: "test-game-eba29.firebasestorage.app",
+  messagingSenderId: "118728291028",
+  appId: "1:118728291028:web:3f0a0dc3ee48dbcb304141"
 };
 // Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
@@ -43,6 +43,7 @@ let direction = 1;
 let summonID = 0;
 let appliedKnock = true;
 let isDead = false;
+let Bombs = [0, 0]
 
 //Time
 let startTime = new Date();
@@ -104,18 +105,22 @@ function randomFromArray(array) {
 function getPowerUpToDrop() {
   let powerup = "Health";
   let RNG = Math.random() * 100;
-  if(RNG < 25) {
+  if(RNG < 20) {
     powerup = "Health";
-  } else if(RNG < 45) {
+  } else if(RNG < 40) {
     powerup = "Taser";
-  } else if(RNG < 55) {
+  } else if(RNG < 50) {
     powerup = "Mace";
-  } else if(RNG < 70) {
+  } else if(RNG < 60) {
     powerup = "LaserGun";
-  } else if(RNG < 85) {
+  } else if(RNG < 70) {
+    powerup = "Bomb";
+  } else if(RNG < 80) {
     powerup = "GreenArmor";
-  } else if(RNG < 95) {
+  } else if(RNG < 90) {
     powerup = "AquaArmor";
+  } else if(RNG < 95) {
+    powerup = "BlueBomb";
   } else if(RNG < 100) {
     powerup = "BlueArmor";
   }
@@ -387,6 +392,10 @@ function distanceBetween(x1, y1, x2, y2) {
                 firebase.database().ref(`games/` + gameCode + `/players/` + thisPlayer.id).update({
                   armorType: "Blue"
                 })
+              } else if(thisPowerup.type == "Bomb") {
+                Bombs[0] += 3;
+              } else if(thisPowerup.type == "BlueBomb") {
+                Bombs[1] += 3;
               }
               firebase.database().ref("games/" + gameCode + "/powerups/" + thisPowerup.id).update({
                 framesAlive: 250
@@ -467,6 +476,7 @@ function distanceBetween(x1, y1, x2, y2) {
       }
       el.style.transform = `translate3d(${left}, ${top}, 0)`;
     })
+    document.querySelector(".player-info").innerHTML = "Bombs: " + Bombs[0] + "<br>Blue Bombs: " + Bombs[1];
     //repeat
     setTimeout(() => {
       renderLoop();
@@ -579,16 +589,36 @@ function distanceBetween(x1, y1, x2, y2) {
       }
     }, () => {isSpace = false;})
     new KeyPressListener("KeyB", () => {
-      firebase.database().ref(`games/` + gameCode + `/entities/` + summonID).set({
-        x: players[playerId].x, 
-        y: players[playerId].y, 
-        xV: players[playerId].direction * ((Math.random() * 4) + 10), 
-        yV: (Math.random() * -4) - 8, 
-        type: "Bomb", 
-        owner: playerId, 
-        id: summonID
-      })
-      summonID++;
+      if(Bombs[0] > 0)
+      {
+        firebase.database().ref(`games/` + gameCode + `/entities/` + summonID).set({
+          x: players[playerId].x, 
+          y: players[playerId].y, 
+          xV: players[playerId].direction * ((Math.random() * 4) + 10), 
+          yV: (Math.random() * -4) - 8, 
+          type: "Bomb", 
+          owner: playerId, 
+          id: summonID
+        })
+        summonID++;
+        Bombs[0]--;
+      }
+    }, () => {})
+    new KeyPressListener("KeyN", () => {
+      if(Bombs[1] > 0)
+      {
+        firebase.database().ref(`games/` + gameCode + `/entities/` + summonID).set({
+          x: players[playerId].x, 
+          y: players[playerId].y, 
+          xV: players[playerId].direction * ((Math.random() * 4) + 10), 
+          yV: (Math.random() * -4) - 8, 
+          type: "BlueBomb", 
+          owner: playerId, 
+          id: summonID
+        })
+        summonID++;
+        Bombs[1]--;
+      }
     }, () => {})
 
     const allPlayersRef = firebase.database().ref(`games/` + gameCode + `/players`);
@@ -714,6 +744,7 @@ function distanceBetween(x1, y1, x2, y2) {
         let top = ((thisPowerup.y - myY) + ((screenDim.y / 2) - 16)) + "px";
         if(el != undefined) el.style.transform = `translate3d(${left}, ${top}, 0)`;
         if(el != undefined && thisPowerup.type != undefined) el.querySelector(".Powerup_sprite").style.background = "url(images/powerups/" + (thisPowerup.type || "Sword") + ".png)";
+        if(el != undefined && (thisPowerup.type == "Bomb" || thisPowerup.type == "BlueBomb")) el.querySelector(".Powerup_sprite").style.scale = "0.2";
         if(thisPowerup.framesAlive >= 250)
         {
           firebase.database().ref("games/" + gameCode + "/powerups/" + thisPowerup.id).remove()

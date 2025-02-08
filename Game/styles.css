@@ -57,7 +57,12 @@ h3 {
 /* Player Customization */
 
 .player-info {
-	
+	position: absolute;
+	text-align: right;
+	top: 5px;
+	right: 5px;
+	font-weight: bold;
+	font-size: 18px;
 }
 
 /* Chat */
